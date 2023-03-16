@@ -22,7 +22,13 @@ jobs:
         go-version: 1.19
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v
+      
+    - name: Install Air
+      run: go install github.com/cosmtrek/air@latest
+      
+    - name: Install Swagga
+      run: go install github.com/swaggo/swag/cmd/swag@latest
 
     - name: Test
       run: go test -v ./...
