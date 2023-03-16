@@ -3,3 +3,6 @@ dev:
 
 swagger:
 	swag init --dir ./,./handlers
+
+testing:
+	go test -v ./...

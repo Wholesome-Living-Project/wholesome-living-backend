@@ -22,3 +22,7 @@ A GoLang backend using Fiber and MongoDB for the Wholesome living Project
 
 - ```make dev``` - runs the server in development mode
 - ```make swagger``` - generates the swagger docs
+- ```make test``` - runs the tests
+
+### Testing
+Run test ```make test``` or ```go test ./...``` 
