@@ -20,3 +20,6 @@
 # air
 tmp/
 
+#vendor
+vendor/
+

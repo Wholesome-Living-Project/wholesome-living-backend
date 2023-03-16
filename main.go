@@ -5,7 +5,7 @@ import (
 	_ "github.com/Wholesome-Living-Project/wholesome-living-backend/docs"
 )
 
-// @title The Better Backend Template
+// @title Wholesome Living Backend
 // @version 0.1
 // @description An example template of a Golang backend API using Fiber and MongoDB
 // @contact.name Ben Davis

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "An example template of a Golang backend API using Fiber and MongoDB",
-        "title": "The Better Backend Template",
+        "title": "Wholesome Living Backend",
         "contact": {
             "name": "Ben Davis"
         },
@@ -186,6 +186,40 @@
                     }
                 }
             }
+        },
+        "/user": {
+            "post": {
+                "description": "creates a user and returns it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a user.",
+                "parameters": [
+                    {
+                        "description": "Todo to create",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateUserResDTO"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -211,6 +245,52 @@
             "properties": {
                 "inserted_id": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.CreateUserDTO": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handlers.CreateUserResDTO": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "boolean"
                 }
             }
         },

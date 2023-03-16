@@ -16,6 +16,36 @@ definitions:
       inserted_id:
         type: string
     type: object
+  handlers.CreateUserDTO:
+    properties:
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: boolean
+    type: object
+  handlers.CreateUserResDTO:
+    properties:
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: boolean
+    type: object
   handlers.DeleteTodoResDTO:
     properties:
       deleted_count:
@@ -57,7 +87,7 @@ info:
   description: An example template of a Golang backend API using Fiber and MongoDB
   license:
     name: MIT
-  title: The Better Backend Template
+  title: Wholesome Living Backend
   version: "0.1"
 paths:
   /health:
@@ -174,4 +204,26 @@ paths:
       summary: Update a todo.
       tags:
       - todos
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: creates a user and returns it.
+      parameters:
+      - description: Todo to create
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CreateUserResDTO'
+      summary: Create a user.
+      tags:
+      - user
 swagger: "2.0"

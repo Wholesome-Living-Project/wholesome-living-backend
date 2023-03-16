@@ -15,4 +15,8 @@ func SetupRoutes(app *fiber.App) {
 	todos.Put("/:id", handlers.HandleUpdateTodo)
 	todos.Get("/:id", handlers.HandleGetOneTodo)
 	todos.Delete("/:id", handlers.HandleDeleteTodo)
+
+	// user management
+	user := app.Group("/user")
+	user.Post("/", handlers.HandleCreateUser)
 }
