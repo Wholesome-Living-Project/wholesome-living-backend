@@ -40,7 +40,7 @@ func HandleCreateUser(c *fiber.Ctx) error {
 type CreateUserDTO struct {
 	ID          string `json:"id" bson:"_id"`
 	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    bool   `json:"lastName" bson:"lastName"`
+	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string `json:"email" bson:"email"`
 	CreatedAt   string `json:"createdAt" bson:"createdAt"`
@@ -49,7 +49,7 @@ type CreateUserDTO struct {
 type CreateUserResDTO struct {
 	ID          string `json:"id" bson:"_id"`
 	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    bool   `json:"lastName" bson:"lastName"`
+	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string `json:"email" bson:"email"`
 	CreatedAt   string `json:"createdAt" bson:"createdAt"`
