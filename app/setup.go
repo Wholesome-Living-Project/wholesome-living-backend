@@ -3,9 +3,9 @@ package app
 import (
 	"os"
 
-	"github.com/bmdavis419/the-better-backend/config"
-	"github.com/bmdavis419/the-better-backend/database"
-	"github.com/bmdavis419/the-better-backend/router"
+	"github.com/Wholesome-Living-Project/wholesome-living-backend/config"
+	"github.com/Wholesome-Living-Project/wholesome-living-backend/database"
+	"github.com/Wholesome-Living-Project/wholesome-living-backend/router"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
