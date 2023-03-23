@@ -98,7 +98,7 @@ type UpdateTodoResDTO struct {
 // @Param id path string true "Todo ID"
 // @Produce json
 // @Success 200 {object} UpdateTodoResDTO
-// @Router /todos/:id [put]
+// @Router /todos/{id} [put]
 func HandleUpdateTodo(c *fiber.Ctx) error {
 	// get the id from the request params
 	id := c.Params("id")
@@ -134,7 +134,7 @@ func HandleUpdateTodo(c *fiber.Ctx) error {
 // @Param id path string true "Todo ID"
 // @Produce json
 // @Success 200 {object} models.Todo
-// @Router /todos/:id [get]
+// @Router /todos/{id} [get]
 func HandleGetOneTodo(c *fiber.Ctx) error {
 	// get the id from the request params
 	id := c.Params("id")
@@ -166,7 +166,7 @@ type DeleteTodoResDTO struct {
 // @Param id path string true "Todo ID"
 // @Produce json
 // @Success 200 {object} DeleteTodoResDTO
-// @Router /todos/:id [delete]
+// @Router /todos/{id} [delete]
 func HandleDeleteTodo(c *fiber.Ctx) error {
 	// get the id from the request params
 	id := c.Params("id")
