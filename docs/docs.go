@@ -40,6 +40,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/meditation": {
+            "post": {
+                "description": "Creates a new meditation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meditation"
+                ],
+                "summary": "Create medi.",
+                "parameters": [
+                    {
+                        "description": "Todo to create",
+                        "name": "meditation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateMeditationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/todos": {
             "get": {
                 "description": "fetch every todo available.",
@@ -229,6 +260,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.CreateMeditationDTO": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.CreateTodoDTO": {
             "type": "object",
             "properties": {
@@ -273,7 +327,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lastName": {
-                    "type": "boolean"
+                    "type": "string"
                 }
             }
         },
@@ -296,7 +350,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lastName": {
-                    "type": "boolean"
+                    "type": "string"
                 }
             }
         },

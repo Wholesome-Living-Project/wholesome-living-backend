@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  handlers.CreateMeditationDTO:
+    properties:
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+    type: object
   handlers.CreateTodoDTO:
     properties:
       completed:
@@ -29,7 +44,7 @@ definitions:
       id:
         type: string
       lastName:
-        type: boolean
+        type: string
     type: object
   handlers.CreateUserResDTO:
     properties:
@@ -44,7 +59,7 @@ definitions:
       id:
         type: string
       lastName:
-        type: boolean
+        type: string
     type: object
   handlers.DeleteTodoResDTO:
     properties:
@@ -103,6 +118,26 @@ paths:
       summary: Show the status of server.
       tags:
       - health
+  /meditation:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new meditation.
+      parameters:
+      - description: Todo to create
+        in: body
+        name: meditation
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateMeditationDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Create medi.
+      tags:
+      - meditation
   /todos:
     get:
       consumes:
