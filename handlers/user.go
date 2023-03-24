@@ -77,7 +77,7 @@ func HandleGetUser(c *fiber.Ctx) error {
 	}
 
 	// fetch the user from the database
-	coll := database.GetCollection("users")
+	coll := database.GetCollection("user")
 	filter := bson.M{"_id": dbId}
 	var user models.User
 	err = coll.FindOne(c.Context(), filter).Decode(&user)
