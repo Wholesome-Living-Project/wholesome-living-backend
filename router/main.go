@@ -23,5 +23,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// meditation management
 	meditation := app.Group("/meditation")
-	meditation.Post("/", handlers.HandleCreateMeditation)
+	meditation.Post("/:id", handlers.HandleCreateMeditation)
+	meditation.Get("/:id", handlers.HandleGetMeditation)
 }

@@ -40,33 +40,65 @@ const docTemplate = `{
                 }
             }
         },
-        "/meditation": {
-            "post": {
-                "description": "Creates a new meditation.",
-                "consumes": [
+        "/meditation/{id}": {
+            "get": {
+                "description": "fetch a single user.",
+                "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meditationo ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new meditation.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "meditation"
                 ],
-                "summary": "Create medi.",
                 "parameters": [
                     {
-                        "description": "Todo to create",
+                        "description": "Meditation to create",
                         "name": "meditation",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/handlers.CreateMeditationDTO"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Meditation"
+                        }
                     }
                 }
             }
@@ -129,7 +161,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/todos/:id": {
+        "/todos/{id}": {
             "get": {
                 "description": "fetch a single todo.",
                 "produces": [
@@ -257,28 +289,42 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "fetch a single user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get a single user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "handlers.CreateMeditationDTO": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
+                "meditationTime": {
                     "type": "string"
                 }
             }
@@ -323,9 +369,6 @@ const docTemplate = `{
                 "firstName": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
                 "lastName": {
                     "type": "string"
                 }
@@ -334,22 +377,7 @@ const docTemplate = `{
         "handlers.CreateUserResDTO": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
+                "inserted_id": {
                     "type": "string"
                 }
             }
@@ -387,11 +415,51 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Meditation": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meditationTime": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Todo": {
             "type": "object",
             "properties": {
                 "completed": {
                     "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "string"
                 },
                 "date": {
                     "type": "string"

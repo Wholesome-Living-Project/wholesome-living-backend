@@ -2,17 +2,7 @@ basePath: /
 definitions:
   handlers.CreateMeditationDTO:
     properties:
-      createdAt:
-        type: string
-      dateOfBirth:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      lastName:
+      meditationTime:
         type: string
     type: object
   handlers.CreateTodoDTO:
@@ -41,24 +31,12 @@ definitions:
         type: string
       firstName:
         type: string
-      id:
-        type: string
       lastName:
         type: string
     type: object
   handlers.CreateUserResDTO:
     properties:
-      createdAt:
-        type: string
-      dateOfBirth:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      lastName:
+      inserted_id:
         type: string
     type: object
   handlers.DeleteTodoResDTO:
@@ -82,10 +60,36 @@ definitions:
       updated_count:
         type: integer
     type: object
+  models.Meditation:
+    properties:
+      completed:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      meditationTime:
+        type: string
+      user_id:
+        type: string
+    type: object
   models.Todo:
     properties:
       completed:
         type: boolean
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
+  models.User:
+    properties:
+      completed:
+        type: string
       date:
         type: string
       description:
@@ -118,24 +122,45 @@ paths:
       summary: Show the status of server.
       tags:
       - health
-  /meditation:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new meditation.
+  /meditation/{id}:
+    get:
+      description: fetch a single user.
       parameters:
-      - description: Todo to create
-        in: body
-        name: meditation
+      - description: Meditationo ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/handlers.CreateMeditationDTO'
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-      summary: Create medi.
+          schema:
+            $ref: '#/definitions/models.User'
+      tags:
+      - user
+    post:
+      description: Creates a new meditation.
+      parameters:
+      - description: Meditation to create
+        in: body
+        name: meditation
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateMeditationDTO'
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Meditation'
       tags:
       - meditation
   /todos:
@@ -176,7 +201,7 @@ paths:
       summary: Create a todo.
       tags:
       - todos
-  /todos/:id:
+  /todos/{id}:
     delete:
       description: delete a single todo by id.
       parameters:
@@ -259,6 +284,25 @@ paths:
           schema:
             $ref: '#/definitions/handlers.CreateUserResDTO'
       summary: Create a user.
+      tags:
+      - user
+  /user/{id}:
+    get:
+      description: fetch a single user.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Get a single user.
       tags:
       - user
 swagger: "2.0"
