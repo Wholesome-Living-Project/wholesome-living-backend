@@ -2,7 +2,7 @@ package meditation
 
 import "github.com/gofiber/fiber/v2"
 
-func MeditationRoutes(app *fiber.App, controller *MeditationController) {
+func Routes(app *fiber.App, controller *Controller) {
 	meditation := app.Group("/meditation")
 
 	// add middlewares here

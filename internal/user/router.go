@@ -2,7 +2,7 @@ package user
 
 import "github.com/gofiber/fiber/v2"
 
-func AddUserRoutes(app *fiber.App, controller *UserController) {
+func Routes(app *fiber.App, controller *Controller) {
 	user := app.Group("/users")
 
 	// add middlewares here

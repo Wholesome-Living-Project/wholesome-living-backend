@@ -5,12 +5,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserController struct {
-	storage *UserStorage
+type Controller struct {
+	storage *Storage
 }
 
-func NewUserController(storage *UserStorage) *UserController {
-	return &UserController{
+func NewUserController(storage *Storage) *Controller {
+	return &Controller{
 		storage: storage,
 	}
 }
@@ -31,7 +31,7 @@ type createUserResponse struct {
 // @Param user body createUserRequest true "User to create"
 // @Success 200 {object} createUserResponse
 // @Router /users [post]
-func (t *UserController) create(c *fiber.Ctx) error {
+func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	var req createUserRequest
 
@@ -44,7 +44,7 @@ func (t *UserController) create(c *fiber.Ctx) error {
 	}
 
 	//create user
-	id, err := t.storage.createUser(req.Name, c.Context())
+	id, err := t.storage.create(req.Name, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to create user",
@@ -62,9 +62,9 @@ func (t *UserController) create(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} []userDB
 // @Router /users [get]
-func (t *UserController) getAll(c *fiber.Ctx) error {
+func (t *Controller) getAll(c *fiber.Ctx) error {
 	// get all users
-	users, err := t.storage.getAllUsers(c.Context())
+	users, err := t.storage.getAll(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to get users",

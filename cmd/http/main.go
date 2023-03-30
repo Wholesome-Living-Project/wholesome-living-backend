@@ -104,14 +104,14 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// create the user domain
-	userStore := user.NewUserStorage(db)
+	userStore := user.NewStorage(db)
 	userController := user.NewUserController(userStore)
-	user.AddUserRoutes(app, userController)
+	user.Routes(app, userController)
 
 	//create meditation domain
 	meditationStore := meditation.NewMediationStorage(db)
 	meditationController := meditation.NewMeditationController(meditationStore)
-	meditation.MeditationRoutes(app, meditationController)
+	meditation.Routes(app, meditationController)
 
 	return app, func() {
 		err := storage.CloseMongo(db)

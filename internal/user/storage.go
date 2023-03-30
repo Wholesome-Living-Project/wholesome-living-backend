@@ -10,21 +10,25 @@ import (
 
 // how the user is stored in the database
 type userDB struct {
-	ID   primitive.ObjectID `bson:"_id" json:"id"`
-	Name string             `bson:"name" json:"name"`
+	FirstName   string `json:"firstName" bson:"firstName"`
+	LastName    string `json:"lastName" bson:"lastName"`
+	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string `json:"email" bson:"email"`
+	CreatedAt   string `json:"createdAt" bson:"createdAt"`
+	ID          string `json:"id" bson:"id"`
 }
 
-type UserStorage struct {
+type Storage struct {
 	db *mongo.Database
 }
 
-func NewUserStorage(db *mongo.Database) *UserStorage {
-	return &UserStorage{
+func NewStorage(db *mongo.Database) *Storage {
+	return &Storage{
 		db: db,
 	}
 }
 
-func (s *UserStorage) createUser(name string, ctx context.Context) (string, error) {
+func (s *Storage) create(name string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("users")
 
 	result, err := collection.InsertOne(ctx, bson.M{"name": name})
@@ -36,7 +40,7 @@ func (s *UserStorage) createUser(name string, ctx context.Context) (string, erro
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *UserStorage) getAllUsers(ctx context.Context) ([]userDB, error) {
+func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
 	collection := s.db.Collection("users")
 
 	cursor, err := collection.Find(ctx, bson.M{})
