@@ -6,12 +6,12 @@ Backend for Wholesome Living
 
 -   go
 -   task
--   Wholesome Living-backend (repo)
+-   Wholesome-Living-backend (repo)
 
 #### 1. Step: Clone the repository
 
 ```bash
-git clone git@github.com:Wholesome Living-social/Wholesome Living-backend.git
+git clone https://github.com/Wholesome-Living-Project/wholesome-living-backend.git 
 ```
 
 #### 2. Step: Install task
