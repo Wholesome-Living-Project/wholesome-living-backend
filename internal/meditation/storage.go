@@ -14,17 +14,17 @@ type meditationDB struct {
 	Name string             `bson:"name" json:"name"`
 }
 
-type MediationStorage struct {
+type Storage struct {
 	db *mongo.Database
 }
 
-func NewMediationStorage(db *mongo.Database) *MediationStorage {
-	return &MediationStorage{
+func NewStorage(db *mongo.Database) *Storage {
+	return &Storage{
 		db: db,
 	}
 }
 
-func (s *MediationStorage) createMediation(name string, ctx context.Context) (string, error) {
+func (s *Storage) create(name string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("mediation")
 
 	result, err := collection.InsertOne(ctx, bson.M{"name": name})
@@ -36,7 +36,7 @@ func (s *MediationStorage) createMediation(name string, ctx context.Context) (st
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *MediationStorage) getAllMeditations(ctx context.Context) ([]meditationDB, error) {
+func (s *Storage) getAll(ctx context.Context) ([]meditationDB, error) {
 	collection := s.db.Collection("meditation")
 
 	cursor, err := collection.Find(ctx, bson.M{})

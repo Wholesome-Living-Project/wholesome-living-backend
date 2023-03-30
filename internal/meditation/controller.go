@@ -8,10 +8,10 @@ import (
 )
 
 type Controller struct {
-	storage *MediationStorage
+	storage *Storage
 }
 
-func NewController(storage *MediationStorage) *Controller {
+func NewController(storage *Storage) *Controller {
 	return &Controller{
 		storage: storage,
 	}
