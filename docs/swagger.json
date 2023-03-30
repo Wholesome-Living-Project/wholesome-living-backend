@@ -13,12 +13,81 @@
     },
     "basePath": "/",
     "paths": {
+        "/meditation": {
+            "post": {
+                "description": "Creates a new meditation.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meditation"
+                ],
+                "summary": "Create meditation.",
+                "parameters": [
+                    {
+                        "description": "Meditation to create",
+                        "name": "meditation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/meditation/{id}": {
+            "get": {
+                "description": "fetch a single meditation session.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meditation"
+                ],
+                "summary": "Get a meditation session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meditation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/meditation.meditationResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "description": "fetch every user available.",
-                "consumes": ["*/*"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Get all users.",
                 "responses": {
                     "200": {
@@ -34,9 +103,15 @@
             },
             "post": {
                 "description": "creates one user.",
-                "consumes": ["*/*"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Create one user.",
                 "parameters": [
                     {
@@ -61,6 +136,39 @@
         }
     },
     "definitions": {
+        "meditation.createMeditationRequest": {
+            "type": "object",
+            "properties": {
+                "meditationTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "meditation.createMeditationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "meditation.meditationResponse": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "meditationTime": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "user.createUserRequest": {
             "type": "object",
             "properties": {
