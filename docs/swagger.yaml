@@ -7,7 +7,15 @@ definitions:
     type: object
   user.createUserRequest:
     properties:
-      name:
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
         type: string
     type: object
   user.createUserResponse:
@@ -95,6 +103,27 @@ paths:
           schema:
             $ref: '#/definitions/user.createUserResponse'
       summary: Create one user.
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - '*/*'
+      description: fetch a user by id.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.userDB'
+      summary: Get a user.
       tags:
       - users
 swagger: "2.0"

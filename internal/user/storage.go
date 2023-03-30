@@ -54,13 +54,14 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 
 func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
 	collection := s.db.Collection("users")
-	result, err := collection.Find(ctx, bson.M{"id": id})
+	result := collection.FindOne(ctx, bson.M{"id": id})
 	user := userDB{}
-	if err != nil {
-		return user, err
+
+	if result.Err() != nil {
+		return user, result.Err()
 	}
 
-	if err = result.All(ctx, &user); err != nil {
+	if err := result.Decode(&user); err != nil {
 		return user, err
 	}
 
