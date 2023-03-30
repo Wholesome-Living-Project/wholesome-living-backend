@@ -1,10 +1,10 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "A backend for voya.social written in Golang backend API using Fiber and MongoDB",
-        "title": "Voya Backend",
+        "description": "A backend for Wholesome Living written in Golang backend API using Fiber and MongoDB",
+        "title": "Wholesome Living Backend",
         "contact": {
-            "name": "voya.social"
+            "name": "Wholesome Living"
         },
         "license": {
             "name": "MIT"
@@ -16,15 +16,9 @@
         "/users": {
             "get": {
                 "description": "fetch every user available.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
+                "consumes": ["*/*"],
+                "produces": ["application/json"],
+                "tags": ["users"],
                 "summary": "Get all users.",
                 "responses": {
                     "200": {
@@ -40,15 +34,9 @@
             },
             "post": {
                 "description": "creates one user.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
+                "consumes": ["*/*"],
+                "produces": ["application/json"],
+                "tags": ["users"],
                 "summary": "Create one user.",
                 "parameters": [
                     {

@@ -19,10 +19,10 @@ import (
 	"time"
 )
 
-// @title Voya Backend
+// @title Wholesome Living Backend
 // @version 0.1
-// @description A backend for voya.social written in Golang backend API using Fiber and MongoDB
-// @contact.name voya.social
+// @description A backend for Wholesome Living written in Golang backend API using Fiber and MongoDB
+// @contact.name Wholesome Living
 // @license.name MIT
 // @BasePath /
 func main() {

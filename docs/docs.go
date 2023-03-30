@@ -11,7 +11,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "voya.social"
+            "name": "Wholesome Living"
         },
         "license": {
             "name": "MIT"
@@ -117,8 +117,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Voya Backend",
-	Description:      "A backend for voya.social written in Golang backend API using Fiber and MongoDB",
+	Title:            "Wholesome Living Backend",
+	Description:      "A backend for Wholesome Living written in Golang backend API using Fiber and MongoDB",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }
