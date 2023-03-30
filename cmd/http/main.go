@@ -3,9 +3,9 @@ package main
 import (
 	"cmd/http/main.go/config"
 	_ "cmd/http/main.go/docs"
+	"cmd/http/main.go/internal/meditation"
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
-	"cmd/http/main.go/internal/meditation"
 	"cmd/http/main.go/pkg/shutdown"
 
 	"github.com/gofiber/fiber/v2"
@@ -109,9 +109,9 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	user.AddUserRoutes(app, userController)
 
 	//create meditation domain
-	meditationStore:=mediation.NewMediationStorage(db)
-	meditationController := mediation.NewMeditationController(meditationStore)
-	mediation.AddUserRoutes(app, meditationController)
+	meditationStore := meditation.NewMediationStorage(db)
+	meditationController := meditation.NewMeditationController(meditationStore)
+	meditation.MeditationRoutes(app, meditationController)
 
 	return app, func() {
 		err := storage.CloseMongo(db)
