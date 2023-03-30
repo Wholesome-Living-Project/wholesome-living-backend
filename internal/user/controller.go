@@ -16,10 +16,18 @@ func NewUserController(storage *Storage) *Controller {
 }
 
 type createUserRequest struct {
-	Name string `json:"name"`
+	FirstName   string `json:"firstName" bson:"firstName"`
+	LastName    string `json:"lastName" bson:"lastName"`
+	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string `json:"email" bson:"email"`
+	ID          string `json:"id" bson:"id"`
 }
 
 type createUserResponse struct {
+	ID string `json:"id"`
+}
+
+type getUserRequest struct {
 	ID string `json:"id"`
 }
 
@@ -44,7 +52,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	}
 
 	//create user
-	id, err := t.storage.create(req.Name, c.Context())
+	id, err := t.storage.create(req, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to create user",
@@ -53,6 +61,38 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(createUserResponse{
 		ID: id,
 	})
+}
+
+// @Summary Get a user.
+// @Description fetch a user by id.
+// @Tags users
+// @Accept */*
+// @Produce json
+// @Success 200 {object} userDB
+// @Router /users [get]
+func (t *Controller) get(c *fiber.Ctx) error {
+	c.Request().Header.Set("Content-Type", "application/json")
+
+	var req getUserRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+			"err":     err,
+		})
+	}
+
+	// get users
+	user, err := t.storage.get(req.ID, c.Context())
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get users",
+		})
+	}
+
+	return c.JSON(user)
 }
 
 // @Summary Get all users.

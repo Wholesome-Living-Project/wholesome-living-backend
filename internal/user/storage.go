@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,16 +29,34 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(name string, ctx context.Context) (string, error) {
+func (s *Storage) create(createUserObject createUserRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("users")
 
-	result, err := collection.InsertOne(ctx, bson.M{"name": name})
+	createdAt := time.Now().Format("2006-01-02 15:04:05")
+
+	result, err := collection.InsertOne(ctx, bson.M{"firstName": createUserObject.FirstName, "lastName": createUserObject.LastName, "dateOfBirth": createUserObject.DateOfBirth, "email": createUserObject.DateOfBirth, "createdAt": createdAt, "id": createUserObject.ID})
 	if err != nil {
 		return "", err
 	}
 
 	// convert the object id to a string
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
+}
+
+func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
+	collection := s.db.Collection("users")
+	result, err := collection.Find(ctx, bson.M{"id": id})
+	user := userDB{}
+	if err != nil {
+		return user, err
+	}
+
+	if err = result.All(ctx, &user); err != nil {
+		return user, err
+	}
+
+	return user, nil
+
 }
 
 func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
