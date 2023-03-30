@@ -9,7 +9,7 @@ type Controller struct {
 	storage *Storage
 }
 
-func NewUserController(storage *Storage) *Controller {
+func NewController(storage *Storage) *Controller {
 	return &Controller{
 		storage: storage,
 	}
