@@ -53,14 +53,14 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	}
 
 	//create user
-	id, err := t.storage.create(req, c.Context())
+	_, err := t.storage.create(req, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to create user",
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(createUserResponse{
-		ID: id,
+		ID: req.ID,
 	})
 }
 
@@ -69,23 +69,14 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Tags users
 // @Accept */*
 // @Produce json
+// @Param id path string true "User ID"
 // @Success 200 {object} userDB
-// @Router /users [get]
+// @Router /users/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
-	c.Request().Header.Set("Content-Type", "application/json")
-
-	var req getUserRequest
-
-	if err := c.BodyParser(&req); err != nil {
-		fmt.Println(err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-			"err":     err,
-		})
-	}
+	id := c.Params("id")
 
 	// get users
-	user, err := t.storage.get(req.ID, c.Context())
+	user, err := t.storage.get(id, c.Context())
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
