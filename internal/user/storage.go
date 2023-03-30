@@ -34,7 +34,16 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 
 	createdAt := time.Now().Format("2006-01-02 15:04:05")
 
-	result, err := collection.InsertOne(ctx, bson.M{"firstName": createUserObject.FirstName, "lastName": createUserObject.LastName, "dateOfBirth": createUserObject.DateOfBirth, "email": createUserObject.DateOfBirth, "createdAt": createdAt, "id": createUserObject.ID})
+	insertObj := userDB{
+		FirstName:   createUserObject.FirstName,
+		LastName:    createUserObject.LastName,
+		DateOfBirth: createUserObject.DateOfBirth,
+		Email:       createUserObject.Email,
+		CreatedAt:   createdAt,
+		ID:          createUserObject.ID,
+	}
+
+	result, err := collection.InsertOne(ctx, insertObj)
 	if err != nil {
 		return "", err
 	}
