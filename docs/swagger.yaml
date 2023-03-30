@@ -1,35 +1,4 @@
 basePath: /
-definitions:
-  meditation.meditationResponse:
-    properties:
-      meditationId:
-        type: string
-    type: object
-  user.createUserRequest:
-    properties:
-      name:
-        type: string
-    type: object
-  user.createUserResponse:
-    properties:
-      id:
-        type: string
-    type: object
-  user.userDB:
-    properties:
-      createdAt:
-        type: string
-      dateOfBirth:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      lastName:
-        type: string
-    type: object
 info:
   contact:
     name: Wholesome Living
@@ -39,62 +8,5 @@ info:
     name: MIT
   title: Wholesome Living Backend
   version: "0.1"
-paths:
-  /meditation/{id}:
-    get:
-      description: fetch a single meditation session.
-      parameters:
-      - description: Meditation ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/meditation.meditationResponse'
-      summary: Get a meditation session
-      tags:
-      - meditation
-  /users:
-    get:
-      consumes:
-      - '*/*'
-      description: fetch every user available.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/user.userDB'
-            type: array
-      summary: Get all users.
-      tags:
-      - users
-    post:
-      consumes:
-      - '*/*'
-      description: creates one user.
-      parameters:
-      - description: User to create
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/user.createUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/user.createUserResponse'
-      summary: Create one user.
-      tags:
-      - users
+paths: {}
 swagger: "2.0"
