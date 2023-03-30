@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// how the user is stored in the database
+// how a meditation is stored in the database
 type meditationDB struct {
 	ID   primitive.ObjectID `bson:"_id" json:"id"`
 	Name string             `bson:"name" json:"name"`
@@ -44,7 +44,7 @@ func (s *MediationStorage) getAllMeditations(ctx context.Context) ([]meditationD
 		return nil, err
 	}
 
-	users := make([]meditationDB, 0)
+	meditations := make([]meditationDB, 0)
 	if err = cursor.All(ctx, &meditations); err != nil {
 		return nil, err
 	}
