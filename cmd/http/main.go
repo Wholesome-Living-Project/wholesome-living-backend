@@ -8,16 +8,14 @@ import (
 	"cmd/http/main.go/internal/user"
 	"cmd/http/main.go/pkg/shutdown"
 
+	"fmt"
+	"os"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
-)
-
-import (
-	"fmt"
-	"os"
-	"time"
 )
 
 // @title Wholesome Living Backend
@@ -110,7 +108,7 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	//create meditation domain
 	meditationStore := meditation.NewStorage(db)
-	meditationController := meditation.NewMeditationController(meditationStore)
+	meditationController := meditation.NewController(meditationStore)
 	meditation.Routes(app, meditationController)
 
 	return app, func() {

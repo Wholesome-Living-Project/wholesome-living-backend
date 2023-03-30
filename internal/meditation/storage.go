@@ -24,10 +24,10 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(name string, ctx context.Context) (string, error) {
+func (s *Storage) create(request createMeditationRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("mediation")
 
-	result, err := collection.InsertOne(ctx, bson.M{"name": name})
+	result, err := collection.InsertOne(ctx, request)
 	if err != nil {
 		return "", err
 	}

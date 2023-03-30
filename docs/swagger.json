@@ -13,40 +13,6 @@
     },
     "basePath": "/",
     "paths": {
-        "/meditation": {
-            "post": {
-                "description": "Creates a new meditation.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "meditation"
-                ],
-                "summary": "Create meditation.",
-                "parameters": [
-                    {
-                        "description": "Meditation to create",
-                        "name": "meditation",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/meditation.createMeditationRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/meditation.createMeditationResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/meditation/{id}": {
             "get": {
                 "description": "fetch a single meditation session.",
@@ -136,35 +102,10 @@
         }
     },
     "definitions": {
-        "meditation.createMeditationRequest": {
-            "type": "object",
-            "properties": {
-                "meditationTime": {
-                    "type": "string"
-                }
-            }
-        },
-        "meditation.createMeditationResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
         "meditation.meditationResponse": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "meditationTime": {
-                    "type": "string"
-                },
-                "userId": {
+                "meditationId": {
                     "type": "string"
                 }
             }
@@ -188,10 +129,22 @@
         "user.userDB": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "lastName": {
                     "type": "string"
                 }
             }

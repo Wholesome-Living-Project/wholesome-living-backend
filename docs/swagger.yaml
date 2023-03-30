@@ -1,24 +1,8 @@
 basePath: /
 definitions:
-  meditation.createMeditationRequest:
-    properties:
-      meditationTime:
-        type: string
-    type: object
-  meditation.createMeditationResponse:
-    properties:
-      id:
-        type: string
-    type: object
   meditation.meditationResponse:
     properties:
-      completed:
-        type: string
-      date:
-        type: string
-      meditationTime:
-        type: string
-      userId:
+      meditationId:
         type: string
     type: object
   user.createUserRequest:
@@ -33,9 +17,17 @@ definitions:
     type: object
   user.userDB:
     properties:
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
       id:
         type: string
-      name:
+      lastName:
         type: string
     type: object
 info:
@@ -48,28 +40,6 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
-  /meditation:
-    post:
-      consumes:
-      - '*/*'
-      description: Creates a new meditation.
-      parameters:
-      - description: Meditation to create
-        in: body
-        name: meditation
-        required: true
-        schema:
-          $ref: '#/definitions/meditation.createMeditationRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/meditation.createMeditationResponse'
-      summary: Create meditation.
-      tags:
-      - meditation
   /meditation/{id}:
     get:
       description: fetch a single meditation session.

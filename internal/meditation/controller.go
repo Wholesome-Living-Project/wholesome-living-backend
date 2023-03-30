@@ -1,10 +1,10 @@
 package meditation
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 type Controller struct {
@@ -18,18 +18,17 @@ func NewController(storage *Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
+	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
+	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string             `json:"endTime" bson:"endTime"`
 }
 
 type createMeditationResponse struct {
-	ID primitive.ObjectID `json:"id" bson:"_id"`
+	ID string `json:"id"`
 }
 
 type meditationResponse struct {
-	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
-	LastName       string             `json:"completed" bson:"completed"`
-	CreatedAt      string             `json:"date" bson:"date"`
-	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
+	MeditationID primitive.ObjectID `json:"meditationId" bson:"meditationId"`
 }
 
 // @Summary Create meditation.
@@ -40,43 +39,29 @@ type meditationResponse struct {
 // @Param meditation body createMeditationRequest true "Meditation to create"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
+
 func (t *Controller) create(c *fiber.Ctx) error {
-	newMeditation := new(MeditationResDTO)
-	if err := c.BodyParser(newMeditation); err != nil {
-		return c.Status(400).JSON(fiber.Map{"bad input": err.Error()})
+	c.Request().Header.Set("Content-Type", "application/json")
+	var req createMeditationRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+			"err":     err,
+		})
 	}
 
-	givenUserId := c.Params("id")
-	// decode the user id
-	// todo not working yet check if it is a valid id
-	dbId, err := primitive.ObjectIDFromHex(givenUserId)
+	// create meditation record
+	id, err := t.storage.create(req, c.Context())
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"invalid id": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to create user",
+		})
 	}
-
-	// TODO use new storage functions for geting and seting db info
-
-	// fetch the user from the database
-	coll := database.GetCollection("user")
-	filter := bson.M{"_id": dbId}
-	var user models.User
-	err = coll.FindOne(c.Context(), filter).Decode(&user)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	newMeditation.CreatedAt = time.Now().GoString()
-	newMeditation.UserID = dbId
-
-	// insert the user into the database
-	collMedi := database.GetCollection("meditation")
-	res, err := collMedi.InsertOne(c.Context(), newMeditation)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"internal server error": err.Error()})
-	}
-
-	// return the inserted user
-	return c.Status(200).JSON(fiber.Map{"inserted_id": res.InsertedID})
+	return c.Status(fiber.StatusCreated).JSON(createMeditationResponse{
+		ID: id,
+	})
 }
 
 // @Summary Get a meditation session
@@ -88,21 +73,9 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Router /meditation/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	// get the id from the request params
-	id := c.Params("id")
-	dbId, err := primitive.ObjectIDFromHex(id)
+	var err error = nil
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"invalid id": err.Error()})
+		return c.Status(fiber.StatusBadGateway).JSON("{}")
 	}
-
-	// fetch the user from the database
-	coll := database.GetCollection("meditation")
-	filter := bson.M{"_id": dbId}
-	var meditation models.Meditation
-	err = coll.FindOne(c.Context(), filter).Decode(&meditation)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	// return the user
-	return c.Status(200).JSON(meditation)
+	return c.Status(fiber.StatusOK).JSON("{}")
 }
