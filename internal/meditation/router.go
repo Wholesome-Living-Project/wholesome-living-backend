@@ -11,4 +11,5 @@ func Routes(app *fiber.App, controller *Controller) {
 	meditation.Post("/", controller.create)
 	meditation.Get("/", controller.get)
 	meditation.Get("/", controller.get)
+	meditation.Get("/:meditationID", controller.get)
 }

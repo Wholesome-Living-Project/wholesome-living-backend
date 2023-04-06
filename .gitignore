@@ -1,9 +1,12 @@
 # Windows specific stuff
-.DS_Store 
+.DS_Store
 
 # old config files
 .env
 .env.example
+
+# Idea
+.idea
 
 # Log files 
 *.log

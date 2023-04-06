@@ -31,6 +31,17 @@ type meditationResponse struct {
 	MeditationID primitive.ObjectID `json:"meditationId" bson:"meditationId"`
 }
 
+type getMeditationResponse struct {
+	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
+	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string             `json:"endTime" bson:"endTime"`
+}
+
+// TODO check if needed
+type getMeditationRequest struct {
+	MeditationID string `json:"meditationId" bson:"meditationId"`
+}
+
 // @Summary Create meditation.
 // @Description Creates a new meditation.
 // @Tags meditation
@@ -39,7 +50,6 @@ type meditationResponse struct {
 // @Param meditation body createMeditationRequest true "Meditation to create"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
-
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	var req createMeditationRequest
@@ -72,10 +82,22 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Success 200 {object} meditationResponse
 // @Router /meditation/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
-	// get the id from the request params
-	var err error = nil
-	if err != nil {
-		return c.Status(fiber.StatusBadGateway).JSON("{}")
+	c.Request().Header.Set("Content-Type", "application/json")
+
+	meditationID := c.Params("meditationID")
+	if meditationID == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get meditations",
+		})
 	}
-	return c.Status(fiber.StatusOK).JSON("{}")
+
+	// create meditation record
+	user, err := t.storage.get(meditationID, c.Context())
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to fetch meditation",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(user)
 }
