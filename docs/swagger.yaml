@@ -21,13 +21,13 @@ definitions:
     type: object
   user.createUserRequest:
     properties:
-      _id:
-        type: string
       dateOfBirth:
         type: string
       email:
         type: string
       firstName:
+        type: string
+      id:
         type: string
       lastName:
         type: string
@@ -64,8 +64,6 @@ definitions:
     type: object
   user.userDB:
     properties:
-      _id:
-        type: string
       createdAt:
         type: string
       dateOfBirth:
@@ -73,6 +71,8 @@ definitions:
       email:
         type: string
       firstName:
+        type: string
+      id:
         type: string
       lastName:
         type: string

@@ -241,9 +241,6 @@ const docTemplate = `{
         "user.createUserRequest": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "dateOfBirth": {
                     "type": "string"
                 },
@@ -251,6 +248,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "lastName": {
@@ -306,9 +306,6 @@ const docTemplate = `{
         "user.userDB": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -319,6 +316,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "lastName": {

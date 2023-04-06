@@ -16,7 +16,7 @@ type userDB struct {
 	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string       `json:"email" bson:"email"`
 	CreatedAt   string       `json:"createdAt" bson:"createdAt"`
-	ID          string       `json:"_id" bson:"_id"`
+	ID          string       `json:"id" bson:"_id"`
 	Plugins     []pluginType `json:"plugins" bson:"plugins"`
 }
 

@@ -27,7 +27,7 @@ type createUserRequest struct {
 	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string `json:"email" bson:"email"`
-	ID          string `json:"_id" bson:"_id"`
+	ID          string `json:"id" bson:"_id"`
 }
 
 type createUserResponse struct {
@@ -68,8 +68,6 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"err":     err,
 		})
 	}
-
-	fmt.Println(req)
 
 	//create user
 	_, err := t.storage.create(req, c.Context())

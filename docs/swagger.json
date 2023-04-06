@@ -233,9 +233,6 @@
         "user.createUserRequest": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "dateOfBirth": {
                     "type": "string"
                 },
@@ -243,6 +240,9 @@
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "lastName": {
@@ -298,9 +298,6 @@
         "user.userDB": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -311,6 +308,9 @@
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "lastName": {
