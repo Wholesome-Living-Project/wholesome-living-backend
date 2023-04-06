@@ -61,8 +61,6 @@ func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
 	result := collection.FindOne(ctx, bson.M{"_id": id})
 	user := userDB{}
 
-	fmt.Println(result.Err())
-
 	if result.Err() != nil {
 		return user, result.Err()
 	}
@@ -94,8 +92,6 @@ func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
 func (s *Storage) update(user userDB, ctx context.Context) (userDB, error) {
 	collection := s.db.Collection("users")
 	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "plugins": user.Plugins}}, nil)
-
-	fmt.Println(result.Err())
 
 	if result.Err() != nil {
 		return user, result.Err()
