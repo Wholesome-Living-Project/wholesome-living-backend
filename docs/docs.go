@@ -21,6 +21,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/meditation": {
+            "post": {
+                "description": "Creates a new meditation.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meditation"
+                ],
+                "summary": "Create meditation.",
+                "parameters": [
+                    {
+                        "description": "Meditation to create",
+                        "name": "meditation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/meditation/{id}": {
             "get": {
                 "description": "fetch a single meditation session.",
@@ -71,6 +105,38 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/user.userDB"
                             }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update a user by id.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update a user.",
+                "parameters": [
+                    {
+                        "description": "User to update",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.updateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.userDB"
                         }
                     }
                 }
@@ -142,6 +208,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "meditation.createMeditationRequest": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "meditationTime": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "meditation.createMeditationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "meditation.meditationResponse": {
             "type": "object",
             "properties": {
@@ -153,6 +241,9 @@ const docTemplate = `{
         "user.createUserRequest": {
             "type": "object",
             "properties": {
+                "_id": {
+                    "type": "string"
+                },
                 "dateOfBirth": {
                     "type": "string"
                 },
@@ -160,9 +251,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "lastName": {
@@ -178,12 +266,20 @@ const docTemplate = `{
                 }
             }
         },
-        "user.userDB": {
+        "user.pluginType": {
+            "type": "string",
+            "enum": [
+                "meditation",
+                "workout"
+            ],
+            "x-enum-varnames": [
+                "PluginTypeMeditation",
+                "PluginTypeWorkout"
+            ]
+        },
+        "user.updateUserRequest": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
                 "dateOfBirth": {
                     "type": "string"
                 },
@@ -198,6 +294,41 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
+                }
+            }
+        },
+        "user.userDB": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
                 }
             }
         }
