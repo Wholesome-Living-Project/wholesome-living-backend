@@ -1,87 +1,32 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "An example template of a Golang backend API using Fiber and MongoDB",
+        "description": "A backend for Wholesome Living written in Golang backend API using Fiber and MongoDB",
         "title": "Wholesome Living Backend",
         "contact": {
-            "name": "Ben Davis"
+            "name": "Wholesome Living"
         },
         "license": {
             "name": "MIT"
         },
         "version": "0.1"
     },
-    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/health": {
-            "get": {
-                "description": "get the status of server.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Show the status of server.",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/meditation/{id}": {
             "get": {
-                "description": "fetch a single user.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Meditationo ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new meditation.",
+                "description": "fetch a single meditation session.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "meditation"
                 ],
+                "summary": "Get a meditation session",
                 "parameters": [
                     {
-                        "description": "Meditation to create",
-                        "name": "meditation",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.CreateMeditationDTO"
-                        }
-                    },
-                    {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "Meditation ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -91,15 +36,15 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Meditation"
+                            "$ref": "#/definitions/meditation.meditationResponse"
                         }
                     }
                 }
             }
         },
-        "/todos": {
+        "/users": {
             "get": {
-                "description": "fetch every todo available.",
+                "description": "fetch every user available.",
                 "consumes": [
                     "*/*"
                 ],
@@ -107,170 +52,41 @@
                     "application/json"
                 ],
                 "tags": [
-                    "todos"
+                    "users"
                 ],
-                "summary": "Get all todos.",
+                "summary": "Get all users.",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Todo"
+                                "$ref": "#/definitions/user.userDB"
                             }
                         }
                     }
                 }
             },
             "post": {
-                "description": "create a single todo.",
+                "description": "creates one user.",
                 "consumes": [
-                    "application/json"
+                    "*/*"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "todos"
+                    "users"
                 ],
-                "summary": "Create a todo.",
+                "summary": "Create one user.",
                 "parameters": [
                     {
-                        "description": "Todo to create",
-                        "name": "todo",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.CreateTodoDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.CreateTodoResDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/todos/{id}": {
-            "get": {
-                "description": "fetch a single todo.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "todos"
-                ],
-                "summary": "Get a single todo.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Todo ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Todo"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "update a single todo.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "todos"
-                ],
-                "summary": "Update a todo.",
-                "parameters": [
-                    {
-                        "description": "Todo update data",
-                        "name": "todo",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.UpdateTodoDTO"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Todo ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.UpdateTodoResDTO"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete a single todo by id.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "todos"
-                ],
-                "summary": "Delete a single todo.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Todo ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.DeleteTodoResDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/user": {
-            "post": {
-                "description": "creates a user and returns it.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Create a user.",
-                "parameters": [
-                    {
-                        "description": "Todo to create",
+                        "description": "User to create",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateUserDTO"
+                            "$ref": "#/definitions/user.createUserRequest"
                         }
                     }
                 ],
@@ -278,22 +94,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateUserResDTO"
+                            "$ref": "#/definitions/user.createUserResponse"
                         }
                     }
                 }
             }
         },
-        "/user/{id}": {
+        "/users/{id}": {
             "get": {
-                "description": "fetch a single user.",
+                "description": "fetch a user by id.",
+                "consumes": [
+                    "*/*"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
-                "summary": "Get a single user.",
+                "summary": "Get a user.",
                 "parameters": [
                     {
                         "type": "string",
@@ -307,7 +126,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/user.userDB"
                         }
                     }
                 }
@@ -315,40 +134,43 @@
         }
     },
     "definitions": {
-        "handlers.CreateMeditationDTO": {
+        "meditation.meditationResponse": {
             "type": "object",
             "properties": {
-                "meditationTime": {
+                "meditationId": {
                     "type": "string"
                 }
             }
         },
-        "handlers.CreateTodoDTO": {
+        "user.createUserRequest": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "boolean"
-                },
-                "date": {
+                "dateOfBirth": {
                     "type": "string"
                 },
-                "description": {
+                "email": {
                     "type": "string"
                 },
-                "title": {
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
                     "type": "string"
                 }
             }
         },
-        "handlers.CreateTodoResDTO": {
+        "user.createUserResponse": {
             "type": "object",
             "properties": {
-                "inserted_id": {
+                "id": {
                     "type": "string"
                 }
             }
         },
-        "handlers.CreateUserDTO": {
+        "user.userDB": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -363,108 +185,10 @@
                 "firstName": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "lastName": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.CreateUserResDTO": {
-            "type": "object",
-            "properties": {
-                "inserted_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.DeleteTodoResDTO": {
-            "type": "object",
-            "properties": {
-                "deleted_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handlers.UpdateTodoDTO": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.UpdateTodoResDTO": {
-            "type": "object",
-            "properties": {
-                "updated_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.Meditation": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "meditationTime": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Todo": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "title": {
                     "type": "string"
                 }
             }

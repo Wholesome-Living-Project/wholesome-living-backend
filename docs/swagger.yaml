@@ -1,27 +1,29 @@
 basePath: /
 definitions:
-  handlers.CreateMeditationDTO:
+  meditation.meditationResponse:
     properties:
-      meditationTime:
+      meditationId:
         type: string
     type: object
-  handlers.CreateTodoDTO:
+  user.createUserRequest:
     properties:
-      completed:
-        type: boolean
-      date:
+      dateOfBirth:
         type: string
-      description:
+      email:
         type: string
-      title:
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
         type: string
     type: object
-  handlers.CreateTodoResDTO:
+  user.createUserResponse:
     properties:
-      inserted_id:
+      id:
         type: string
     type: object
-  handlers.CreateUserDTO:
+  user.userDB:
     properties:
       createdAt:
         type: string
@@ -31,102 +33,26 @@ definitions:
         type: string
       firstName:
         type: string
+      id:
+        type: string
       lastName:
         type: string
     type: object
-  handlers.CreateUserResDTO:
-    properties:
-      inserted_id:
-        type: string
-    type: object
-  handlers.DeleteTodoResDTO:
-    properties:
-      deleted_count:
-        type: integer
-    type: object
-  handlers.UpdateTodoDTO:
-    properties:
-      completed:
-        type: boolean
-      date:
-        type: string
-      description:
-        type: string
-      title:
-        type: string
-    type: object
-  handlers.UpdateTodoResDTO:
-    properties:
-      updated_count:
-        type: integer
-    type: object
-  models.Meditation:
-    properties:
-      completed:
-        type: string
-      date:
-        type: string
-      id:
-        type: string
-      meditationTime:
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.Todo:
-    properties:
-      completed:
-        type: boolean
-      date:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      title:
-        type: string
-    type: object
-  models.User:
-    properties:
-      completed:
-        type: string
-      date:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      title:
-        type: string
-    type: object
-host: localhost:8080
 info:
   contact:
-    name: Ben Davis
-  description: An example template of a Golang backend API using Fiber and MongoDB
+    name: Wholesome Living
+  description: A backend for Wholesome Living written in Golang backend API using
+    Fiber and MongoDB
   license:
     name: MIT
   title: Wholesome Living Backend
   version: "0.1"
 paths:
-  /health:
-    get:
-      consumes:
-      - '*/*'
-      description: get the status of server.
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: OK
-      summary: Show the status of server.
-      tags:
-      - health
   /meditation/{id}:
     get:
-      description: fetch a single user.
+      description: fetch a single meditation session.
       parameters:
-      - description: Meditationo ID
+      - description: Meditation ID
         in: path
         name: id
         required: true
@@ -137,37 +63,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
-      tags:
-      - user
-    post:
-      description: Creates a new meditation.
-      parameters:
-      - description: Meditation to create
-        in: body
-        name: meditation
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.CreateMeditationDTO'
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Meditation'
+            $ref: '#/definitions/meditation.meditationResponse'
+      summary: Get a meditation session
       tags:
       - meditation
-  /todos:
+  /users:
     get:
       consumes:
       - '*/*'
-      description: fetch every todo available.
+      description: fetch every user available.
       produces:
       - application/json
       responses:
@@ -175,120 +79,37 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Todo'
+              $ref: '#/definitions/user.userDB'
             type: array
-      summary: Get all todos.
+      summary: Get all users.
       tags:
-      - todos
+      - users
     post:
       consumes:
-      - application/json
-      description: create a single todo.
+      - '*/*'
+      description: creates one user.
       parameters:
-      - description: Todo to create
-        in: body
-        name: todo
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.CreateTodoDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.CreateTodoResDTO'
-      summary: Create a todo.
-      tags:
-      - todos
-  /todos/{id}:
-    delete:
-      description: delete a single todo by id.
-      parameters:
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.DeleteTodoResDTO'
-      summary: Delete a single todo.
-      tags:
-      - todos
-    get:
-      description: fetch a single todo.
-      parameters:
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Todo'
-      summary: Get a single todo.
-      tags:
-      - todos
-    put:
-      consumes:
-      - application/json
-      description: update a single todo.
-      parameters:
-      - description: Todo update data
-        in: body
-        name: todo
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.UpdateTodoDTO'
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.UpdateTodoResDTO'
-      summary: Update a todo.
-      tags:
-      - todos
-  /user:
-    post:
-      consumes:
-      - application/json
-      description: creates a user and returns it.
-      parameters:
-      - description: Todo to create
+      - description: User to create
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateUserDTO'
+          $ref: '#/definitions/user.createUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CreateUserResDTO'
-      summary: Create a user.
+            $ref: '#/definitions/user.createUserResponse'
+      summary: Create one user.
       tags:
-      - user
-  /user/{id}:
+      - users
+  /users/{id}:
     get:
-      description: fetch a single user.
+      consumes:
+      - '*/*'
+      description: fetch a user by id.
       parameters:
       - description: User ID
         in: path
@@ -301,8 +122,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
-      summary: Get a single user.
+            $ref: '#/definitions/user.userDB'
+      summary: Get a user.
       tags:
-      - user
+      - users
 swagger: "2.0"

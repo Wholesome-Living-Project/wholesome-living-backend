@@ -1,3 +1,16 @@
+# Windows specific stuff
+.DS_Store
+
+# old config files
+.env
+.env.example
+
+# Idea
+.idea
+
+# Log files 
+*.log
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -14,12 +27,6 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# env
-.env
-
-# air
-tmp/
-
-#vendor
-vendor/
+# temp dircetory
+tmp
 
