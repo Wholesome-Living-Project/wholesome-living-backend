@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -16,7 +16,7 @@ type userDB struct {
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string `json:"email" bson:"email"`
 	CreatedAt   string `json:"createdAt" bson:"createdAt"`
-	ID          string `json:"id" bson:"id"`
+	ID          string `json:"_id" bson:"_id"`
 }
 
 type Storage struct {
@@ -45,16 +45,17 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 
 	result, err := collection.InsertOne(ctx, insertObj)
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 
 	// convert the object id to a string
-	return result.InsertedID.(primitive.ObjectID).Hex(), nil
+	return result.InsertedID.(string), nil
 }
 
 func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
 	collection := s.db.Collection("users")
-	result := collection.FindOne(ctx, bson.M{"id": id})
+	result := collection.FindOne(ctx, bson.M{"_id": id})
 	user := userDB{}
 
 	if result.Err() != nil {

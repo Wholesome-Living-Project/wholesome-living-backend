@@ -20,15 +20,15 @@ type createUserRequest struct {
 	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string `json:"email" bson:"email"`
-	ID          string `json:"id" bson:"id"`
+	ID          string `json:"_id" bson:"_id"`
 }
 
 type createUserResponse struct {
-	ID string `json:"id"`
+	ID string `json:"_id"`
 }
 
 type getUserRequest struct {
-	ID string `json:"id"`
+	ID string `json:"_id"`
 }
 
 // @Summary Create one user.
@@ -41,6 +41,8 @@ type getUserRequest struct {
 // @Router /users [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
+
+	fmt.Println(c.Request())
 	var req createUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
@@ -50,6 +52,8 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"err":     err,
 		})
 	}
+
+	fmt.Println(req)
 
 	//create user
 	_, err := t.storage.create(req, c.Context())
@@ -72,7 +76,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Success 200 {object} userDB
 // @Router /users/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("_id")
 
 	// get users
 	user, err := t.storage.get(id, c.Context())
