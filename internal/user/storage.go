@@ -58,6 +58,8 @@ func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
 	result := collection.FindOne(ctx, bson.M{"_id": id})
 	user := userDB{}
 
+	fmt.Println(result.Err())
+
 	if result.Err() != nil {
 		return user, result.Err()
 	}

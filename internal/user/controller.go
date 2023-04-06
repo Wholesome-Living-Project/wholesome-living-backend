@@ -24,11 +24,11 @@ type createUserRequest struct {
 }
 
 type createUserResponse struct {
-	ID string `json:"_id"`
+	ID string `json:"id"`
 }
 
 type getUserRequest struct {
-	ID string `json:"_id"`
+	ID string `json:"id"`
 }
 
 // @Summary Create one user.
@@ -76,7 +76,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Success 200 {object} userDB
 // @Router /users/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
-	id := c.Params("_id")
+	id := c.Params("id")
 
 	// get users
 	user, err := t.storage.get(id, c.Context())
