@@ -18,9 +18,9 @@ func NewController(storage *Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
-	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string             `json:"endTime" bson:"endTime"`
+	UserID         string `json:"userId" bson:"userId"`
+	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string `json:"endTime" bson:"endTime"`
 }
 
 type createMeditationResponse struct {
@@ -62,11 +62,14 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
+	// check if user exists
+	// TODO
+
 	// create meditation record
 	id, err := t.storage.create(req, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to create user",
+			"message": "Failed to create Meditation",
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(createMeditationResponse{
