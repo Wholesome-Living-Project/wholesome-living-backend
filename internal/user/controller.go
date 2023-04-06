@@ -5,6 +5,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type pluginType string
+
+const (
+	PluginTypeMeditation pluginType = "meditation"
+	PluginTypeWorkout    pluginType = "workout"
+)
+
 type Controller struct {
 	storage *Storage
 }
@@ -29,6 +36,15 @@ type createUserResponse struct {
 
 type getUserRequest struct {
 	ID string `json:"id"`
+}
+
+type updateUserRequest struct {
+	ID          string       `json:"id" bson:"_id"`
+	FirstName   string       `json:"firstName" bson:"firstName"`
+	LastName    string       `json:"lastName" bson:"lastName"`
+	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string       `json:"email" bson:"email"`
+	Plugins     []pluginType `json:"plugins" bson:"plugins"`
 }
 
 // @Summary Create one user.
@@ -107,4 +123,74 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(users)
+}
+
+// @Summary Update a user.
+// @Description update a user by id.
+// @Tags users
+// @Accept */*
+// @Produce json
+// @Param user body updateUserRequest true "User to update"
+// @Success 200 {object} userDB
+// @Router /users [put]
+func (t *Controller) update(c *fiber.Ctx) error {
+	c.Request().Header.Set("Content-Type", "application/json")
+
+	// Parse the update request from the request body
+	var req updateUserRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+			"err":     err,
+		})
+	}
+
+	// Fetch the existing user from the database
+	user, err := t.storage.get(req.ID, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "User Does Not Exist",
+		})
+	}
+
+	// Update the user object with the new values
+	if req.FirstName != "" {
+		user.FirstName = req.FirstName
+	}
+	if req.LastName != "" {
+		user.LastName = req.LastName
+	}
+	if req.DateOfBirth != "" {
+		user.DateOfBirth = req.DateOfBirth
+	}
+	if req.Email != "" {
+		user.Email = req.Email
+	}
+	if len(req.Plugins) > 0 {
+		if !isValidPlugins(req.Plugins) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Invalid plugins",
+			})
+		}
+		user.Plugins = req.Plugins
+	}
+
+	// Update the user in the database
+	result, err := t.storage.update(user, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to update user",
+		})
+	}
+
+	return c.JSON(result)
+}
+
+func isValidPlugins(plugins []pluginType) bool {
+	for _, p := range plugins {
+		if p != PluginTypeMeditation && p != PluginTypeWorkout {
+			return false
+		}
+	}
+	return true
 }

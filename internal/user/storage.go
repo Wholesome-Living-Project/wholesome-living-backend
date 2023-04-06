@@ -11,12 +11,13 @@ import (
 
 // how the user is stored in the database
 type userDB struct {
-	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    string `json:"lastName" bson:"lastName"`
-	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string `json:"email" bson:"email"`
-	CreatedAt   string `json:"createdAt" bson:"createdAt"`
-	ID          string `json:"_id" bson:"_id"`
+	FirstName   string       `json:"firstName" bson:"firstName"`
+	LastName    string       `json:"lastName" bson:"lastName"`
+	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string       `json:"email" bson:"email"`
+	CreatedAt   string       `json:"createdAt" bson:"createdAt"`
+	ID          string       `json:"_id" bson:"_id"`
+	Plugins     []pluginType `json:"plugins" bson:"plugins"`
 }
 
 type Storage struct {
@@ -33,6 +34,7 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 	collection := s.db.Collection("users")
 
 	createdAt := time.Now().Format("2006-01-02 15:04:05")
+	var plugins []pluginType
 
 	insertObj := userDB{
 		FirstName:   createUserObject.FirstName,
@@ -41,6 +43,7 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 		Email:       createUserObject.Email,
 		CreatedAt:   createdAt,
 		ID:          createUserObject.ID,
+		Plugins:     plugins,
 	}
 
 	result, err := collection.InsertOne(ctx, insertObj)
@@ -86,4 +89,22 @@ func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
 	}
 
 	return users, nil
+}
+
+func (s *Storage) update(user userDB, ctx context.Context) (userDB, error) {
+	collection := s.db.Collection("users")
+	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "plugins": user.Plugins}}, nil)
+
+	fmt.Println(result.Err())
+
+	if result.Err() != nil {
+		return user, result.Err()
+	}
+
+	if err := result.Decode(&user); err != nil {
+		return user, err
+	}
+
+	return user, nil
+
 }

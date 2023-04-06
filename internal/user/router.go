@@ -9,6 +9,7 @@ func Routes(app *fiber.App, controller *Controller) {
 
 	// add routes here
 	user.Post("/", controller.create)
+	user.Put("/", controller.update)
 	user.Get("/", controller.getAll)
 	user.Get("/:id", controller.get)
 }
