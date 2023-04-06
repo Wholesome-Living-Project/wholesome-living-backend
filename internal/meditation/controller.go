@@ -62,14 +62,13 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	// check if user exists
-	// TODO
-
+	//TODO correct error handling
 	// create meditation record
 	id, err := t.storage.create(req, c.Context())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to create Meditation",
+			"err":     err,
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(createMeditationResponse{

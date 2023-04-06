@@ -2,7 +2,6 @@ package meditation
 
 import (
 	"context"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,8 +32,17 @@ func NewStorage(db *mongo.Database) *Storage {
 
 func (s *Storage) create(request createMeditationRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("mediation")
+	userCollection := s.db.Collection("users")
+
+	//Check if user exists
+	userResult := userCollection.FindOne(ctx, bson.M{"_id": request.UserID})
+
+	if err := userResult.Err(); err != nil {
+		return "", err
+	}
 
 	result, err := collection.InsertOne(ctx, request)
+
 	if err != nil {
 		return "", err
 	}
