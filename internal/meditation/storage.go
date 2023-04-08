@@ -2,6 +2,7 @@ package meditation
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,7 +32,7 @@ func NewStorage(db *mongo.Database) *Storage {
 }
 
 func (s *Storage) create(request createMeditationRequest, ctx context.Context) (string, error) {
-	collection := s.db.Collection("mediation")
+	collection := s.db.Collection("meditation")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
@@ -52,7 +53,7 @@ func (s *Storage) create(request createMeditationRequest, ctx context.Context) (
 }
 
 func (s *Storage) get(meditationID string, ctx context.Context) (MeditationRecord, error) {
-	collection := s.db.Collection("mediation")
+	collection := s.db.Collection("meditation")
 	meditationRecord := MeditationRecord{}
 
 	objectID, err := primitive.ObjectIDFromHex(meditationID)
@@ -72,18 +73,36 @@ func (s *Storage) get(meditationID string, ctx context.Context) (MeditationRecor
 	return meditationRecord, nil
 }
 
-func (s *Storage) getAll(ctx context.Context) ([]meditationDB, error) {
+func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]MeditationRecord, error) {
 	collection := s.db.Collection("meditation")
+	userCollection := s.db.Collection("users")
 
-	cursor, err := collection.Find(ctx, bson.M{})
+	//Check if user exists
+	userResult := userCollection.FindOne(ctx, bson.M{"_id": userID})
+
+	if err := userResult.Err(); err != nil {
+		fmt.Println("Error finding user:", err)
+		return nil, err
+	}
+
+	cursor, err := collection.Find(ctx, bson.M{"userId": userID})
 	if err != nil {
 		return nil, err
 	}
+	defer cursor.Close(ctx)
 
-	meditations := make([]meditationDB, 0)
-	if err = cursor.All(ctx, &meditations); err != nil {
+	meditations := make([]MeditationRecord, 0)
+	for cursor.Next(ctx) {
+		var meditation MeditationRecord
+		if err := cursor.Decode(&meditation); err != nil {
+			return nil, err
+		}
+		meditations = append(meditations, meditation)
+	}
+	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
 
+	// return the meditation list
 	return meditations, nil
 }

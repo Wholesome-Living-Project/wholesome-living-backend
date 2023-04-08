@@ -88,7 +88,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 
 	meditationID := c.Params("meditationID")
 	if meditationID == "" {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to get meditations",
 		})
 	}
@@ -96,10 +96,37 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	// create meditation record
 	user, err := t.storage.get(meditationID, c.Context())
 	if err != nil {
-		fmt.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(user)
+}
+
+// @Summary Get all meditation session
+// @Description fetch all meditation sessions of a user.
+// @Tags meditation
+// @Param userID path string true "User ID"
+// @Produce json
+// @Success 200 {object} meditationResponse
+// @Router /meditation/getAll/{userID} [get]
+func (t *Controller) getAll(c *fiber.Ctx) error {
+	userID := c.Params("userID")
+	if userID == "" {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Provide an ID",
+		})
+	}
+	//TODO correct error handling
+	// create meditation record
+
+	// get all meditations of a user
+	meditations, err := t.storage.getAllOfOneUser(userID, c.Context())
+	if err != nil {
+		fmt.Println("errrr", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Failed to fetch meditation",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(meditations)
 }
