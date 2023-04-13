@@ -33,7 +33,7 @@ type getSpendingResponse struct {
 	Amount       string             `json:"amount" bson:"amount"`
 }
 
-// @Summary Create spending.
+// @Summary Create a spending.
 // @Description Creates a new spending.
 // @Tags finance
 // @Accept */*
@@ -67,7 +67,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Get a spending session
+// @Summary Get a single spending
 // @Description fetch a single spending session.
 // @Tags finance
 // @Param id path string true "spending ID"
@@ -94,7 +94,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(user)
 }
 
-// @Summary Get all spending session
+// @Summary Get all spendings of a user
 // @Description fetch all spending's of one user.
 // @Tags finance
 // @Param userID path string true "User ID"
