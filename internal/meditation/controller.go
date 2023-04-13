@@ -2,7 +2,6 @@ package meditation
 
 import (
 	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -27,11 +26,15 @@ type createMeditationResponse struct {
 	ID string `json:"id"`
 }
 
-type meditationResponse struct {
-	MeditationID primitive.ObjectID `json:"meditationId" bson:"meditationId"`
+type getAllMeditationResponse []struct {
+	Id             primitive.ObjectID `json:"id" bson:"_id"`
+	UserID         string             `json:"userId" bson:"userId"`
+	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string             `json:"endTime" bson:"endTime"`
 }
 
 type getMeditationResponse struct {
+	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
 	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
 	EndTime        string             `json:"endTime" bson:"endTime"`
@@ -76,7 +79,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Tags meditation
 // @Param id path string true "Meditation ID"
 // @Produce json
-// @Success 200 {object} meditationResponse
+// @Success 200 {object} getMeditationResponse
 // @Router /meditation/{id} [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
@@ -103,7 +106,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Tags meditation
 // @Param userID path string true "User ID"
 // @Produce json
-// @Success 200 {object} meditationResponse
+// @Success 200 {object} getAllMeditationResponse
 // @Router /meditation/getAll/{userID} [get]
 func (t *Controller) getAll(c *fiber.Ctx) error {
 	userID := c.Params("userID")
