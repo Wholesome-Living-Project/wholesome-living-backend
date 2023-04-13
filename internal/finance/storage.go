@@ -26,7 +26,7 @@ func NewStorage(db *mongo.Database) *Storage {
 }
 
 func (s *Storage) create(request createSpendingRequest, ctx context.Context) (string, error) {
-	collection := s.db.Collection("Spending")
+	collection := s.db.Collection("spending")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
@@ -46,11 +46,11 @@ func (s *Storage) create(request createSpendingRequest, ctx context.Context) (st
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *Storage) get(SpendingID string, ctx context.Context) (spendingDB, error) {
-	collection := s.db.Collection("Spending")
+func (s *Storage) get(spendingID string, ctx context.Context) (spendingDB, error) {
+	collection := s.db.Collection("spending")
 	db := spendingDB{}
 
-	objectID, err := primitive.ObjectIDFromHex(SpendingID)
+	objectID, err := primitive.ObjectIDFromHex(spendingID)
 	if err != nil {
 		return db, err
 	}
@@ -68,7 +68,7 @@ func (s *Storage) get(SpendingID string, ctx context.Context) (spendingDB, error
 }
 
 func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]spendingDB, error) {
-	collection := s.db.Collection("Spending")
+	collection := s.db.Collection("spending")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
