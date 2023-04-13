@@ -8,17 +8,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MeditationRecord struct {
+type meditationDB struct {
 	ID             string `json:"id" bson:"_id"`
 	UserID         string `json:"userId" bson:"userId"`
 	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
 	EndTime        string `json:"endTime" bson:"endTime"`
-}
-
-// how a meditation is stored in the database
-type meditationDB struct {
-	ID   primitive.ObjectID `bson:"_id" json:"id"`
-	Name string             `bson:"name" json:"name"`
 }
 
 type Storage struct {
@@ -52,9 +46,9 @@ func (s *Storage) create(request createMeditationRequest, ctx context.Context) (
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *Storage) get(meditationID string, ctx context.Context) (MeditationRecord, error) {
+func (s *Storage) get(meditationID string, ctx context.Context) (meditationDB, error) {
 	collection := s.db.Collection("meditation")
-	meditationRecord := MeditationRecord{}
+	meditationRecord := meditationDB{}
 
 	objectID, err := primitive.ObjectIDFromHex(meditationID)
 	if err != nil {
@@ -73,7 +67,7 @@ func (s *Storage) get(meditationID string, ctx context.Context) (MeditationRecor
 	return meditationRecord, nil
 }
 
-func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]MeditationRecord, error) {
+func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]meditationDB, error) {
 	collection := s.db.Collection("meditation")
 	userCollection := s.db.Collection("users")
 
@@ -91,9 +85,9 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 	}
 	defer cursor.Close(ctx)
 
-	meditations := make([]MeditationRecord, 0)
+	meditations := make([]meditationDB, 0)
 	for cursor.Next(ctx) {
-		var meditation MeditationRecord
+		var meditation meditationDB
 		if err := cursor.Decode(&meditation); err != nil {
 			return nil, err
 		}

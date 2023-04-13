@@ -37,11 +37,6 @@ type getMeditationResponse struct {
 	EndTime        string             `json:"endTime" bson:"endTime"`
 }
 
-// TODO check if needed
-type getMeditationRequest struct {
-	MeditationID string `json:"meditationId" bson:"meditationId"`
-}
-
 // @Summary Create meditation.
 // @Description Creates a new meditation.
 // @Tags meditation
