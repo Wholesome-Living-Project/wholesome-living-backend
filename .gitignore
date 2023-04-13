@@ -6,7 +6,7 @@
 .env.example
 
 # Idea
-.idea
+.idea/
 
 # Log files 
 *.log
@@ -26,6 +26,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+docs
 
 # temp dircetory
 tmp
