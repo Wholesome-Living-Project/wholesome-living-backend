@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmd/http/main.go/config"
+	_ "cmd/http/main.go/docs"
 	"cmd/http/main.go/internal/meditation"
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
