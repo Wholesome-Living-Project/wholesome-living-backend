@@ -108,7 +108,7 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	//create meditation domain
 	meditationStore := meditation.NewStorage(db)
-	meditationController := meditation.NewController(meditationStore)
+	meditationController := meditation.NewController(meditationStore, userStore)
 	meditation.Routes(app, meditationController)
 
 	return app, func() {

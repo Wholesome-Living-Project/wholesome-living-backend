@@ -69,11 +69,11 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	//create user
-	_, err := t.storage.create(req, c.Context())
+	//Create user
+	_, err := t.storage.Create(req, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to create user",
+			"message": "Failed to Create user",
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(createUserResponse{
@@ -87,17 +87,17 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Accept */*
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} userDB
-// @Router /users/{id} [get]
+// @Success 200 {object} UserDB
+// @Router /users/{id} [Get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	// get users
-	user, err := t.storage.get(id, c.Context())
+	// Get users
+	user, err := t.storage.Get(id, c.Context())
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to get users",
+			"message": "Failed to Get users",
 		})
 	}
 
@@ -109,14 +109,14 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Tags users
 // @Accept */*
 // @Produce json
-// @Success 200 {object} []userDB
-// @Router /users [get]
+// @Success 200 {object} []UserDB
+// @Router /users [Get]
 func (t *Controller) getAll(c *fiber.Ctx) error {
-	// get all users
-	users, err := t.storage.getAll(c.Context())
+	// Get all users
+	users, err := t.storage.GetAll(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to get users",
+			"message": "Failed to Get users",
 		})
 	}
 
@@ -129,7 +129,7 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 // @Accept */*
 // @Produce json
 // @Param user body updateUserRequest true "User to update"
-// @Success 200 {object} userDB
+// @Success 200 {object} UserDB
 // @Router /users [put]
 func (t *Controller) update(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
@@ -144,7 +144,7 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	// Fetch the existing user from the database
-	user, err := t.storage.get(req.ID, c.Context())
+	user, err := t.storage.Get(req.ID, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "User Does Not Exist",
@@ -174,7 +174,7 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	// Update the user in the database
-	result, err := t.storage.update(user, c.Context())
+	result, err := t.storage.Update(user, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to update user",

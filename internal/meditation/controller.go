@@ -1,18 +1,21 @@
 package meditation
 
 import (
+	"cmd/http/main.go/internal/user"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Controller struct {
-	storage *Storage
+	storage     *Storage
+	userStorage *user.Storage
 }
 
-func NewController(storage *Storage) *Controller {
+func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 	return &Controller{
-		storage: storage,
+		storage:     storage,
+		userStorage: userStorage,
 	}
 }
 
@@ -60,12 +63,22 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO correct error handling
-	// create meditation record
-	id, err := t.storage.create(req, c.Context())
+	//check if user exists
+	_, err := t.userStorage.Get(req.UserID, c.Context())
+
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Failed to create Meditation",
+			"message": "User does not exist",
+			"err":     err,
+		})
+	}
+
+	//TODO correct error handling
+	// Create meditation record
+	id, err := t.storage.Create(req, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Failed to Create Meditation",
 			"err":     err,
 		})
 	}
@@ -80,25 +93,25 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Param id path string true "Meditation ID"
 // @Produce json
 // @Success 200 {object} getMeditationResponse
-// @Router /meditation/{id} [get]
+// @Router /meditation/{id} [Get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 
 	meditationID := c.Params("meditationID")
 	if meditationID == "" {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Failed to get meditations",
+			"message": "Failed to Get meditations",
 		})
 	}
 
-	// create meditation record
-	user, err := t.storage.get(meditationID, c.Context())
+	// Create meditation record
+	meditation, err := t.storage.Get(meditationID, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(user)
+	return c.Status(fiber.StatusOK).JSON(meditation)
 }
 
 // @Summary Get all meditation session
@@ -107,7 +120,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Param userID path string true "User ID"
 // @Produce json
 // @Success 200 {object} getAllMeditationResponse
-// @Router /meditation/getAll/{userID} [get]
+// @Router /meditation/getAll/{userID} [Get]
 func (t *Controller) getAll(c *fiber.Ctx) error {
 	userID := c.Params("userID")
 	if userID == "" {
@@ -115,11 +128,19 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 			"message": "Provide an ID",
 		})
 	}
-	//TODO correct error handling
-	// create meditation record
 
-	// get all meditations of a user
-	meditations, err := t.storage.getAllOfOneUser(userID, c.Context())
+	//check if user exists
+	_, err := t.userStorage.Get(userID, c.Context())
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "User does not exist",
+			"err":     err,
+		})
+	}
+
+	// Get all meditations of a user
+	meditations, err := t.storage.GetAllOfOneUser(userID, c.Context())
 	if err != nil {
 		fmt.Println("errrr", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

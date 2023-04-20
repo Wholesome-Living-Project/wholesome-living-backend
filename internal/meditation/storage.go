@@ -2,13 +2,12 @@ package meditation
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type meditationDB struct {
+type MeditationDB struct {
 	ID             string `json:"id" bson:"_id"`
 	UserID         string `json:"userId" bson:"userId"`
 	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
@@ -25,16 +24,8 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request createMeditationRequest, ctx context.Context) (string, error) {
+func (s *Storage) Create(request createMeditationRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
-	userCollection := s.db.Collection("users")
-
-	//Check if user exists
-	userResult := userCollection.FindOne(ctx, bson.M{"_id": request.UserID})
-
-	if err := userResult.Err(); err != nil {
-		return "", err
-	}
 
 	result, err := collection.InsertOne(ctx, request)
 
@@ -46,9 +37,9 @@ func (s *Storage) create(request createMeditationRequest, ctx context.Context) (
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *Storage) get(meditationID string, ctx context.Context) (meditationDB, error) {
+func (s *Storage) Get(meditationID string, ctx context.Context) (MeditationDB, error) {
 	collection := s.db.Collection("meditation")
-	meditationRecord := meditationDB{}
+	meditationRecord := MeditationDB{}
 
 	objectID, err := primitive.ObjectIDFromHex(meditationID)
 	if err != nil {
@@ -67,17 +58,8 @@ func (s *Storage) get(meditationID string, ctx context.Context) (meditationDB, e
 	return meditationRecord, nil
 }
 
-func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]meditationDB, error) {
+func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]MeditationDB, error) {
 	collection := s.db.Collection("meditation")
-	userCollection := s.db.Collection("users")
-
-	//Check if user exists
-	userResult := userCollection.FindOne(ctx, bson.M{"_id": userID})
-
-	if err := userResult.Err(); err != nil {
-		fmt.Println("Error finding user:", err)
-		return nil, err
-	}
 
 	cursor, err := collection.Find(ctx, bson.M{"userId": userID})
 	if err != nil {
@@ -85,9 +67,9 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]meditat
 	}
 	defer cursor.Close(ctx)
 
-	meditations := make([]meditationDB, 0)
+	meditations := make([]MeditationDB, 0)
 	for cursor.Next(ctx) {
-		var meditation meditationDB
+		var meditation MeditationDB
 		if err := cursor.Decode(&meditation); err != nil {
 			return nil, err
 		}
