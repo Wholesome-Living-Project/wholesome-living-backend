@@ -10,7 +10,7 @@ import (
 )
 
 // how the user is stored in the database
-type userDB struct {
+type UserDB struct {
 	FirstName   string       `json:"firstName" bson:"firstName"`
 	LastName    string       `json:"lastName" bson:"lastName"`
 	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
@@ -30,13 +30,13 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(createUserObject createUserRequest, ctx context.Context) (string, error) {
+func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("users")
 
 	createdAt := time.Now().Format("2006-01-02 15:04:05")
 	var plugins []pluginType
 
-	insertObj := userDB{
+	insertObj := UserDB{
 		FirstName:   createUserObject.FirstName,
 		LastName:    createUserObject.LastName,
 		DateOfBirth: createUserObject.DateOfBirth,
@@ -56,10 +56,10 @@ func (s *Storage) create(createUserObject createUserRequest, ctx context.Context
 	return result.InsertedID.(string), nil
 }
 
-func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
+func (s *Storage) Get(id string, ctx context.Context) (UserDB, error) {
 	collection := s.db.Collection("users")
 	result := collection.FindOne(ctx, bson.M{"_id": id})
-	user := userDB{}
+	user := UserDB{}
 
 	if result.Err() != nil {
 		return user, result.Err()
@@ -73,7 +73,7 @@ func (s *Storage) get(id string, ctx context.Context) (userDB, error) {
 
 }
 
-func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
+func (s *Storage) GetAll(ctx context.Context) ([]UserDB, error) {
 	collection := s.db.Collection("users")
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -81,7 +81,7 @@ func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
 		return nil, err
 	}
 
-	users := make([]userDB, 0)
+	users := make([]UserDB, 0)
 	if err = cursor.All(ctx, &users); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *Storage) getAll(ctx context.Context) ([]userDB, error) {
 	return users, nil
 }
 
-func (s *Storage) update(user userDB, ctx context.Context) (userDB, error) {
+func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
 	collection := s.db.Collection("users")
 	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "plugins": user.Plugins}}, nil)
 
