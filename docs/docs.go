@@ -83,13 +83,13 @@ const docTemplate = `{
                                 "type": "object",
                                 "properties": {
                                     "endTime": {
-                                        "type": "string"
+                                        "type": "integer"
                                     },
                                     "id": {
                                         "type": "string"
                                     },
                                     "meditationTime": {
-                                        "type": "string"
+                                        "type": "integer"
                                     },
                                     "userId": {
                                         "type": "string"
@@ -149,7 +149,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.userDB"
+                                "$ref": "#/definitions/user.UserDB"
                             }
                         }
                     }
@@ -182,7 +182,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.userDB"
+                            "$ref": "#/definitions/user.UserDB"
                         }
                     }
                 }
@@ -246,7 +246,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.userDB"
+                            "$ref": "#/definitions/user.UserDB"
                         }
                     }
                 }
@@ -257,11 +257,8 @@ const docTemplate = `{
         "meditation.createMeditationRequest": {
             "type": "object",
             "properties": {
-                "endTime": {
-                    "type": "string"
-                },
                 "meditationTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"
@@ -280,7 +277,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "endTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -290,6 +287,35 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UserDB": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
                 }
             }
         },
@@ -335,35 +361,6 @@ const docTemplate = `{
         "user.updateUserRequest": {
             "type": "object",
             "properties": {
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.pluginType"
-                    }
-                }
-            }
-        },
-        "user.userDB": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
                 "dateOfBirth": {
                     "type": "string"
                 },

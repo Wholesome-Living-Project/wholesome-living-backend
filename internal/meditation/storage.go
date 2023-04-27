@@ -2,16 +2,17 @@ package meditation
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 type MeditationDB struct {
-	ID             string `json:"id" bson:"_id"`
 	UserID         string `json:"userId" bson:"userId"`
-	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string `json:"endTime" bson:"endTime"`
+	MeditationTime int    `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64  `json:"endTime" bson:"endTime"`
 }
 
 type Storage struct {
@@ -27,7 +28,15 @@ func NewStorage(db *mongo.Database) *Storage {
 func (s *Storage) Create(request createMeditationRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
 
-	result, err := collection.InsertOne(ctx, request)
+	createdAt := time.Now().Unix()
+
+	insertObj := MeditationDB{
+		UserID:         request.UserID,
+		MeditationTime: request.MeditationTime,
+		EndTime:        createdAt,
+	}
+
+	result, err := collection.InsertOne(ctx, insertObj)
 
 	if err != nil {
 		return "", err
@@ -63,20 +72,18 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 
 	cursor, err := collection.Find(ctx, bson.M{"userId": userID})
 	if err != nil {
+		fmt.Println("error in find")
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
 	meditations := make([]MeditationDB, 0)
 	for cursor.Next(ctx) {
 		var meditation MeditationDB
 		if err := cursor.Decode(&meditation); err != nil {
+			fmt.Println("error in decode")
 			return nil, err
 		}
 		meditations = append(meditations, meditation)
-	}
-	if err := cursor.Err(); err != nil {
-		return nil, err
 	}
 
 	// return the meditation list
