@@ -94,6 +94,34 @@ info:
   version: "0.1"
 paths:
   /meditation:
+    get:
+      description: fetch all meditation sessions of a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              properties:
+                endTime:
+                  type: integer
+                id:
+                  type: string
+                meditationTime:
+                  type: integer
+                userId:
+                  type: string
+              type: object
+            type: array
+      summary: Get all meditation session
+      tags:
+      - meditation
     post:
       consumes:
       - '*/*'
@@ -141,35 +169,6 @@ paths:
           schema:
             $ref: '#/definitions/meditation.getMeditationResponse'
       summary: Get a meditation session
-      tags:
-      - meditation
-  /meditation/getAll:
-    get:
-      description: fetch all meditation sessions of a user.
-      parameters:
-      - description: User ID
-        in: header
-        name: userId
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              properties:
-                endTime:
-                  type: integer
-                id:
-                  type: string
-                meditationTime:
-                  type: integer
-                userId:
-                  type: string
-              type: object
-            type: array
-      summary: Get all meditation session
       tags:
       - meditation
   /users:

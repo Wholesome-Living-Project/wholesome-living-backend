@@ -22,46 +22,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/meditation": {
-            "post": {
-                "description": "Creates a new meditation.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "meditation"
-                ],
-                "summary": "Create meditation.",
-                "parameters": [
-                    {
-                        "description": "Meditation to create",
-                        "name": "meditation",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/meditation.createMeditationRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "userId",
-                        "in": "header"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/meditation.createMeditationResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/meditation/getAll": {
             "get": {
                 "description": "fetch all meditation sessions of a user.",
                 "produces": [
@@ -101,6 +61,44 @@ const docTemplate = `{
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new meditation.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meditation"
+                ],
+                "summary": "Create meditation.",
+                "parameters": [
+                    {
+                        "description": "Meditation to create",
+                        "name": "meditation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/meditation.createMeditationResponse"
                         }
                     }
                 }
@@ -337,35 +335,6 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UserDB": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "integer"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.pluginType"
-                    }
-                }
-            }
-        },
         "user.createUserRequest": {
             "type": "object",
             "properties": {
@@ -415,9 +384,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "lastName": {
