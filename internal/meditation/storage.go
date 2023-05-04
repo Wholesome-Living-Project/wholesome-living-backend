@@ -8,10 +8,10 @@ import (
 )
 
 type MeditationDB struct {
-	ID             string `json:"id" bson:"_id"`
-	UserID         string `json:"userId" bson:"userId"`
-	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string `json:"endTime" bson:"endTime"`
+	ID             primitive.ObjectID `json:"id" bson:"_id"`
+	UserID         string             `json:"userId" bson:"userId"`
+	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string             `json:"endTime" bson:"endTime"`
 }
 
 type Storage struct {
@@ -24,10 +24,17 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createMeditationRequest, ctx context.Context) (string, error) {
+func (s *Storage) Create(request createMeditationRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
 
-	result, err := collection.InsertOne(ctx, request)
+	meditation := MeditationDB{
+		ID:             primitive.NewObjectID(),
+		UserID:         userId,
+		MeditationTime: request.MeditationTime,
+		EndTime:        request.EndTime,
+	}
+
+	result, err := collection.InsertOne(ctx, meditation)
 
 	if err != nil {
 		return "", err

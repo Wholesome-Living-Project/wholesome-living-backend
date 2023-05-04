@@ -43,6 +43,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/meditation.createMeditationRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -55,7 +61,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/meditation/getAll/{userID}": {
+        "/meditation/getAll": {
             "get": {
                 "description": "fetch all meditation sessions of a user.",
                 "produces": [
@@ -69,9 +75,8 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -149,7 +154,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.userDB"
+                                "$ref": "#/definitions/user.UserDB"
                             }
                         }
                     }
@@ -176,13 +181,19 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/user.updateUserRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.userDB"
+                            "$ref": "#/definitions/user.UserDB"
                         }
                     }
                 }
@@ -246,7 +257,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.userDB"
+                            "$ref": "#/definitions/user.UserDB"
                         }
                     }
                 }
@@ -261,9 +272,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "meditationTime": {
-                    "type": "string"
-                },
-                "userId": {
                     "type": "string"
                 }
             }
@@ -290,6 +298,35 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UserDB": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
                 }
             }
         },
@@ -342,38 +379,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.pluginType"
-                    }
-                }
-            }
-        },
-        "user.userDB": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "lastName": {

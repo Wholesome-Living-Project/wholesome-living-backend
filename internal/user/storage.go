@@ -97,6 +97,12 @@ func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
 		return user, result.Err()
 	}
 
+	result = collection.FindOne(ctx, bson.M{"_id": user.ID})
+
+	if result.Err() != nil {
+		return user, result.Err()
+	}
+
 	if err := result.Decode(&user); err != nil {
 		return user, err
 	}

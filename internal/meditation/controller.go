@@ -20,7 +20,6 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	UserID         string `json:"userId" bson:"userId"`
 	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
 	EndTime        string `json:"endTime" bson:"endTime"`
 }
@@ -49,6 +48,7 @@ type getMeditationResponse struct {
 // @Accept */*
 // @Produce json
 // @Param meditation body createMeditationRequest true "Meditation to create"
+// @Param userId header string false "User ID"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
 func (t *Controller) create(c *fiber.Ctx) error {
@@ -63,8 +63,15 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	}
+
 	//check if user exists
-	_, err := t.userStorage.Get(req.UserID, c.Context())
+	_, err := t.userStorage.Get(userId, c.Context())
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -75,7 +82,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 
 	//TODO correct error handling
 	// Create meditation record
-	id, err := t.storage.Create(req, c.Context())
+	id, err := t.storage.Create(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to Create Meditation",
@@ -91,6 +98,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Description fetch a single meditation session.
 // @Tags meditation
 // @Param id path string true "Meditation ID"
+// @Param userId header string true "User ID"
 // @Produce json
 // @Success 200 {object} getMeditationResponse
 // @Router /meditation/{id} [Get]
@@ -104,33 +112,49 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		})
 	}
 
-	// Create meditation record
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	}
+
+	// Get meditation record
 	meditation, err := t.storage.Get(meditationID, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})
 	}
+
+	//check if user is allowed to get this meditation
+	if meditation.UserID != userId {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "User is not allowed to get this meditation",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(meditation)
 }
 
 // @Summary Get all meditation session
 // @Description fetch all meditation sessions of a user.
 // @Tags meditation
-// @Param userID path string true "User ID"
+// @Param userId header string false "User ID"
 // @Produce json
 // @Success 200 {object} getAllMeditationResponse
-// @Router /meditation/getAll/{userID} [Get]
+// @Router /meditation/getAll [Get]
 func (t *Controller) getAll(c *fiber.Ctx) error {
-	userID := c.Params("userID")
-	if userID == "" {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Provide an ID",
+
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
 		})
 	}
 
 	//check if user exists
-	_, err := t.userStorage.Get(userID, c.Context())
+	_, err := t.userStorage.Get(userId, c.Context())
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -140,9 +164,9 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	}
 
 	// Get all meditations of a user
-	meditations, err := t.storage.GetAllOfOneUser(userID, c.Context())
+	meditations, err := t.storage.GetAllOfOneUser(userId, c.Context())
 	if err != nil {
-		fmt.Println("errrr", err)
+		fmt.Println("err", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})

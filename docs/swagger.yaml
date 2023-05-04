@@ -6,8 +6,6 @@ definitions:
         type: string
       meditationTime:
         type: string
-      userId:
-        type: string
     type: object
   meditation.createMeditationResponse:
     properties:
@@ -24,6 +22,25 @@ definitions:
         type: string
       userId:
         type: string
+    type: object
+  user.UserDB:
+    properties:
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      plugins:
+        items:
+          $ref: '#/definitions/user.pluginType'
+        type: array
     type: object
   user.createUserRequest:
     properties:
@@ -59,27 +76,6 @@ definitions:
         type: string
       firstName:
         type: string
-      id:
-        type: string
-      lastName:
-        type: string
-      plugins:
-        items:
-          $ref: '#/definitions/user.pluginType'
-        type: array
-    type: object
-  user.userDB:
-    properties:
-      createdAt:
-        type: string
-      dateOfBirth:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
       lastName:
         type: string
       plugins:
@@ -109,6 +105,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/meditation.createMeditationRequest'
+      - description: User ID
+        in: header
+        name: userId
+        type: string
       produces:
       - application/json
       responses:
@@ -138,14 +138,13 @@ paths:
       summary: Get a meditation session
       tags:
       - meditation
-  /meditation/getAll/{userID}:
+  /meditation/getAll:
     get:
       description: fetch all meditation sessions of a user.
       parameters:
       - description: User ID
-        in: path
-        name: userID
-        required: true
+        in: header
+        name: userId
         type: string
       produces:
       - application/json
@@ -180,7 +179,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/user.userDB'
+              $ref: '#/definitions/user.UserDB'
             type: array
       summary: Get all users.
       tags:
@@ -217,13 +216,17 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/user.updateUserRequest'
+      - description: User ID
+        in: header
+        name: userId
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.userDB'
+            $ref: '#/definitions/user.UserDB'
       summary: Update a user.
       tags:
       - users
@@ -244,7 +247,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.userDB'
+            $ref: '#/definitions/user.UserDB'
       summary: Get a user.
       tags:
       - users
