@@ -2,6 +2,7 @@ package meditation
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -75,7 +76,6 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
 	meditations := make([]MeditationDB, 0)
 	for cursor.Next(ctx) {
@@ -84,9 +84,6 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 			return nil, err
 		}
 		meditations = append(meditations, meditation)
-	}
-	if err := cursor.Err(); err != nil {
-		return nil, err
 	}
 
 	// return the meditation list

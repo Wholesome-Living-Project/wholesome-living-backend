@@ -20,8 +20,9 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64 `json:"endTime" bson:"endTime"`
+	UserID         string `json:"userId" bson:"userId"`
+	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
+	EndTime        string `json:"endTime" bson:"endTime"`
 }
 
 type createMeditationResponse struct {

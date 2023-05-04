@@ -337,6 +337,35 @@ const docTemplate = `{
                 }
             }
         },
+        "user.UserDB": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
+                }
+            }
+        },
         "user.createUserRequest": {
             "type": "object",
             "properties": {
@@ -386,6 +415,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "lastName": {
