@@ -8,11 +8,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type spendingDB struct {
-	ID           string `json:"id" bson:"_id"`
-	UserID       string `json:"userId" bson:"userId"`
-	SpendingTime string `json:"spendingTime" bson:"spendingTime"`
-	EndTime      string `json:"endTime" bson:"endTime"`
+type investmentDB struct {
+	ID             string `json:"id" bson:"_id"`
+	UserID         string `json:"userId" bson:"userId"`
+	InvestmentTime string `json:"investmentTime" bson:"investmentTime"`
+	EndTime        string `json:"endTime" bson:"endTime"`
 }
 
 type Storage struct {
@@ -25,8 +25,8 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request createSpendingRequest, ctx context.Context) (string, error) {
-	collection := s.db.Collection("spending")
+func (s *Storage) create(request createInvestmentRequest, ctx context.Context) (string, error) {
+	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
@@ -46,11 +46,11 @@ func (s *Storage) create(request createSpendingRequest, ctx context.Context) (st
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *Storage) get(spendingID string, ctx context.Context) (spendingDB, error) {
-	collection := s.db.Collection("spending")
-	db := spendingDB{}
+func (s *Storage) get(investmentID string, ctx context.Context) (investmentDB, error) {
+	collection := s.db.Collection("investment")
+	db := investmentDB{}
 
-	objectID, err := primitive.ObjectIDFromHex(spendingID)
+	objectID, err := primitive.ObjectIDFromHex(investmentID)
 	if err != nil {
 		return db, err
 	}
@@ -67,8 +67,8 @@ func (s *Storage) get(spendingID string, ctx context.Context) (spendingDB, error
 	return db, nil
 }
 
-func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]spendingDB, error) {
-	collection := s.db.Collection("spending")
+func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]investmentDB, error) {
+	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
@@ -85,18 +85,18 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]spendin
 	}
 	defer cursor.Close(ctx)
 
-	spendings := make([]spendingDB, 0)
+	investments := make([]investmentDB, 0)
 	for cursor.Next(ctx) {
-		var Spending spendingDB
-		if err := cursor.Decode(&Spending); err != nil {
+		var investment investmentDB
+		if err := cursor.Decode(&investment); err != nil {
 			return nil, err
 		}
-		spendings = append(spendings, Spending)
+		investments = append(investments, investment)
 	}
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
 
-	// return the Spending list
-	return spendings, nil
+	// return the investment list
+	return investments, nil
 }
