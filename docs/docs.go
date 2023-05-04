@@ -43,6 +43,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/meditation.createMeditationRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -55,7 +61,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/meditation/getAll/{userID}": {
+        "/meditation/getAll": {
             "get": {
                 "description": "fetch all meditation sessions of a user.",
                 "produces": [
@@ -69,9 +75,8 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -117,6 +122,13 @@ const docTemplate = `{
                         "description": "Meditation ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -176,6 +188,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/user.updateUserRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -257,11 +275,11 @@ const docTemplate = `{
         "meditation.createMeditationRequest": {
             "type": "object",
             "properties": {
-                "meditationTime": {
+                "endTime": {
                     "type": "integer"
                 },
-                "userId": {
-                    "type": "string"
+                "meditationTime": {
+                    "type": "integer"
                 }
             }
         },
@@ -283,10 +301,39 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "meditationTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UserDB": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
                 }
             }
         },

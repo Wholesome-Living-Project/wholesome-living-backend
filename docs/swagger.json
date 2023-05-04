@@ -35,6 +35,12 @@
                         "schema": {
                             "$ref": "#/definitions/meditation.createMeditationRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -47,7 +53,7 @@
                 }
             }
         },
-        "/meditation/getAll/{userID}": {
+        "/meditation/getAll": {
             "get": {
                 "description": "fetch all meditation sessions of a user.",
                 "produces": [
@@ -61,9 +67,8 @@
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -109,6 +114,13 @@
                         "description": "Meditation ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -168,6 +180,12 @@
                         "schema": {
                             "$ref": "#/definitions/user.updateUserRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -249,11 +267,11 @@
         "meditation.createMeditationRequest": {
             "type": "object",
             "properties": {
-                "meditationTime": {
+                "endTime": {
                     "type": "integer"
                 },
-                "userId": {
-                    "type": "string"
+                "meditationTime": {
+                    "type": "integer"
                 }
             }
         },
@@ -275,10 +293,39 @@
                     "type": "string"
                 },
                 "meditationTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UserDB": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.pluginType"
+                    }
                 }
             }
         },
@@ -360,9 +407,6 @@
                     "type": "string"
                 },
                 "firstName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "lastName": {

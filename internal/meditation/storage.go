@@ -2,7 +2,6 @@ package meditation
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,9 +9,10 @@ import (
 )
 
 type MeditationDB struct {
-	UserID         string `json:"userId" bson:"userId"`
-	MeditationTime int    `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64  `json:"endTime" bson:"endTime"`
+	ID             primitive.ObjectID `json:"id" bson:"_id"`
+	UserID         string             `json:"userId" bson:"userId"`
+	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
 type Storage struct {
@@ -25,18 +25,19 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createMeditationRequest, ctx context.Context) (string, error) {
+func (s *Storage) Create(request createMeditationRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
 
 	createdAt := time.Now().Unix()
 
-	insertObj := MeditationDB{
-		UserID:         request.UserID,
+	meditation := MeditationDB{
+		ID:             primitive.NewObjectID(),
+		UserID:         userId,
 		MeditationTime: request.MeditationTime,
 		EndTime:        createdAt,
 	}
 
-	result, err := collection.InsertOne(ctx, insertObj)
+	result, err := collection.InsertOne(ctx, meditation)
 
 	if err != nil {
 		return "", err
@@ -72,7 +73,6 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 
 	cursor, err := collection.Find(ctx, bson.M{"userId": userID})
 	if err != nil {
-		fmt.Println("error in find")
 		return nil, err
 	}
 
@@ -80,7 +80,6 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 	for cursor.Next(ctx) {
 		var meditation MeditationDB
 		if err := cursor.Decode(&meditation); err != nil {
-			fmt.Println("error in decode")
 			return nil, err
 		}
 		meditations = append(meditations, meditation)

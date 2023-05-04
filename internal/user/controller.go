@@ -39,7 +39,6 @@ type getUserRequest struct {
 }
 
 type updateUserRequest struct {
-	ID          string       `json:"id" bson:"_id"`
 	FirstName   string       `json:"firstName" bson:"firstName"`
 	LastName    string       `json:"lastName" bson:"lastName"`
 	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
@@ -58,7 +57,6 @@ type updateUserRequest struct {
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 
-	fmt.Println(c.Request())
 	var req createUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
@@ -129,10 +127,18 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 // @Accept */*
 // @Produce json
 // @Param user body updateUserRequest true "User to update"
+// @Param userId header string false "User ID"
 // @Success 200 {object} UserDB
 // @Router /users [put]
 func (t *Controller) update(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
+
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	}
 
 	// Parse the update request from the request body
 	var req updateUserRequest
@@ -144,7 +150,7 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	// Fetch the existing user from the database
-	user, err := t.storage.Get(req.ID, c.Context())
+	user, err := t.storage.Get(userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "User Does Not Exist",
