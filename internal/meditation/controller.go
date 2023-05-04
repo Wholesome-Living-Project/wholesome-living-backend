@@ -20,9 +20,8 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	UserID         string `json:"userId" bson:"userId"`
-	MeditationTime int    `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64  `json:"endTime" bson:"endTime"`
+	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64 `json:"endTime" bson:"endTime"`
 }
 
 type createMeditationResponse struct {
@@ -143,7 +142,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Param userId header string false "User ID"
 // @Produce json
 // @Success 200 {object} getAllMeditationResponse
-// @Router /meditation/getAll [Get]
+// @Router /meditation [Get]
 func (t *Controller) getAll(c *fiber.Ctx) error {
 
 	userId := string(c.Request().Header.Peek("userId"))
