@@ -21,8 +21,7 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 
 type createMeditationRequest struct {
 	UserID         string `json:"userId" bson:"userId"`
-	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string `json:"endTime" bson:"endTime"`
+	MeditationTime int    `json:"meditationTime" bson:"meditationTime"`
 }
 
 type createMeditationResponse struct {
@@ -32,15 +31,15 @@ type createMeditationResponse struct {
 type getAllMeditationResponse []struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         string             `json:"userId" bson:"userId"`
-	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string             `json:"endTime" bson:"endTime"`
+	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
 type getMeditationResponse struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
 	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string             `json:"endTime" bson:"endTime"`
+	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
 // @Summary Create meditation.
@@ -73,8 +72,6 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO correct error handling
-	// Create meditation record
 	id, err := t.storage.Create(req, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -142,7 +139,6 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	// Get all meditations of a user
 	meditations, err := t.storage.GetAllOfOneUser(userID, c.Context())
 	if err != nil {
-		fmt.Println("errrr", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})
