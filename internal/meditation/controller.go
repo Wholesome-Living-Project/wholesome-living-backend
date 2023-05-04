@@ -20,8 +20,8 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createMeditationRequest struct {
-	MeditationTime string `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string `json:"endTime" bson:"endTime"`
+	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64 `json:"endTime" bson:"endTime"`
 }
 
 type createMeditationResponse struct {
@@ -31,15 +31,15 @@ type createMeditationResponse struct {
 type getAllMeditationResponse []struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         string             `json:"userId" bson:"userId"`
-	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string             `json:"endTime" bson:"endTime"`
+	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
 type getMeditationResponse struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
-	MeditationTime string             `json:"meditationTime" bson:"meditationTime"`
-	EndTime        string             `json:"endTime" bson:"endTime"`
+	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
+	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
 // @Summary Create meditation.
@@ -56,7 +56,6 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	var req createMeditationRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid request body",
 			"err":     err,

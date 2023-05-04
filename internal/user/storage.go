@@ -15,7 +15,7 @@ type UserDB struct {
 	LastName    string       `json:"lastName" bson:"lastName"`
 	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email       string       `json:"email" bson:"email"`
-	CreatedAt   string       `json:"createdAt" bson:"createdAt"`
+	CreatedAt   int64        `json:"createdAt" bson:"createdAt"`
 	ID          string       `json:"id" bson:"_id"`
 	Plugins     []pluginType `json:"plugins" bson:"plugins"`
 }
@@ -33,7 +33,7 @@ func NewStorage(db *mongo.Database) *Storage {
 func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context) (string, error) {
 	collection := s.db.Collection("users")
 
-	createdAt := time.Now().Format("2006-01-02 15:04:05")
+	createdAt := time.Now().Unix()
 	var plugins []pluginType
 
 	insertObj := UserDB{

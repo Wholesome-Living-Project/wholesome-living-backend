@@ -88,13 +88,13 @@ const docTemplate = `{
                                 "type": "object",
                                 "properties": {
                                     "endTime": {
-                                        "type": "string"
+                                        "type": "integer"
                                     },
                                     "id": {
                                         "type": "string"
                                     },
                                     "meditationTime": {
-                                        "type": "string"
+                                        "type": "integer"
                                     },
                                     "userId": {
                                         "type": "string"
@@ -122,6 +122,13 @@ const docTemplate = `{
                         "description": "Meditation ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -269,10 +276,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "endTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "meditationTime": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -288,13 +295,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "endTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
                 },
                 "meditationTime": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"
@@ -305,7 +312,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "dateOfBirth": {
                     "type": "string"
