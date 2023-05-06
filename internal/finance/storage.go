@@ -11,8 +11,8 @@ import (
 type investmentDB struct {
 	ID             string `json:"id" bson:"_id"`
 	UserID         string `json:"userId" bson:"userId"`
-	InvestmentTime string `json:"investmentTime" bson:"investmentTime"`
-	EndTime        string `json:"endTime" bson:"endTime"`
+	InvestmentTime int64  `json:"investmentTime" bson:"investmentTime"`
+	Amount         int    `json:"amount" bson:"amount"`
 }
 
 type Storage struct {
@@ -84,6 +84,37 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]investm
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+
+	investments := make([]investmentDB, 0)
+	for cursor.Next(ctx) {
+		var investment investmentDB
+		if err := cursor.Decode(&investment); err != nil {
+			return nil, err
+		}
+		investments = append(investments, investment)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	// return the investment list
+	return investments, nil
+}
+
+func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime int64, ctx context.Context) ([]investmentDB, error) {
+	// get all investments of one user between two times
+	collection := s.db.Collection("investment")
+	var cursor *mongo.Cursor
+	var err error
+	// different query if endtime is 0
+	if endTime == 0 {
+		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime}})
+	} else {
+		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime, "$lte": endTime}})
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	investments := make([]investmentDB, 0)
 	for cursor.Next(ctx) {

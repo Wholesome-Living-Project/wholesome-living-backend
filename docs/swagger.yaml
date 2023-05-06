@@ -1,5 +1,28 @@
 basePath: /
 definitions:
+  finance.createInvestmentRequest:
+    properties:
+      amount:
+        type: integer
+      investmentTime:
+        type: integer
+      userId:
+        type: string
+    type: object
+  finance.createInvestmentResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  finance.getInvestmentResponse:
+    properties:
+      amount:
+        type: integer
+      investmentTime:
+        type: integer
+      userId:
+        type: string
+    type: object
   meditation.createMeditationRequest:
     properties:
       meditationTime:
@@ -95,6 +118,58 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
+  /investment:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates a new investment.
+      parameters:
+      - description: investment to create
+        in: body
+        name: investment
+        required: true
+        schema:
+          $ref: '#/definitions/finance.createInvestmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.createInvestmentResponse'
+      summary: Create a investment.
+      tags:
+      - finance
+  /investment/{userId}:
+    get:
+      description: fetch a single investment session.
+      parameters:
+      - description: user ID
+        in: path
+        name: userId
+        type: string
+      - description: investment ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.getInvestmentResponse'
+      summary: Get a single investment
+      tags:
+      - finance
   /meditation:
     post:
       consumes:

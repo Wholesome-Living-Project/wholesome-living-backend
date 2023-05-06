@@ -114,7 +114,7 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	//create finance domain
 	financeStore := finance.NewStorage(db)
-	financeController := finance.NewController(financeStore)
+	financeController := finance.NewController(financeStore, userStore)
 	finance.Routes(app, financeController)
 
 	return app, func() {
