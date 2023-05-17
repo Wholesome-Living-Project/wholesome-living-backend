@@ -1,5 +1,26 @@
 basePath: /
 definitions:
+  finance.createInvestmentRequest:
+    properties:
+      amount:
+        type: integer
+      investmentTime:
+        type: integer
+    type: object
+  finance.createInvestmentResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  finance.getInvestmentResponse:
+    properties:
+      amount:
+        type: integer
+      investmentTime:
+        type: integer
+      userId:
+        type: string
+    type: object
   meditation.createMeditationRequest:
     properties:
       endTime:
@@ -93,6 +114,63 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
+  /investment:
+    get:
+      description: fetch a single investment session.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: investment ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.getInvestmentResponse'
+      summary: Get a single investment
+      tags:
+      - finance
+    post:
+      consumes:
+      - '*/*'
+      description: Creates a new investment.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: investment to create
+        in: body
+        name: investment
+        required: true
+        schema:
+          $ref: '#/definitions/finance.createInvestmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.createInvestmentResponse'
+      summary: Create a investment.
+      tags:
+      - finance
   /meditation:
     get:
       description: fetch all meditation sessions of a user.
