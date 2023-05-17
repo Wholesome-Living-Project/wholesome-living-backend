@@ -9,10 +9,10 @@ import (
 )
 
 type investmentDB struct {
-	ID             string `json:"id" bson:"_id"`
-	UserID         string `json:"userId" bson:"userId"`
-	InvestmentTime int64  `json:"investmentTime" bson:"investmentTime"`
-	Amount         int    `json:"amount" bson:"amount"`
+	ID             primitive.ObjectID `json:"id" bson:"_id"`
+	UserID         string             `json:"userId" bson:"userId"`
+	InvestmentTime int64              `json:"investmentTime" bson:"investmentTime"`
+	Amount         int                `json:"amount" bson:"amount"`
 }
 
 type Storage struct {
@@ -25,18 +25,24 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request createInvestmentRequest, ctx context.Context) (string, error) {
+func (s *Storage) create(request createInvestmentRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
 	//Check if user exists
-	userResult := userCollection.FindOne(ctx, bson.M{"_id": request.UserID})
+	userResult := userCollection.FindOne(ctx, bson.M{"_id": userId})
 
 	if err := userResult.Err(); err != nil {
 		return "", err
 	}
+	statement := investmentDB{
+		ID:             primitive.NewObjectID(),
+		UserID:         userId,
+		InvestmentTime: request.InvestmentTime,
+		Amount:         request.Amount,
+	}
 
-	result, err := collection.InsertOne(ctx, request)
+	result, err := collection.InsertOne(ctx, statement)
 
 	if err != nil {
 		return "", err

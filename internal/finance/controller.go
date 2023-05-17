@@ -21,9 +21,8 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createInvestmentRequest struct {
-	UserID         string `json:"userId" bson:"userId"`
-	Amount         int    `json:"amount" bson:"amount"`
-	InvestmentTime int64  `json:"investmentTime" bson:"investmentTime"`
+	Amount         int   `json:"amount" bson:"amount"`
+	InvestmentTime int64 `json:"investmentTime" bson:"investmentTime"`
 }
 
 type createInvestmentResponse struct {
@@ -41,12 +40,19 @@ type getInvestmentResponse struct {
 // @Tags finance
 // @Accept */*
 // @Produce json
+// @param userId header string true "User ID"
 // @Param investment body createInvestmentRequest true "investment to create"
 // @Success 200 {object} createInvestmentResponse
 // @Router /investment [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	var req createInvestmentRequest
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	}
 
 	if err := c.BodyParser(&req); err != nil {
 		fmt.Println(err)
@@ -58,7 +64,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 
 	//TODO correct error handling
 	// create investment record
-	id, err := t.storage.create(req, c.Context())
+	id, err := t.storage.create(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Failed to create",
@@ -73,13 +79,13 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Summary Get a single investment
 // @Description fetch a single investment session.
 // @Tags finance
-// @Param userId path string false "user ID"
+// @param userId header string true "User ID"
 // @Param id query string false "investment ID"
 // @Param startTime query int64 false "start time"
 // @Param endTime query int64 false "end time"
 // @Produce json
 // @Success 200 {object} getInvestmentResponse
-// @Router /investment/{userId} [get]
+// @Router /investment [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	//parse Query values
@@ -120,8 +126,12 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		return c.JSON(investment)
 	}
 
-	userId := c.Params("userId")
-	//check if user exists
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	} //check if user exists
 	if userId != "" {
 		_, err := t.userStorage.Get(userId, c.Context())
 

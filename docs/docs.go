@@ -22,40 +22,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/investment": {
-            "post": {
-                "description": "Creates a new investment.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "finance"
-                ],
-                "summary": "Create a investment.",
-                "parameters": [
-                    {
-                        "description": "investment to create",
-                        "name": "investment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/finance.createInvestmentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/finance.createInvestmentResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/investment/{userId}": {
             "get": {
                 "description": "fetch a single investment session.",
                 "produces": [
@@ -68,9 +34,10 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "user ID",
+                        "description": "User ID",
                         "name": "userId",
-                        "in": "path"
+                        "in": "header",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -96,6 +63,45 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/finance.getInvestmentResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new investment.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Create a investment.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "investment to create",
+                        "name": "investment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/finance.createInvestmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finance.createInvestmentResponse"
                         }
                     }
                 }
@@ -342,9 +348,6 @@ const docTemplate = `{
                 },
                 "investmentTime": {
                     "type": "integer"
-                },
-                "userId": {
-                    "type": "string"
                 }
             }
         },

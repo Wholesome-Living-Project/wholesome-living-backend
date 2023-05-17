@@ -6,8 +6,6 @@ definitions:
         type: integer
       investmentTime:
         type: integer
-      userId:
-        type: string
     type: object
   finance.createInvestmentResponse:
     properties:
@@ -119,34 +117,13 @@ info:
   version: "0.1"
 paths:
   /investment:
-    post:
-      consumes:
-      - '*/*'
-      description: Creates a new investment.
-      parameters:
-      - description: investment to create
-        in: body
-        name: investment
-        required: true
-        schema:
-          $ref: '#/definitions/finance.createInvestmentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finance.createInvestmentResponse'
-      summary: Create a investment.
-      tags:
-      - finance
-  /investment/{userId}:
     get:
       description: fetch a single investment session.
       parameters:
-      - description: user ID
-        in: path
+      - description: User ID
+        in: header
         name: userId
+        required: true
         type: string
       - description: investment ID
         in: query
@@ -168,6 +145,32 @@ paths:
           schema:
             $ref: '#/definitions/finance.getInvestmentResponse'
       summary: Get a single investment
+      tags:
+      - finance
+    post:
+      consumes:
+      - '*/*'
+      description: Creates a new investment.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: investment to create
+        in: body
+        name: investment
+        required: true
+        schema:
+          $ref: '#/definitions/finance.createInvestmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.createInvestmentResponse'
+      summary: Create a investment.
       tags:
       - finance
   /meditation:
