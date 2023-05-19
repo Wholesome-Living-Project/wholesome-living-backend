@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"math"
 	"time"
 )
 
@@ -83,6 +84,37 @@ func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]Meditat
 			return nil, err
 		}
 		meditations = append(meditations, meditation)
+	}
+
+	// return the meditation list
+	return meditations, nil
+}
+func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, meditationId string, startTime int64, endTime int64, startDuration int64, durationEnd int64, ctx context.Context) ([]MeditationDB, error) {
+	// get all meditations of one user between two times
+	collection := s.db.Collection("meditation")
+	var cursor *mongo.Cursor
+	var err error
+	if endTime == 0 {
+		endTime = time.Now().Unix()
+	}
+	if durationEnd == 0 {
+		durationEnd = math.MaxInt64
+	}
+	meditations := make([]MeditationDB, 0)
+	cursor, err = collection.Find(ctx, bson.M{"userId": userId, "endTime": bson.M{"$gte": startTime, "$lte": endTime}, "meditationTime": bson.M{"$gte": startDuration, "$lte": durationEnd}})
+	if err != nil {
+		return nil, err
+	}
+
+	for cursor.Next(ctx) {
+		var meditation MeditationDB
+		if err := cursor.Decode(&meditation); err != nil {
+			return nil, err
+		}
+		meditations = append(meditations, meditation)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
 	// return the meditation list

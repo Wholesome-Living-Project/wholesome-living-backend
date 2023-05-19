@@ -2,9 +2,9 @@ package meditation
 
 import (
 	"cmd/http/main.go/internal/user"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 )
 
 type Controller struct {
@@ -93,57 +93,79 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Get a meditation session
-// @Description fetch a single meditation session.
+// @Summary Get meditation sessions
+// @Description Fetch one or multiple meditation sessions.
 // @Tags meditation
-// @Param id path string true "Meditation ID"
-// @Param userId header string true "User ID"
-// @Produce json
-// @Success 200 {object} getMeditationResponse
-// @Router /meditation/{id} [Get]
-func (t *Controller) get(c *fiber.Ctx) error {
-	c.Request().Header.Set("Content-Type", "application/json")
-
-	meditationID := c.Params("meditationID")
-	if meditationID == "" {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Failed to Get meditations",
-		})
-	}
-
-	userId := string(c.Request().Header.Peek("userId"))
-	if userId == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Missing userId header",
-		})
-	}
-
-	// Get meditation record
-	meditation, err := t.storage.Get(meditationID, c.Context())
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Failed to fetch meditation",
-		})
-	}
-
-	//check if user is allowed to get this meditation
-	if meditation.UserID != userId {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "User is not allowed to get this meditation",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(meditation)
-}
-
-// @Summary Get all meditation session
-// @Description fetch all meditation sessions of a user.
-// @Tags meditation
+// @Param id query string false "Meditation ID"
+// @Param startTime query int64 false "start time"
+// @Param endTime query int64 false "end time"
+// @Param durationStart query int64 false "duration start time"
+// @Param durationEnd query int64 false "duration end time"
 // @Param userId header string false "User ID"
 // @Produce json
-// @Success 200 {object} getAllMeditationResponse
+// @Success 200 {object} getMeditationResponse
 // @Router /meditation [Get]
-func (t *Controller) getAll(c *fiber.Ctx) error {
+func (t *Controller) get(c *fiber.Ctx) error {
+	c.Request().Header.Set("Content-Type", "application/json")
+	//parse Query values
+	meditationId := c.Query("id")
+	startTimeStr := c.Query("startTime")
+	endTimeStr := c.Query("endTime")
+	startDurationStr := c.Query("durationStart")
+	durationEndStr := c.Query("durationEnd")
+	var startTime, endTime, startDuration, durationEnd int64
+	var err error
+
+	if startDurationStr != "" {
+		startDuration, err = strconv.ParseInt(startDurationStr, 10, 64)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Invalid startDuration parameter",
+				"err":     err,
+			})
+		}
+	}
+
+	if durationEndStr != "" {
+		durationEnd, err = strconv.ParseInt(durationEndStr, 10, 64)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Invalid durationEnd parameter",
+				"err":     err,
+			})
+		}
+	}
+
+	if startTimeStr != "" {
+		startTime, err = strconv.ParseInt(startTimeStr, 10, 64)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Invalid startTime parameter",
+				"err":     err,
+			})
+		}
+	}
+
+	if endTimeStr != "" {
+		endTime, err = strconv.ParseInt(endTimeStr, 10, 64)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Invalid endTime parameter",
+				"err":     err,
+			})
+		}
+	}
+
+	if meditationId != "" {
+		// Get particular meditation
+		meditation, err := t.storage.Get(meditationId, c.Context())
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Failed to get meditation",
+			})
+		}
+		return c.JSON(meditation)
+	}
 
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
@@ -151,24 +173,32 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 			"message": "Missing userId header",
 		})
 	}
+	if userId != "" {
+		_, err := t.userStorage.Get(userId, c.Context())
 
-	//check if user exists
-	_, err := t.userStorage.Get(userId, c.Context())
+		if err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+				"err":     err,
+			})
+		}
+		// all meditations for a user between a time range and duration
+		meditations, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, meditationId, startTime, endTime, startDuration, durationEnd, c.Context())
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Failed to get meditations in time range",
+				"err":     err,
+			})
+		}
 
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "User does not exist",
-			"err":     err,
-		})
+		//check if user is allowed to get this meditation
+		if meditations[0].UserID != userId {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User is not allowed to get this meditation",
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(meditations)
 	}
-
-	// Get all meditations of a user
-	meditations, err := t.storage.GetAllOfOneUser(userId, c.Context())
-	if err != nil {
-		fmt.Println("err", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Failed to fetch meditation",
-		})
-	}
-	return c.Status(fiber.StatusOK).JSON(meditations)
+	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Missing userId header"})
 }
