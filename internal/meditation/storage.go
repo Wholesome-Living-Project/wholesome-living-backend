@@ -69,26 +69,6 @@ func (s *Storage) Get(meditationID string, ctx context.Context) (MeditationDB, e
 	return meditationRecord, nil
 }
 
-func (s *Storage) GetAllOfOneUser(userID string, ctx context.Context) ([]MeditationDB, error) {
-	collection := s.db.Collection("meditation")
-
-	cursor, err := collection.Find(ctx, bson.M{"userId": userID})
-	if err != nil {
-		return nil, err
-	}
-
-	meditations := make([]MeditationDB, 0)
-	for cursor.Next(ctx) {
-		var meditation MeditationDB
-		if err := cursor.Decode(&meditation); err != nil {
-			return nil, err
-		}
-		meditations = append(meditations, meditation)
-	}
-
-	// return the meditation list
-	return meditations, nil
-}
 func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, meditationId string, startTime int64, endTime int64, startDuration int64, durationEnd int64, ctx context.Context) ([]MeditationDB, error) {
 	// get all meditations of one user between two times
 	collection := s.db.Collection("meditation")

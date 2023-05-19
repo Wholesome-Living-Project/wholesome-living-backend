@@ -190,15 +190,16 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
-
-		//check if user is allowed to get this meditation
-		if meditations[0].UserID != userId {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "User is not allowed to get this meditation",
-			})
+		if len(meditations) != 0 {
+			//check if user is allowed to get this meditation
+			if meditations[0].UserID != userId {
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+					"message": "User is not allowed to get this meditation",
+				})
+			}
+			return c.Status(fiber.StatusOK).JSON(meditations)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(meditations)
 	}
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Missing userId header"})
+	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
 }
