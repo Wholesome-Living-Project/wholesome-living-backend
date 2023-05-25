@@ -34,7 +34,6 @@ func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context
 	collection := s.db.Collection("users")
 
 	createdAt := time.Now().Unix()
-	var plugins []pluginType
 
 	insertObj := UserDB{
 		FirstName:   createUserObject.FirstName,
@@ -43,7 +42,6 @@ func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context
 		Email:       createUserObject.Email,
 		CreatedAt:   createdAt,
 		ID:          createUserObject.ID,
-		Plugins:     plugins,
 	}
 
 	result, err := collection.InsertOne(ctx, insertObj)
