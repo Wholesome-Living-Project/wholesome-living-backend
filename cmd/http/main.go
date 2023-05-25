@@ -5,7 +5,7 @@ import (
 	_ "cmd/http/main.go/docs"
 	"cmd/http/main.go/internal/finance"
 	"cmd/http/main.go/internal/meditation"
-	"cmd/http/main.go/internal/metadata"
+	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
 	"cmd/http/main.go/pkg/shutdown"
@@ -109,9 +109,9 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	user.Routes(app, userController)
 
 	// create the settings domain
-	metadataStore := metadata.NewStorage(db)
-	metadataController := metadata.NewController(metadataStore, userStore)
-	metadata.Routes(app, metadataController)
+	metadataStore := settings.NewStorage(db)
+	metadataController := settings.NewController(metadataStore, userStore)
+	settings.Routes(app, metadataController)
 
 	//create meditation domain
 	meditationStore := meditation.NewStorage(db)
