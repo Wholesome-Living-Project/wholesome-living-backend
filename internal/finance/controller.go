@@ -43,7 +43,7 @@ type getInvestmentResponse struct {
 // @param userId header string true "User ID"
 // @Param investment body createInvestmentRequest true "investment to create"
 // @Success 200 {object} createInvestmentResponse
-// @Router /investment [post]
+// @Router /finance [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	var req createInvestmentRequest
@@ -85,7 +85,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Param endTime query int64 false "end time"
 // @Produce json
 // @Success 200 {object} getInvestmentResponse
-// @Router /investment [get]
+// @Router /finance [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	//parse Query values

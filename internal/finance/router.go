@@ -3,7 +3,7 @@ package finance
 import "github.com/gofiber/fiber/v2"
 
 func Routes(app *fiber.App, controller *Controller) {
-	finance := app.Group("/investment")
+	finance := app.Group("/finance")
 
 	// add middlewares here
 
