@@ -109,53 +109,13 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	//parse Query values
 	meditationId := c.Query("id")
-	startTimeStr := c.Query("startTime")
-	endTimeStr := c.Query("endTime")
-	startDurationStr := c.Query("durationStart")
-	durationEndStr := c.Query("durationEnd")
-	var startTime, endTime, startDuration, durationEnd int64
-	var err error
-
-	if startDurationStr != "" {
-		startDuration, err = strconv.ParseInt(startDurationStr, 10, 64)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid startDuration parameter",
-				"err":     err,
-			})
-		}
+	//map for time parameters
+	times := map[string]int64{
+		"startTime":     convertToInt64(c.Query("startTime")),
+		"endTime":       convertToInt64(c.Query("endTime")),
+		"startDuration": convertToInt64(c.Query("durationStart")),
+		"durationEnd":   convertToInt64(c.Query("durationEnd")),
 	}
-
-	if durationEndStr != "" {
-		durationEnd, err = strconv.ParseInt(durationEndStr, 10, 64)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid durationEnd parameter",
-				"err":     err,
-			})
-		}
-	}
-
-	if startTimeStr != "" {
-		startTime, err = strconv.ParseInt(startTimeStr, 10, 64)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid startTime parameter",
-				"err":     err,
-			})
-		}
-	}
-
-	if endTimeStr != "" {
-		endTime, err = strconv.ParseInt(endTimeStr, 10, 64)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid endTime parameter",
-				"err":     err,
-			})
-		}
-	}
-
 	if meditationId != "" {
 		// Get particular meditation
 		meditation, err := t.storage.Get(meditationId, c.Context())
@@ -183,7 +143,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			})
 		}
 		// all meditations for a user between a time range and duration
-		meditations, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, meditationId, startTime, endTime, startDuration, durationEnd, c.Context())
+		meditations, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, c.Context())
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": "Failed to get meditations in time range",
@@ -202,4 +162,14 @@ func (t *Controller) get(c *fiber.Ctx) error {
 
 	}
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
+}
+
+func convertToInt64(value string) int64 {
+	intValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		// Handle the error here if necessary
+		// For example, you can assign a default value or log the error
+		return 0
+	}
+	return intValue
 }

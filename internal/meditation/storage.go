@@ -69,19 +69,19 @@ func (s *Storage) Get(meditationID string, ctx context.Context) (MeditationDB, e
 	return meditationRecord, nil
 }
 
-func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, meditationId string, startTime int64, endTime int64, startDuration int64, durationEnd int64, ctx context.Context) ([]MeditationDB, error) {
+func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, times map[string]int64, ctx context.Context) ([]MeditationDB, error) {
 	// get all meditations of one user between two times
 	collection := s.db.Collection("meditation")
 	var cursor *mongo.Cursor
 	var err error
-	if endTime == 0 {
-		endTime = time.Now().Unix()
+	if times["endTime"] == 0 {
+		times["endTime"] = time.Now().Unix()
 	}
-	if durationEnd == 0 {
-		durationEnd = math.MaxInt64
+	if times["durationEnd"] == 0 {
+		times["durationEnd"] = math.MaxInt64
 	}
 	meditations := make([]MeditationDB, 0)
-	cursor, err = collection.Find(ctx, bson.M{"userId": userId, "endTime": bson.M{"$gte": startTime, "$lte": endTime}, "meditationTime": bson.M{"$gte": startDuration, "$lte": durationEnd}})
+	cursor, err = collection.Find(ctx, bson.M{"userId": userId, "endTime": bson.M{"$gte": times["startTime"], "$lte": times["endTime"]}, "meditationTime": bson.M{"$gte": times["startDuration"], "$lte": times["durationEnd"]}})
 	if err != nil {
 		return nil, err
 	}
