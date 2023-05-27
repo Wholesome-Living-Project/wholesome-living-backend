@@ -10,4 +10,8 @@ func Routes(app *fiber.App, controller *Controller) {
 	// add routes here
 	setteings.Post("/", controller.createOnboarding)
 	setteings.Get("/", controller.get)
+	// create a route for each plugin
+	setteings.Post("/finance", controller.createFinanceSettings)
+	setteings.Post("/meditation", controller.createMeditationSettings)
+
 }
