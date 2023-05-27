@@ -5,33 +5,38 @@ import (
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"reflect"
 )
 
 type MeditationSettings struct {
 	// The user's meditation time goal.
-	MeditationTimeGoal  int                    `json:"meditationTime" bson:"meditationTime"`
-	Notifications       bool                   `json:"notifications" bson:"notifications"`
-	AmountNotifications int                    `json:"amountNotifications" bson:"amountNotifications"`
-	PeriodNotifications enumNotificationPeriod `json:"periodNotifications" bson:"periodNotifications"`
+	MeditationTimeGoal  int              `json:"meditationTime" bson:"meditationTime"`
+	Notifications       bool             `json:"notifications" bson:"notifications"`
+	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
+	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
 }
+type NotificationType string
 
-type enumNotificationPeriod struct {
-	Day   bool `json:"day" bson:"day"`
-	Week  bool `json:"week" bson:"week"`
-	Month bool `json:"month" bson:"month"`
-}
-type enumStrategy struct {
-	Round   bool `json:"round" bson:"round"`
-	Plus    bool `json:"plus" bson:"plus"`
-	Percent bool `json:"percent" bson:"percent"`
-}
+const (
+	NotificationTypeDay   NotificationType = "Day"
+	NotificationTypeMonth NotificationType = "Month"
+	NotificationTypeWeek  NotificationType = "Week"
+)
+
+type StrategyType string
+
+const (
+	StrategyTypeRound   StrategyType = "Round"
+	StrategyTypePlus    StrategyType = "Plus"
+	StrategyTypePercent StrategyType = "Percent"
+)
 
 type FinanceSettings struct {
-	Notifications       bool                   `json:"notifications" bson:"notifications"`
-	AmountNotifications int                    `json:"amountNotifications" bson:"amountNotifications"`
-	PeriodNotifications enumNotificationPeriod `json:"periodNotifications" bson:"periodNotifications"`
-	Strategy            enumStrategy           `json:"strategy" bson:"strategy"`
-	StrategyAmount      int                    `json:"strategyAmount" bson:"strategyAmount"`
+	Notifications       bool             `json:"notifications" bson:"notifications"`
+	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
+	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
+	Strategy            StrategyType     `json:"strategy" bson:"strategy"`
+	StrategyAmount      int              `json:"strategyAmount" bson:"strategyAmount"`
 	// The user's investment goal.
 	InvestmentGoal int `json:"investmentGoal" bson:"investmentGoal"`
 	// The user's investment time goal.
@@ -41,7 +46,7 @@ type FinanceSettings struct {
 
 type SettingsDB struct {
 	// A list with the Plugins that the user has enabled.
-	EnabledPlugins []string `json:"enabledPlugins" bson:"enabledPlugins"`
+	EnabledPlugins []pluginType `json:"enabledPlugins" bson:"enabledPlugins"`
 	// The user's settings for the meditation plugin.
 	Meditation MeditationSettings `json:"meditation" bson:"meditation"`
 	// The user's settings for the finance plugin.
@@ -69,14 +74,17 @@ func (s *Storage) Get(userId string, ctx context.Context, plugin string) (Settin
 	if err := userResult.Err(); err != nil {
 		return settingsRecord, errors.New("User not found!")
 	}
+
 	if plugin != "" {
-		// TODO maybe check if plugin exists
+		// check if plugin exists
+		if isValidPlugins(plugin) == false {
+			return settingsRecord, errors.New("Plugin not found!")
+		}
 		// Get certain plugin info
 		cursor := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": plugin})
 		if err := cursor.Err(); err != nil {
 			return settingsRecord, err
 		}
-		// TODO return only relevant info from selected plugin
 		if err := cursor.Decode(&settingsRecord); err != nil {
 			return settingsRecord, err
 		}
@@ -108,40 +116,17 @@ func (s *Storage) CreateOnboarding(request createSettingsRequest, userId string,
 	if userSettings.Err() == nil {
 		return "", errors.New("User already has onboarding settings")
 	}
-	// TODO maybe overwrite the settings if the user already has them --> check
 	if err := userResult.Err(); err != nil {
 		return "User not found", err
+	}
+	if validateSettings(request) != nil {
+		return "Invalid settings", validateSettings(request)
 	}
 	settings := SettingsDB{
 		ID:             userId,
 		EnabledPlugins: request.EnabledPlugins,
-		Meditation: MeditationSettings{
-			MeditationTimeGoal:  request.Meditation.MeditationTimeGoal,
-			Notifications:       request.Meditation.Notifications,
-			AmountNotifications: request.Meditation.AmountNotifications,
-			PeriodNotifications: enumNotificationPeriod{
-				Day:   request.Meditation.PeriodNotifications.Day,
-				Week:  request.Meditation.PeriodNotifications.Week,
-				Month: request.Meditation.PeriodNotifications.Month,
-			},
-		},
-		Finance: FinanceSettings{
-			Notifications:       request.Finance.Notifications,
-			AmountNotifications: request.Finance.AmountNotifications,
-			PeriodNotifications: enumNotificationPeriod{
-				Day:   request.Finance.PeriodNotifications.Day,
-				Week:  request.Finance.PeriodNotifications.Week,
-				Month: request.Finance.PeriodNotifications.Month,
-			},
-			Strategy: enumStrategy{
-				Round:   request.Finance.Strategy.Round,
-				Plus:    request.Finance.Strategy.Plus,
-				Percent: request.Finance.Strategy.Percent,
-			},
-			StrategyAmount:     request.Finance.StrategyAmount,
-			InvestmentGoal:     request.Finance.InvestmentGoal,
-			InvestmentTimeGoal: request.Finance.InvestmentTimeGoal,
-		},
+		Meditation:     request.Meditation,
+		Finance:        request.Finance,
 	}
 
 	result, err := collection.InsertOne(ctx, settings)
@@ -151,35 +136,46 @@ func (s *Storage) CreateOnboarding(request createSettingsRequest, userId string,
 	}
 	return "Inserted", err
 }
-
-func (s *Storage) createFinanceSettings(request FinanceSettings, userId string, ctx context.Context) (string, error) {
+func (s *Storage) createPluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
-	//Check if user exists
+
+	// Check if user exists
 	userResult := userCollection.FindOne(ctx, bson.M{"_id": userId})
 	if err := userResult.Err(); err != nil {
 		return "", errors.New("User not found!")
 	}
+
 	// Check if user already has onboarding settings
 	settings := collection.FindOne(ctx, bson.M{"_id": userId})
 	if settings.Err() == nil {
-		// check if user already has finance settings
-		if collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": "finance"}).Err() == nil {
-			return "", errors.New("User already has finance settings, use put")
+		// Check if user already has the specified plugin settings
+		if collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName}).Err() == nil {
+			return "", errors.New("User already has " + pluginName + " settings, use put")
 		} else {
-			// create finance settings and keep the other settings
+			// Create plugin settings and keep the other settings
 			var settingsRecord SettingsDB
 			if err := settings.Decode(&settingsRecord); err != nil {
 				return "", err
+			}
+			if validateSettings(request) != nil {
+				return "Invalid settings", errors.New("Invalid settings: " + validateSettings(request).Error())
 			}
 			newSettings := SettingsDB{
 				ID:             userId,
-				EnabledPlugins: append(settingsRecord.EnabledPlugins, "finance"),
-				Finance:        request,
-				// take rest from old settings
-				Meditation: settingsRecord.Meditation,
+				EnabledPlugins: append(settingsRecord.EnabledPlugins, pluginType(pluginName)),
 			}
-			// update the settings with the new settings
+
+			switch pluginName {
+			case "finance":
+				newSettings.Finance = *(request.(*FinanceSettings))
+				newSettings.Meditation = settingsRecord.Meditation
+			case "meditation":
+				newSettings.Meditation = *(request.(*MeditationSettings))
+				newSettings.Finance = settingsRecord.Finance
+			}
+
+			// Update the settings with the new settings
 			result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": newSettings})
 			if result.Err() != nil {
 				return "", result.Err()
@@ -189,13 +185,23 @@ func (s *Storage) createFinanceSettings(request FinanceSettings, userId string, 
 		}
 
 	} else {
-		// create new settings, since user has no settings yet
+		// Create new settings since the user has no settings yet
+		if validateSettings(request) != nil {
+			return "Invalid settings", errors.New("Invalid settings: " + validateSettings(request).Error())
+		}
 		settings := SettingsDB{
 			ID:             userId,
-			EnabledPlugins: []string{"finance"},
-			Finance:        request,
+			EnabledPlugins: []pluginType{pluginType(pluginName)},
 		}
-		// insert the settings
+
+		switch pluginName {
+		case "finance":
+			settings.Finance = *(request.(*FinanceSettings))
+		case "meditation":
+			settings.Meditation = *(request.(*MeditationSettings))
+		}
+
+		// Insert the settings
 		_, err := collection.InsertOne(ctx, settings)
 		if err != nil {
 			return "", err
@@ -203,59 +209,107 @@ func (s *Storage) createFinanceSettings(request FinanceSettings, userId string, 
 		return "Inserted", err
 	}
 
-	return "Somethin went wrong", nil
+	return "Something went wrong", nil
 }
-func (s *Storage) createMeditationSettings(request MeditationSettings, userId string, ctx context.Context) (string, error) {
-	collection := s.db.Collection("settings")
-	userCollection := s.db.Collection("users")
-	//Check if user exists
-	userResult := userCollection.FindOne(ctx, bson.M{"_id": userId})
-	if err := userResult.Err(); err != nil {
-		return "", errors.New("User not found!")
-	}
-	// Check if user already has onboarding settings
-	settings := collection.FindOne(ctx, bson.M{"_id": userId})
-	if settings.Err() == nil {
-		// check if user already has finance settings
-		if collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": "meditation"}).Err() == nil {
-			return "", errors.New("User already has meditation settings, use put")
-		} else {
-			// create finance settings and keep the other settings
-			var settingsRecord SettingsDB
-			if err := settings.Decode(&settingsRecord); err != nil {
-				return "", err
-			}
-			newSettings := SettingsDB{
-				ID: userId,
-				// add meditation to the enabled plugins
-				EnabledPlugins: append(settingsRecord.EnabledPlugins, "meditation"),
-				Meditation:     request,
-				// take rest from old settings
-				Finance: settingsRecord.Finance,
-			}
-			// update the settings with the new settings
-			result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": newSettings})
-			if result.Err() != nil {
-				return "", result.Err()
-			} else {
-				return "Updated", nil
-			}
-		}
 
-	} else {
-		// create new settings, since user has no settings yet
-		settings := SettingsDB{
-			ID:             userId,
-			EnabledPlugins: []string{"finance"},
-			Meditation:     request,
-		}
-		// insert the settings
-		_, err := collection.InsertOne(ctx, settings)
-		if err != nil {
+func (s *Storage) updatePluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
+	collection := s.db.Collection("settings")
+
+	// Check if user already has the specified plugin settings
+	oldSettings := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName})
+	if oldSettings.Err() == nil {
+		// Update plugin settings
+		var settingsRecord SettingsDB
+		if err := oldSettings.Decode(&settingsRecord); err != nil {
 			return "", err
 		}
-		return "Inserted", err
+		if validateSettings(request) != nil {
+			return "Invalid settings", errors.New("Invalid settings: " + validateSettings(request).Error())
+		}
+		newSettings := SettingsDB{
+			ID:             userId,
+			EnabledPlugins: settingsRecord.EnabledPlugins,
+		}
+		switch pluginName {
+		case "finance":
+			newSettings.Finance = *(request.(*FinanceSettings))
+			newSettings.Meditation = settingsRecord.Meditation
+		case "meditation":
+			newSettings.Meditation = *(request.(*MeditationSettings))
+			newSettings.Finance = settingsRecord.Finance
+		}
+		if validateSettings(request) != nil {
+			return "Invalid settings", validateSettings(request)
+		}
+		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": newSettings})
+		if result.Err() != nil {
+			return "", result.Err()
+		} else {
+			return "Updated", nil
+		}
+	} else {
+		return "", errors.New("User does not have " + pluginName + " settings")
+	}
+}
+
+// function to validate each setting of a plugin
+func validateSettings(request interface{}) error {
+	// Validate settings, can be extended
+	newSettings := SettingsDB{}
+	switch request.(type) {
+	case *FinanceSettings:
+		newSettings.Finance = *(request.(*FinanceSettings))
+		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) {
+			return errors.New("Invalid notification type, either strat or notificcation")
+		}
+
+	case *MeditationSettings:
+		newSettings.Meditation = *(request.(*MeditationSettings))
+		if !isValidNotificationType(newSettings.Meditation.PeriodNotifications) {
+			return errors.New("Invalid notification type")
+		}
+	}
+	if !isValidPlugins(newSettings.EnabledPlugins) {
+		return errors.New("Invalid plugin")
 	}
 
-	return "Somethin went wrong", nil
+	return nil
+}
+func isValidPlugins(plugin interface{}) bool {
+	// check if plugins are valid
+	// if type of plugin is string then it is only one plugin
+	if reflect.TypeOf(plugin).Kind() == reflect.String {
+		plugin := plugin.(string)
+		if plugin != "finance" && plugin != "meditation" {
+			return false
+		}
+		return true
+	}
+	plugins := plugin.([]pluginType)
+	for _, plugin := range plugins {
+		// TODO make this shit dynamic fmmmlll
+		if plugin != "finance" && plugin != "meditation" {
+			return false
+		}
+
+	}
+	return true
+}
+func isValidNotificationType(notification NotificationType) bool {
+	// Validate notification type
+	switch notification {
+	case NotificationTypeDay, NotificationTypeWeek, NotificationTypeMonth:
+		return true
+	default:
+		return false
+	}
+}
+func isValidStrategy(strat StrategyType) bool {
+	// Validate notification type
+	switch strat {
+	case StrategyTypePercent, StrategyTypeRound, StrategyTypePlus:
+		return true
+	default:
+		return false
+	}
 }

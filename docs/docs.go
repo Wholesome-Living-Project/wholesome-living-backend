@@ -301,6 +301,42 @@ const docTemplate = `{
             }
         },
         "/settings/finance": {
+            "put": {
+                "description": "Update settings for a user for onr Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "UpdateFinanceSettings settings for the finance plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "post": {
                 "description": "Creates settings for a user for onr Plugin.",
                 "consumes": [
@@ -332,16 +368,49 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/settings.createInvestmentResponse"
-                        }
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
         },
         "/settings/meditation": {
+            "put": {
+                "description": "Update settings for a user",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update settings for the meditation Plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "post": {
                 "description": "Creates settings for a user",
                 "consumes": [
@@ -373,11 +442,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/settings.createInvestmentResponse"
-                        }
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -602,10 +668,10 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "periodNotifications": {
-                    "$ref": "#/definitions/settings.enumNotificationPeriod"
+                    "$ref": "#/definitions/settings.NotificationType"
                 },
                 "strategy": {
-                    "$ref": "#/definitions/settings.enumStrategy"
+                    "$ref": "#/definitions/settings.StrategyType"
                 },
                 "strategyAmount": {
                     "type": "integer"
@@ -626,9 +692,35 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "periodNotifications": {
-                    "$ref": "#/definitions/settings.enumNotificationPeriod"
+                    "$ref": "#/definitions/settings.NotificationType"
                 }
             }
+        },
+        "settings.NotificationType": {
+            "type": "string",
+            "enum": [
+                "Day",
+                "Month",
+                "\tWeek"
+            ],
+            "x-enum-varnames": [
+                "NotificationTypeDay",
+                "NotificationTypeMonth",
+                "NotificationTypeWeek"
+            ]
+        },
+        "settings.StrategyType": {
+            "type": "string",
+            "enum": [
+                "Round",
+                "Plus",
+                "\tPercent"
+            ],
+            "x-enum-varnames": [
+                "StrategyTypeRound",
+                "StrategyTypePlus",
+                "StrategyTypePercent"
+            ]
         },
         "settings.createInvestmentResponse": {
             "type": "object",
@@ -645,7 +737,7 @@ const docTemplate = `{
                     "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/settings.pluginType"
                     }
                 },
                 "finance": {
@@ -663,34 +755,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/settings.MeditationSettings"
                         }
                     ]
-                }
-            }
-        },
-        "settings.enumNotificationPeriod": {
-            "type": "object",
-            "properties": {
-                "day": {
-                    "type": "boolean"
-                },
-                "month": {
-                    "type": "boolean"
-                },
-                "week": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "settings.enumStrategy": {
-            "type": "object",
-            "properties": {
-                "percent": {
-                    "type": "boolean"
-                },
-                "plus": {
-                    "type": "boolean"
-                },
-                "round": {
-                    "type": "boolean"
                 }
             }
         },
@@ -701,7 +765,7 @@ const docTemplate = `{
                     "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/settings.pluginType"
                     }
                 },
                 "finance": {
@@ -721,6 +785,17 @@ const docTemplate = `{
                     ]
                 }
             }
+        },
+        "settings.pluginType": {
+            "type": "string",
+            "enum": [
+                "meditation",
+                "finance"
+            ],
+            "x-enum-varnames": [
+                "PluginTypeMeditation",
+                "PluginTypeFinance"
+            ]
         },
         "user.UserDB": {
             "type": "object",
@@ -742,12 +817,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.pluginType"
-                    }
                 }
             }
         },
@@ -779,17 +848,6 @@ const docTemplate = `{
                 }
             }
         },
-        "user.pluginType": {
-            "type": "string",
-            "enum": [
-                "meditation",
-                "workout"
-            ],
-            "x-enum-varnames": [
-                "PluginTypeMeditation",
-                "PluginTypeWorkout"
-            ]
-        },
         "user.updateUserRequest": {
             "type": "object",
             "properties": {
@@ -804,12 +862,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.pluginType"
-                    }
                 }
             }
         }
