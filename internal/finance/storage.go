@@ -13,6 +13,7 @@ type financeDB struct {
 	UserID         string             `json:"userId" bson:"userId"`
 	InvestmentTime int64              `json:"investmentTime" bson:"investmentTime"`
 	Amount         int                `json:"amount" bson:"amount"`
+	Description    string             `json:"description" bson:"description"`
 }
 
 type Storage struct {
@@ -40,6 +41,7 @@ func (s *Storage) create(request createInvestmentRequest, userId string, ctx con
 		UserID:         userId,
 		InvestmentTime: request.InvestmentTime,
 		Amount:         request.Amount,
+		Description:    request.Description,
 	}
 
 	result, err := collection.InsertOne(ctx, statement)

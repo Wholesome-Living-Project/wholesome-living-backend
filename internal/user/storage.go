@@ -89,7 +89,7 @@ func (s *Storage) GetAll(ctx context.Context) ([]UserDB, error) {
 
 func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
 	collection := s.db.Collection("users")
-	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "plugins": user.Plugins}}, nil)
+	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email}}, nil)
 
 	if result.Err() != nil {
 		return user, result.Err()

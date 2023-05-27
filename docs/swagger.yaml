@@ -4,6 +4,8 @@ definitions:
     properties:
       amount:
         type: integer
+      description:
+        type: string
       investmentTime:
         type: integer
     type: object
@@ -43,6 +45,92 @@ definitions:
         type: integer
       userId:
         type: string
+    type: object
+  settings.FinanceSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      investmentGoal:
+        description: The user's investment goal.
+        type: integer
+      investmentTimeGoal:
+        description: The user's investment time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.enumNotificationPeriod'
+      strategy:
+        $ref: '#/definitions/settings.enumStrategy'
+      strategyAmount:
+        type: integer
+    type: object
+  settings.MeditationSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      meditationTime:
+        description: The user's meditation time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.enumNotificationPeriod'
+    type: object
+  settings.createInvestmentResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  settings.createSettingsRequest:
+    properties:
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          type: string
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
+  settings.enumNotificationPeriod:
+    properties:
+      day:
+        type: boolean
+      month:
+        type: boolean
+      week:
+        type: boolean
+    type: object
+  settings.enumStrategy:
+    properties:
+      percent:
+        type: boolean
+      plus:
+        type: boolean
+      round:
+        type: boolean
+    type: object
+  settings.getInvestmentResponse:
+    properties:
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          type: string
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
     type: object
   user.UserDB:
     properties:
@@ -114,7 +202,7 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
-  /investment:
+  /finance:
     get:
       description: fetch a single investment session.
       parameters:
@@ -249,6 +337,109 @@ paths:
       summary: Get a meditation session
       tags:
       - meditation
+  /settings:
+    get:
+      description: fetch settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.getInvestmentResponse'
+      summary: Get settings for a user.
+      tags:
+      - settings
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.createSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createInvestmentResponse'
+      summary: Create onboarding in backend, set settings.
+      tags:
+      - settings
+  /settings/finance:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for onr Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.FinanceSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createInvestmentResponse'
+      summary: Create settings for the finance plugin.
+      tags:
+      - settings
+  /settings/meditation:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.MeditationSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createInvestmentResponse'
+      summary: Create settings for the meditation Plugin.
+      tags:
+      - settings
   /users:
     get:
       consumes:

@@ -21,8 +21,9 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 }
 
 type createInvestmentRequest struct {
-	Amount         int   `json:"amount" bson:"amount"`
-	InvestmentTime int64 `json:"investmentTime" bson:"investmentTime"`
+	Amount         int    `json:"amount" bson:"amount"`
+	InvestmentTime int64  `json:"investmentTime" bson:"investmentTime"`
+	Description    string `json:"description" bson:"description"`
 }
 
 type createInvestmentResponse struct {
