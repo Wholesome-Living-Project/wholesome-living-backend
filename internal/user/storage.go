@@ -11,13 +11,12 @@ import (
 
 // how the user is stored in the database
 type UserDB struct {
-	FirstName   string       `json:"firstName" bson:"firstName"`
-	LastName    string       `json:"lastName" bson:"lastName"`
-	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string       `json:"email" bson:"email"`
-	CreatedAt   int64        `json:"createdAt" bson:"createdAt"`
-	ID          string       `json:"id" bson:"_id"`
-	Plugins     []pluginType `json:"plugins" bson:"plugins"`
+	FirstName   string `json:"firstName" bson:"firstName"`
+	LastName    string `json:"lastName" bson:"lastName"`
+	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string `json:"email" bson:"email"`
+	CreatedAt   int64  `json:"createdAt" bson:"createdAt"`
+	ID          string `json:"id" bson:"_id"`
 }
 
 type Storage struct {

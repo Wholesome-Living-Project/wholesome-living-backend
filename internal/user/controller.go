@@ -39,11 +39,10 @@ type getUserRequest struct {
 }
 
 type updateUserRequest struct {
-	FirstName   string       `json:"firstName" bson:"firstName"`
-	LastName    string       `json:"lastName" bson:"lastName"`
-	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string       `json:"email" bson:"email"`
-	Plugins     []pluginType `json:"plugins" bson:"plugins"`
+	FirstName   string `json:"firstName" bson:"firstName"`
+	LastName    string `json:"lastName" bson:"lastName"`
+	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string `json:"email" bson:"email"`
 }
 
 // @Summary Create one user.
@@ -170,14 +169,6 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	if req.Email != "" {
 		user.Email = req.Email
 	}
-	if len(req.Plugins) > 0 {
-		if !isValidPlugins(req.Plugins) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid plugins",
-			})
-		}
-		user.Plugins = req.Plugins
-	}
 
 	// Update the user in the database
 	result, err := t.storage.Update(user, c.Context())
@@ -188,13 +179,4 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(result)
-}
-
-func isValidPlugins(plugins []pluginType) bool {
-	for _, p := range plugins {
-		if p != PluginTypeMeditation && p != PluginTypeWorkout {
-			return false
-		}
-	}
-	return true
 }
