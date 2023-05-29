@@ -17,6 +17,19 @@ type MeditationSettings struct {
 }
 type NotificationType string
 
+type PluginName string
+
+// ADD NEW PLUGIN NAME HERE
+const (
+	PluginNameFinance    PluginName = "finance"
+	PluginNameMeditation PluginName = "meditation"
+)
+
+var validPlugins = map[PluginName]bool{
+	PluginNameFinance:    true,
+	PluginNameMeditation: true,
+}
+
 const (
 	NotificationTypeDay   NotificationType = "Day"
 	NotificationTypeMonth NotificationType = "Month"
@@ -46,7 +59,7 @@ type FinanceSettings struct {
 
 type SettingsDB struct {
 	// A list with the Plugins that the user has enabled.
-	EnabledPlugins []pluginType `json:"enabledPlugins" bson:"enabledPlugins"`
+	EnabledPlugins []PluginName `json:"enabledPlugins" bson:"enabledPlugins"`
 	// The user's settings for the meditation plugin.
 	Meditation MeditationSettings `json:"meditation" bson:"meditation"`
 	// The user's settings for the finance plugin.
@@ -77,11 +90,12 @@ func (s *Storage) Get(userId string, ctx context.Context, plugin string) (Settin
 
 	if plugin != "" {
 		// check if plugin exists
-		if isValidPlugins(plugin) == false {
+		pluginName := PluginName(plugin)
+		if _, ok := validPlugins[pluginName]; !ok {
 			return settingsRecord, errors.New("Plugin not found!")
 		}
 		// Get certain plugin info
-		cursor := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": plugin})
+		cursor := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName})
 		if err := cursor.Err(); err != nil {
 			return settingsRecord, err
 		}
@@ -102,7 +116,7 @@ func (s *Storage) Get(userId string, ctx context.Context, plugin string) (Settin
 
 // TODO: Settings should be when onboarding is made or a user choses a ned plugin
 
-func (s *Storage) CreateOnboarding(request createSettingsRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) CreateOnboarding(request CreateSettingsRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
 
@@ -122,6 +136,8 @@ func (s *Storage) CreateOnboarding(request createSettingsRequest, userId string,
 	if validateSettings(request) != nil {
 		return "Invalid settings", validateSettings(request)
 	}
+
+	// Add new plugin to onboarding here
 	settings := SettingsDB{
 		ID:             userId,
 		EnabledPlugins: request.EnabledPlugins,
@@ -136,7 +152,7 @@ func (s *Storage) CreateOnboarding(request createSettingsRequest, userId string,
 	}
 	return "Inserted", err
 }
-func (s *Storage) createPluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
+func (s *Storage) CreatePluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
 
@@ -163,7 +179,7 @@ func (s *Storage) createPluginSettings(request interface{}, userId string, plugi
 			}
 			newSettings := SettingsDB{
 				ID:             userId,
-				EnabledPlugins: append(settingsRecord.EnabledPlugins, pluginType(pluginName)),
+				EnabledPlugins: append(settingsRecord.EnabledPlugins, PluginName(pluginName)),
 			}
 
 			switch pluginName {
@@ -180,7 +196,7 @@ func (s *Storage) createPluginSettings(request interface{}, userId string, plugi
 			if result.Err() != nil {
 				return "", result.Err()
 			} else {
-				return "Updated", nil
+				return "Created", nil
 			}
 		}
 
@@ -191,7 +207,7 @@ func (s *Storage) createPluginSettings(request interface{}, userId string, plugi
 		}
 		settings := SettingsDB{
 			ID:             userId,
-			EnabledPlugins: []pluginType{pluginType(pluginName)},
+			EnabledPlugins: []PluginName{PluginName(pluginName)},
 		}
 
 		switch pluginName {
@@ -212,7 +228,7 @@ func (s *Storage) createPluginSettings(request interface{}, userId string, plugi
 	return "Something went wrong", nil
 }
 
-func (s *Storage) updatePluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
+func (s *Storage) UpdatePluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 
 	// Check if user already has the specified plugin settings
@@ -238,9 +254,6 @@ func (s *Storage) updatePluginSettings(request interface{}, userId string, plugi
 			newSettings.Meditation = *(request.(*MeditationSettings))
 			newSettings.Finance = settingsRecord.Finance
 		}
-		if validateSettings(request) != nil {
-			return "Invalid settings", validateSettings(request)
-		}
 		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": newSettings})
 		if result.Err() != nil {
 			return "", result.Err()
@@ -252,15 +265,68 @@ func (s *Storage) updatePluginSettings(request interface{}, userId string, plugi
 	}
 }
 
+func (s *Storage) Delete(userId string, ctx context.Context, plugin string) (interface{}, error) {
+	collection := s.db.Collection("settings")
+
+	// Check if user exists
+	userResult := collection.FindOne(ctx, bson.M{"_id": userId})
+	if userResult.Err() != nil {
+		return nil, errors.New("User not found")
+	}
+
+	// Delete the plugin settings for the specified user
+	if plugin == "" {
+		_, err := collection.DeleteOne(ctx, bson.M{"_id": userId})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// validate plugin name
+		if isValidPlugins(plugin) != true {
+			return errors.New("Error"), errors.New("Invalid plugin name")
+		}
+		pluginName := PluginName(plugin)
+		// Delete the plugin from the enabledPlugins array and its associated saved values
+		update := bson.M{
+			"$pull":  bson.M{"enabledPlugins": pluginName},
+			"$unset": bson.M{plugin: ""},
+		}
+
+		_, err := collection.UpdateOne(ctx, bson.M{"_id": userId}, update)
+		if err != nil {
+			return nil, err
+		}
+
+		// Query the user document after the update
+		var updatedUserSettings SettingsDB
+		err = userResult.Decode(&updatedUserSettings)
+		if err != nil {
+			return nil, err
+		}
+
+		// If no plugins are left, delete the entire user settings
+		// remove plugin from enabledPlugins array
+		if len(updatedUserSettings.EnabledPlugins)-1 == 0 {
+			_, err := collection.DeleteOne(ctx, bson.M{"_id": userId})
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return "Deleted", nil
+}
+
 // function to validate each setting of a plugin
+// Todo: make dynamic
 func validateSettings(request interface{}) error {
-	// Validate settings, can be extended
 	newSettings := SettingsDB{}
+
 	switch request.(type) {
 	case *FinanceSettings:
 		newSettings.Finance = *(request.(*FinanceSettings))
 		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) {
-			return errors.New("Invalid notification type, either strat or notificcation")
+			return errors.New("Invalid notification type, either strategy or notification")
 		}
 
 	case *MeditationSettings:
@@ -268,13 +334,49 @@ func validateSettings(request interface{}) error {
 		if !isValidNotificationType(newSettings.Meditation.PeriodNotifications) {
 			return errors.New("Invalid notification type")
 		}
+
+	case *CreateSettingsRequest:
+		req := request.(*CreateSettingsRequest)
+		newSettings.Finance = req.Finance
+		newSettings.Meditation = req.Meditation
+		newSettings.EnabledPlugins = req.EnabledPlugins
+		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) || !isValidNotificationType(newSettings.Meditation.PeriodNotifications) || !isValidPlugins(newSettings.EnabledPlugins) {
+			return errors.New("Invalid settings, notification, strategy, or plugin not supported")
+		}
+
+	case FinanceSettings:
+		newSettings.Finance = request.(FinanceSettings)
+		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) {
+			return errors.New("Invalid notification type, either strategy or notification")
+		}
+
+	case MeditationSettings:
+		newSettings.Meditation = request.(MeditationSettings)
+		if !isValidNotificationType(newSettings.Meditation.PeriodNotifications) {
+			return errors.New("Invalid notification type")
+		}
+
+	case CreateSettingsRequest:
+		req := request.(CreateSettingsRequest)
+		newSettings.Finance = req.Finance
+		newSettings.Meditation = req.Meditation
+		newSettings.EnabledPlugins = req.EnabledPlugins
+		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) || !isValidNotificationType(newSettings.Meditation.PeriodNotifications) || !isValidPlugins(newSettings.EnabledPlugins) {
+			return errors.New("Invalid settings, notification, strategy, or plugin not supported")
+		}
+
+	default:
+		return errors.New("Invalid request type")
 	}
+
 	if !isValidPlugins(newSettings.EnabledPlugins) {
 		return errors.New("Invalid plugin")
 	}
 
 	return nil
 }
+
+// TODO make this shit dynamic fmmmlll
 func isValidPlugins(plugin interface{}) bool {
 	// check if plugins are valid
 	// if type of plugin is string then it is only one plugin
@@ -285,13 +387,11 @@ func isValidPlugins(plugin interface{}) bool {
 		}
 		return true
 	}
-	plugins := plugin.([]pluginType)
+	plugins := plugin.([]PluginName)
 	for _, plugin := range plugins {
-		// TODO make this shit dynamic fmmmlll
 		if plugin != "finance" && plugin != "meditation" {
 			return false
 		}
-
 	}
 	return true
 }

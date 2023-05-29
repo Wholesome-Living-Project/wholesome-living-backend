@@ -17,4 +17,5 @@ func Routes(app *fiber.App, controller *Controller) {
 	setteings.Put("/finance", controller.UpdateFinanceSettings)
 	setteings.Put("/meditation", controller.updateMeditationSettings)
 
+	setteings.Delete("/", controller.delete)
 }
