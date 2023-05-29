@@ -46,6 +46,22 @@ definitions:
       userId:
         type: string
     type: object
+  settings.CreateSettingsRequest:
+    properties:
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
   settings.FinanceSettings:
     properties:
       amountNotifications:
@@ -81,17 +97,25 @@ definitions:
     enum:
     - Day
     - Month
-    - "\tWeek"
+    - Week
     type: string
     x-enum-varnames:
     - NotificationTypeDay
     - NotificationTypeMonth
     - NotificationTypeWeek
+  settings.PluginName:
+    enum:
+    - finance
+    - meditation
+    type: string
+    x-enum-varnames:
+    - PluginNameFinance
+    - PluginNameMeditation
   settings.StrategyType:
     enum:
     - Round
     - Plus
-    - "\tPercent"
+    - Percent
     type: string
     x-enum-varnames:
     - StrategyTypeRound
@@ -102,28 +126,12 @@ definitions:
       id:
         type: string
     type: object
-  settings.createSettingsRequest:
-    properties:
-      enabledPlugins:
-        description: A list with the Plugins that the user has enabled.
-        items:
-          $ref: '#/definitions/settings.pluginType'
-        type: array
-      finance:
-        allOf:
-        - $ref: '#/definitions/settings.FinanceSettings'
-        description: The user's settings for the finance plugin.
-      meditation:
-        allOf:
-        - $ref: '#/definitions/settings.MeditationSettings'
-        description: The user's settings for the meditation plugin.
-    type: object
   settings.getInvestmentResponse:
     properties:
       enabledPlugins:
         description: A list with the Plugins that the user has enabled.
         items:
-          $ref: '#/definitions/settings.pluginType'
+          $ref: '#/definitions/settings.PluginName'
         type: array
       finance:
         allOf:
@@ -134,14 +142,6 @@ definitions:
         - $ref: '#/definitions/settings.MeditationSettings'
         description: The user's settings for the meditation plugin.
     type: object
-  settings.pluginType:
-    enum:
-    - meditation
-    - finance
-    type: string
-    x-enum-varnames:
-    - PluginTypeMeditation
-    - PluginTypeFinance
   user.UserDB:
     properties:
       createdAt:
@@ -332,6 +332,28 @@ paths:
       tags:
       - meditation
   /settings:
+    delete:
+      consumes:
+      - '*/*'
+      description: Delete settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Delete settings of a user.
+      tags:
+      - settings
     get:
       description: fetch settings for a user.
       parameters:
@@ -369,7 +391,7 @@ paths:
         name: settings
         required: true
         schema:
-          $ref: '#/definitions/settings.createSettingsRequest'
+          $ref: '#/definitions/settings.CreateSettingsRequest'
       produces:
       - application/json
       responses:

@@ -286,7 +286,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/settings.createSettingsRequest"
+                            "$ref": "#/definitions/settings.CreateSettingsRequest"
                         }
                     }
                 ],
@@ -296,6 +296,39 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/settings.createInvestmentResponse"
                         }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete settings for a user.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Delete settings of a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin name",
+                        "name": "plugin",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -650,6 +683,34 @@ const docTemplate = `{
                 }
             }
         },
+        "settings.CreateSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "enabledPlugins": {
+                    "description": "A list with the Plugins that the user has enabled.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/settings.PluginName"
+                    }
+                },
+                "finance": {
+                    "description": "The user's settings for the finance plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    ]
+                },
+                "meditation": {
+                    "description": "The user's settings for the meditation plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    ]
+                }
+            }
+        },
         "settings.FinanceSettings": {
             "type": "object",
             "properties": {
@@ -701,7 +762,7 @@ const docTemplate = `{
             "enum": [
                 "Day",
                 "Month",
-                "\tWeek"
+                "Week"
             ],
             "x-enum-varnames": [
                 "NotificationTypeDay",
@@ -709,12 +770,23 @@ const docTemplate = `{
                 "NotificationTypeWeek"
             ]
         },
+        "settings.PluginName": {
+            "type": "string",
+            "enum": [
+                "finance",
+                "meditation"
+            ],
+            "x-enum-varnames": [
+                "PluginNameFinance",
+                "PluginNameMeditation"
+            ]
+        },
         "settings.StrategyType": {
             "type": "string",
             "enum": [
                 "Round",
                 "Plus",
-                "\tPercent"
+                "Percent"
             ],
             "x-enum-varnames": [
                 "StrategyTypeRound",
@@ -730,34 +802,6 @@ const docTemplate = `{
                 }
             }
         },
-        "settings.createSettingsRequest": {
-            "type": "object",
-            "properties": {
-                "enabledPlugins": {
-                    "description": "A list with the Plugins that the user has enabled.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/settings.pluginType"
-                    }
-                },
-                "finance": {
-                    "description": "The user's settings for the finance plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.FinanceSettings"
-                        }
-                    ]
-                },
-                "meditation": {
-                    "description": "The user's settings for the meditation plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.MeditationSettings"
-                        }
-                    ]
-                }
-            }
-        },
         "settings.getInvestmentResponse": {
             "type": "object",
             "properties": {
@@ -765,7 +809,7 @@ const docTemplate = `{
                     "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/settings.pluginType"
+                        "$ref": "#/definitions/settings.PluginName"
                     }
                 },
                 "finance": {
@@ -785,17 +829,6 @@ const docTemplate = `{
                     ]
                 }
             }
-        },
-        "settings.pluginType": {
-            "type": "string",
-            "enum": [
-                "meditation",
-                "finance"
-            ],
-            "x-enum-varnames": [
-                "PluginTypeMeditation",
-                "PluginTypeFinance"
-            ]
         },
         "user.UserDB": {
             "type": "object",

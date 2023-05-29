@@ -5,11 +5,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type pluginType string
+type PluginName string
 
 const (
-	PluginTypeMeditation pluginType = "meditation"
-	PluginTypeWorkout    pluginType = "workout"
+	PluginNameMeditation PluginName = "meditation"
+	PluginNameWorkout    PluginName = "workout"
 )
 
 type Controller struct {
