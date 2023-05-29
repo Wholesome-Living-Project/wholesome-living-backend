@@ -8,13 +8,6 @@ import (
 	"reflect"
 )
 
-type MeditationSettings struct {
-	// The user's meditation time goal.
-	MeditationTimeGoal  int              `json:"meditationTime" bson:"meditationTime"`
-	Notifications       bool             `json:"notifications" bson:"notifications"`
-	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
-	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
-}
 type NotificationType string
 
 type PluginName string
@@ -23,11 +16,13 @@ type PluginName string
 const (
 	PluginNameFinance    PluginName = "finance"
 	PluginNameMeditation PluginName = "meditation"
+	PluginNameElevator   PluginName = "elevator"
 )
 
 var validPlugins = map[PluginName]bool{
 	PluginNameFinance:    true,
 	PluginNameMeditation: true,
+	PluginNameElevator:   true,
 }
 
 const (
@@ -57,6 +52,21 @@ type FinanceSettings struct {
 	// Interest rate of investment TODO maybe there can be multiple different interest rates for different investmens
 }
 
+type MeditationSettings struct {
+	// The user's meditation time goal.
+	MeditationTimeGoal  int              `json:"meditationTime" bson:"meditationTime"`
+	Notifications       bool             `json:"notifications" bson:"notifications"`
+	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
+	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
+}
+
+type ElevatorSettings struct {
+	Notifications       bool             `json:"notifications" bson:"notifications"`
+	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
+	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
+	Goal                int              `json:"goal" bson:"goal"`
+}
+
 type SettingsDB struct {
 	// A list with the Plugins that the user has enabled.
 	EnabledPlugins []PluginName `json:"enabledPlugins" bson:"enabledPlugins"`
@@ -64,7 +74,9 @@ type SettingsDB struct {
 	Meditation MeditationSettings `json:"meditation" bson:"meditation"`
 	// The user's settings for the finance plugin.
 	Finance FinanceSettings `json:"finance" bson:"finance"`
-	ID      string          `json:"id" bson:"_id"`
+	// The user's settings for the elevator plugin.
+	Elevator ElevatorSettings `json:"elevator" bson:"elevator"`
+	ID       string           `json:"id" bson:"_id"`
 }
 
 type Storage struct {
@@ -143,6 +155,7 @@ func (s *Storage) CreateOnboarding(request CreateSettingsRequest, userId string,
 		EnabledPlugins: request.EnabledPlugins,
 		Meditation:     request.Meditation,
 		Finance:        request.Finance,
+		Elevator:       request.Elevator,
 	}
 
 	result, err := collection.InsertOne(ctx, settings)
@@ -186,9 +199,15 @@ func (s *Storage) CreatePluginSettings(request interface{}, userId string, plugi
 			case "finance":
 				newSettings.Finance = *(request.(*FinanceSettings))
 				newSettings.Meditation = settingsRecord.Meditation
+				newSettings.Elevator = settingsRecord.Elevator
 			case "meditation":
 				newSettings.Meditation = *(request.(*MeditationSettings))
 				newSettings.Finance = settingsRecord.Finance
+				newSettings.Elevator = settingsRecord.Elevator
+			case "elevator":
+				newSettings.Elevator = *(request.(*ElevatorSettings))
+				newSettings.Finance = settingsRecord.Finance
+				newSettings.Meditation = settingsRecord.Meditation
 			}
 
 			// Update the settings with the new settings
@@ -215,6 +234,8 @@ func (s *Storage) CreatePluginSettings(request interface{}, userId string, plugi
 			settings.Finance = *(request.(*FinanceSettings))
 		case "meditation":
 			settings.Meditation = *(request.(*MeditationSettings))
+		case "elevator":
+			settings.Elevator = *(request.(*ElevatorSettings))
 		}
 
 		// Insert the settings
@@ -250,9 +271,16 @@ func (s *Storage) UpdatePluginSettings(request interface{}, userId string, plugi
 		case "finance":
 			newSettings.Finance = *(request.(*FinanceSettings))
 			newSettings.Meditation = settingsRecord.Meditation
+			newSettings.Elevator = settingsRecord.Elevator
 		case "meditation":
 			newSettings.Meditation = *(request.(*MeditationSettings))
 			newSettings.Finance = settingsRecord.Finance
+			newSettings.Elevator = settingsRecord.Elevator
+		case "elevator":
+			newSettings.Elevator = *(request.(*ElevatorSettings))
+			newSettings.Finance = settingsRecord.Finance
+			newSettings.Meditation = settingsRecord.Meditation
+
 		}
 		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": newSettings})
 		if result.Err() != nil {
@@ -340,6 +368,7 @@ func validateSettings(request interface{}) error {
 		newSettings.Finance = req.Finance
 		newSettings.Meditation = req.Meditation
 		newSettings.EnabledPlugins = req.EnabledPlugins
+		newSettings.Elevator = req.Elevator
 		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) || !isValidNotificationType(newSettings.Meditation.PeriodNotifications) || !isValidPlugins(newSettings.EnabledPlugins) {
 			return errors.New("Invalid settings, notification, strategy, or plugin not supported")
 		}
@@ -361,8 +390,19 @@ func validateSettings(request interface{}) error {
 		newSettings.Finance = req.Finance
 		newSettings.Meditation = req.Meditation
 		newSettings.EnabledPlugins = req.EnabledPlugins
+		newSettings.Elevator = req.Elevator
 		if !isValidNotificationType(newSettings.Finance.PeriodNotifications) || !isValidStrategy(newSettings.Finance.Strategy) || !isValidNotificationType(newSettings.Meditation.PeriodNotifications) || !isValidPlugins(newSettings.EnabledPlugins) {
 			return errors.New("Invalid settings, notification, strategy, or plugin not supported")
+		}
+	case ElevatorSettings:
+		newSettings.Elevator = request.(ElevatorSettings)
+		if !isValidNotificationType(newSettings.Elevator.PeriodNotifications) {
+			return errors.New("Invalid notification type")
+		}
+	case *ElevatorSettings:
+		newSettings.Elevator = *(request.(*ElevatorSettings))
+		if !isValidNotificationType(newSettings.Elevator.PeriodNotifications) {
+			return errors.New("Invalid notification type")
 		}
 
 	default:

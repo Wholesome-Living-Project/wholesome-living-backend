@@ -333,6 +333,80 @@ const docTemplate = `{
                 }
             }
         },
+        "/settings/elevator": {
+            "put": {
+                "description": "Update settings for the elevator Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update settings for the elevator Plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.ElevatorSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates settings for a user for the elevator Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings for the elevator plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.ElevatorSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
         "/settings/finance": {
             "put": {
                 "description": "Update settings for a user for onr Plugin.",
@@ -345,7 +419,7 @@ const docTemplate = `{
                 "tags": [
                     "settings"
                 ],
-                "summary": "UpdateFinanceSettings settings for the finance plugin.",
+                "summary": "updateFinanceSettings settings for the finance plugin.",
                 "parameters": [
                     {
                         "type": "string",
@@ -371,7 +445,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Creates settings for a user for onr Plugin.",
+                "description": "Creates settings for a user for the finance Plugin.",
                 "consumes": [
                     "*/*"
                 ],
@@ -445,7 +519,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Creates settings for a user",
+                "description": "Creates settings for the meditation plugin",
                 "consumes": [
                     "*/*"
                 ],
@@ -686,6 +760,9 @@ const docTemplate = `{
         "settings.CreateSettingsRequest": {
             "type": "object",
             "properties": {
+                "elevator": {
+                    "$ref": "#/definitions/settings.ElevatorSettings"
+                },
                 "enabledPlugins": {
                     "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
@@ -708,6 +785,23 @@ const docTemplate = `{
                             "$ref": "#/definitions/settings.MeditationSettings"
                         }
                     ]
+                }
+            }
+        },
+        "settings.ElevatorSettings": {
+            "type": "object",
+            "properties": {
+                "amountNotifications": {
+                    "type": "integer"
+                },
+                "goal": {
+                    "type": "integer"
+                },
+                "notifications": {
+                    "type": "boolean"
+                },
+                "periodNotifications": {
+                    "$ref": "#/definitions/settings.NotificationType"
                 }
             }
         },
@@ -774,11 +868,13 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "finance",
-                "meditation"
+                "meditation",
+                "elevator"
             ],
             "x-enum-varnames": [
                 "PluginNameFinance",
-                "PluginNameMeditation"
+                "PluginNameMeditation",
+                "PluginNameElevator"
             ]
         },
         "settings.StrategyType": {

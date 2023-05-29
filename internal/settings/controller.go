@@ -26,7 +26,8 @@ type CreateSettingsRequest struct {
 	// The user's settings for the meditation plugin.
 	Meditation MeditationSettings `json:"meditation" bson:"meditation"`
 	// The user's settings for the finance plugin.
-	Finance FinanceSettings `json:"finance" bson:"finance"`
+	Finance  FinanceSettings  `json:"finance" bson:"finance"`
+	Elevator ElevatorSettings `json:"elevator" bson:"elevator"`
 }
 
 // TODO for each Plugin a creat endpoint
@@ -121,7 +122,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 }
 
 // @Summary Create settings for the finance plugin.
-// @Description Creates settings for a user for onr Plugin.
+// @Description Creates settings for a user for the finance Plugin.
 // @Tags settings
 // @Accept */*
 // @Produce json
@@ -133,8 +134,21 @@ func (t *Controller) createFinanceSettings(c *fiber.Ctx) error {
 	return t.createPluginSettings(c, "finance")
 }
 
+// @Summary Create settings for the elevator plugin.
+// @Description Creates settings for a user for the elevator Plugin.
+// @Tags settings
+// @Accept */*
+// @Produce json
+// @param userId header string true "User ID"
+// @Param settings body ElevatorSettings true "onboarding to create"
+// @Success 201
+// @Router /settings/elevator [post]
+func (t *Controller) createElevatorSettings(c *fiber.Ctx) error {
+	return t.createPluginSettings(c, "elevator")
+}
+
 // @Summary Create settings for the meditation Plugin.
-// @Description Creates settings for a user
+// @Description Creates settings for the meditation plugin
 // @Tags settings
 // @Accept */*
 // @Produce json
@@ -156,6 +170,9 @@ func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error
 	case "meditation":
 		var meditationReq MeditationSettings
 		req = &meditationReq
+	case "elevator":
+		var elevatorReq ElevatorSettings
+		req = &elevatorReq
 	default:
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid plugin name",
@@ -184,8 +201,8 @@ func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error
 	return c.Status(fiber.StatusCreated).JSON(http)
 }
 
-// UpdateFinanceSettings
-// @Summary UpdateFinanceSettings settings for the finance plugin.
+// updateFinanceSettings
+// @Summary updateFinanceSettings settings for the finance plugin.
 // @Description Update settings for a user for onr Plugin.
 // @Tags settings
 // @Accept */*
@@ -194,7 +211,7 @@ func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error
 // @Param settings body FinanceSettings true "onboarding to create"
 // @Success 200
 // @Router /settings/finance [put]
-func (t *Controller) UpdateFinanceSettings(c *fiber.Ctx) error {
+func (t *Controller) updateFinanceSettings(c *fiber.Ctx) error {
 	return t.updatePluginSettings(c, "finance")
 }
 
@@ -211,6 +228,19 @@ func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
 	return t.updatePluginSettings(c, "meditation")
 }
 
+// @Summary Update settings for the elevator Plugin.
+// @Description Update settings for the elevator Plugin.
+// @Tags settings
+// @Accept */*
+// @Produce json
+// @param userId header string true "User ID"
+// @Param settings body ElevatorSettings true "onboarding to create"
+// @Success 200
+// @Router /settings/elevator [put]
+func (t *Controller) updateElevatorSettings(c *fiber.Ctx) error {
+	return t.updatePluginSettings(c, "elevator")
+}
+
 func (t *Controller) updatePluginSettings(c *fiber.Ctx, pluginName string) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	var req interface{}
@@ -221,6 +251,9 @@ func (t *Controller) updatePluginSettings(c *fiber.Ctx, pluginName string) error
 	case "meditation":
 		var meditationReq MeditationSettings
 		req = &meditationReq
+	case "elevator":
+		var elevatorReq ElevatorSettings
+		req = &elevatorReq
 	default:
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid plugin name",

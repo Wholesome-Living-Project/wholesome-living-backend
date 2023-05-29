@@ -48,6 +48,8 @@ definitions:
     type: object
   settings.CreateSettingsRequest:
     properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
       enabledPlugins:
         description: A list with the Plugins that the user has enabled.
         items:
@@ -61,6 +63,17 @@ definitions:
         allOf:
         - $ref: '#/definitions/settings.MeditationSettings'
         description: The user's settings for the meditation plugin.
+    type: object
+  settings.ElevatorSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      goal:
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
     type: object
   settings.FinanceSettings:
     properties:
@@ -107,10 +120,12 @@ definitions:
     enum:
     - finance
     - meditation
+    - elevator
     type: string
     x-enum-varnames:
     - PluginNameFinance
     - PluginNameMeditation
+    - PluginNameElevator
   settings.StrategyType:
     enum:
     - Round
@@ -402,11 +417,60 @@ paths:
       summary: Create onboarding in backend, set settings.
       tags:
       - settings
+  /settings/elevator:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the elevator plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update settings for the elevator Plugin.
+      tags:
+      - settings
   /settings/finance:
     post:
       consumes:
       - '*/*'
-      description: Creates settings for a user for onr Plugin.
+      description: Creates settings for a user for the finance Plugin.
       parameters:
       - description: User ID
         in: header
@@ -448,14 +512,14 @@ paths:
       responses:
         "200":
           description: OK
-      summary: UpdateFinanceSettings settings for the finance plugin.
+      summary: updateFinanceSettings settings for the finance plugin.
       tags:
       - settings
   /settings/meditation:
     post:
       consumes:
       - '*/*'
-      description: Creates settings for a user
+      description: Creates settings for the meditation plugin
       parameters:
       - description: User ID
         in: header

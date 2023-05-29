@@ -2,7 +2,6 @@ package meditation
 
 import (
 	"cmd/http/main.go/internal/user"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -165,7 +164,6 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	// Get all meditations of a user
 	meditations, err := t.storage.GetAllOfOneUser(userId, c.Context())
 	if err != nil {
-		fmt.Println("err", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Failed to fetch meditation",
 		})
