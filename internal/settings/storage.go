@@ -376,25 +376,24 @@ func validateSettings(request interface{}) error {
 	return nil
 }
 
-// TODO make this shit dynamic fmmmlll
 func isValidPlugins(plugin interface{}) bool {
-	// check if plugins are valid
-	// if type of plugin is string then it is only one plugin
-	if reflect.TypeOf(plugin).Kind() == reflect.String {
-		plugin := plugin.(string)
-		if plugin != "finance" && plugin != "meditation" {
-			return false
+	switch reflect.TypeOf(plugin).Kind() {
+	case reflect.String:
+		plugin := PluginName(plugin.(string))
+		return validPlugins[plugin]
+	case reflect.Slice:
+		plugins := plugin.([]PluginName)
+		for _, p := range plugins {
+			if !validPlugins[p] {
+				return false
+			}
 		}
 		return true
+	default:
+		return false
 	}
-	plugins := plugin.([]PluginName)
-	for _, plugin := range plugins {
-		if plugin != "finance" && plugin != "meditation" {
-			return false
-		}
-	}
-	return true
 }
+
 func isValidNotificationType(notification NotificationType) bool {
 	// Validate notification type
 	switch notification {
