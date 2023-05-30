@@ -1,4 +1,4 @@
-FROM golang:1.19.5-alpine as builder
+FROM golang:1.20-alpine as builder
 
 WORKDIR /build
 
@@ -7,10 +7,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go install github.com/swaggo/swag/cmd/swag@latest 
 RUN go install github.com/go-task/task/v3/cmd/task@latest
-RUN task docs
-
+RUN go mod tidy
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN task build
 

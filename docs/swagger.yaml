@@ -213,7 +213,7 @@ info:
 paths:
   /finance:
     get:
-      description: fetch a single investment session.
+      description: Query Investments with the user ID, start time and end time.
       parameters:
       - description: User ID
         in: header
@@ -239,7 +239,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/finance.getInvestmentResponse'
-      summary: Get a single investment
+      summary: Query Investments with the user ID, start time and end time.
       tags:
       - finance
     post:
@@ -270,8 +270,28 @@ paths:
       - finance
   /meditation:
     get:
-      description: fetch all meditation sessions of a user.
+      description: Fetch one or multiple meditation sessions.
       parameters:
+      - description: investment ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
+      - description: duration start time
+        in: query
+        name: durationStart
+        type: integer
+      - description: duration end time
+        in: query
+        name: durationEnd
+        type: integer
       - description: User ID
         in: header
         name: userId
@@ -282,19 +302,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              properties:
-                endTime:
-                  type: integer
-                id:
-                  type: string
-                meditationTime:
-                  type: integer
-                userId:
-                  type: string
-              type: object
-            type: array
-      summary: Get all meditation session
+            $ref: '#/definitions/meditation.getMeditationResponse'
+      summary: Get meditation sessions
       tags:
       - meditation
     post:
@@ -320,30 +329,6 @@ paths:
           schema:
             $ref: '#/definitions/meditation.createMeditationResponse'
       summary: Create meditation.
-      tags:
-      - meditation
-  /meditation/{id}:
-    get:
-      description: fetch a single meditation session.
-      parameters:
-      - description: Meditation ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: User ID
-        in: header
-        name: userId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/meditation.getMeditationResponse'
-      summary: Get a meditation session
       tags:
       - meditation
   /settings:

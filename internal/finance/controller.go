@@ -77,8 +77,8 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Get a single investment
-// @Description fetch a single investment session.
+// @Summary Query Investments with the user ID, start time and end time.
+// @Description Query Investments with the user ID, start time and end time.
 // @Tags finance
 // @param userId header string true "User ID"
 // @Param id query string false "investment ID"
