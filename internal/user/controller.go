@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 )
 
 type PluginName string
