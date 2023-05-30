@@ -157,6 +157,16 @@ definitions:
         - $ref: '#/definitions/settings.MeditationSettings'
         description: The user's settings for the meditation plugin.
     type: object
+  user.PluginName:
+    enum:
+    - meditation
+    - finance
+    - elevator
+    type: string
+    x-enum-varnames:
+    - PluginNameMeditation
+    - PluginNameFinance
+    - PluginNameElevator
   user.UserDB:
     properties:
       createdAt:
@@ -171,6 +181,10 @@ definitions:
         type: string
       lastName:
         type: string
+      plugins:
+        items:
+          $ref: '#/definitions/user.PluginName'
+        type: array
     type: object
   user.createUserRequest:
     properties:
@@ -200,6 +214,10 @@ definitions:
         type: string
       lastName:
         type: string
+      plugins:
+        items:
+          $ref: '#/definitions/user.PluginName'
+        type: array
     type: object
 info:
   contact:

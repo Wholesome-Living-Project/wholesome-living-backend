@@ -895,6 +895,19 @@
                 }
             }
         },
+        "user.PluginName": {
+            "type": "string",
+            "enum": [
+                "meditation",
+                "finance",
+                "elevator"
+            ],
+            "x-enum-varnames": [
+                "PluginNameMeditation",
+                "PluginNameFinance",
+                "PluginNameElevator"
+            ]
+        },
         "user.UserDB": {
             "type": "object",
             "properties": {
@@ -915,6 +928,12 @@
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.PluginName"
+                    }
                 }
             }
         },
@@ -960,6 +979,12 @@
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.PluginName"
+                    }
                 }
             }
         }

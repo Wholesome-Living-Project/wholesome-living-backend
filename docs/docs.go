@@ -902,6 +902,19 @@ const docTemplate = `{
                 }
             }
         },
+        "user.PluginName": {
+            "type": "string",
+            "enum": [
+                "meditation",
+                "finance",
+                "elevator"
+            ],
+            "x-enum-varnames": [
+                "PluginNameMeditation",
+                "PluginNameFinance",
+                "PluginNameElevator"
+            ]
+        },
         "user.UserDB": {
             "type": "object",
             "properties": {
@@ -922,6 +935,12 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.PluginName"
+                    }
                 }
             }
         },
@@ -967,6 +986,12 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.PluginName"
+                    }
                 }
             }
         }
