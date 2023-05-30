@@ -2,14 +2,14 @@ package user
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 )
 
 type PluginName string
 
 const (
 	PluginNameMeditation PluginName = "meditation"
-	PluginNameWorkout    PluginName = "workout"
+	PluginNameFinance    PluginName = "finance"
+	PluginNameElevator   PluginName = "elevator"
 )
 
 type Controller struct {
@@ -39,10 +39,11 @@ type getUserRequest struct {
 }
 
 type updateUserRequest struct {
-	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    string `json:"lastName" bson:"lastName"`
-	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string `json:"email" bson:"email"`
+	FirstName   string       `json:"firstName" bson:"firstName"`
+	LastName    string       `json:"lastName" bson:"lastName"`
+	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string       `json:"email" bson:"email"`
+	Plugins     []PluginName `json:"plugins" bson:"plugins"`
 }
 
 // @Summary Create one user.
@@ -168,6 +169,17 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 	if req.Email != "" {
 		user.Email = req.Email
+	}
+	if req.Plugins != nil {
+		// check if plugin is valid
+		for _, plugin := range req.Plugins {
+			if plugin != PluginNameMeditation && plugin != PluginNameFinance && plugin != PluginNameElevator {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"message": "Invalid plugin name",
+				})
+			}
+		}
+		user.Plugins = req.Plugins
 	}
 
 	// Update the user in the database
