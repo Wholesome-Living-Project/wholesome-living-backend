@@ -272,7 +272,7 @@ paths:
     get:
       description: Fetch one or multiple meditation sessions.
       parameters:
-      - description: investment ID
+      - description: Meditation ID
         in: query
         name: id
         type: string
