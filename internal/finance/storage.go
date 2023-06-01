@@ -9,11 +9,11 @@ import (
 )
 
 type financeDB struct {
-	ID             primitive.ObjectID `json:"id" bson:"_id"`
-	UserID         string             `json:"userId" bson:"userId"`
-	InvestmentTime int64              `json:"investmentTime" bson:"investmentTime"`
-	Amount         int                `json:"amount" bson:"amount"`
-	Description    string             `json:"description" bson:"description"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	UserID       string             `json:"userId" bson:"userId"`
+	SpendingTime int64              `json:"spendingTime" bson:"spendingTime"`
+	Amount       int                `json:"amount" bson:"amount"`
+	Description  string             `json:"description" bson:"description"`
 }
 
 type Storage struct {
@@ -26,7 +26,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request createInvestmentRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) create(request createSpendingRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
@@ -37,11 +37,11 @@ func (s *Storage) create(request createInvestmentRequest, userId string, ctx con
 		return "", err
 	}
 	statement := financeDB{
-		ID:             primitive.NewObjectID(),
-		UserID:         userId,
-		InvestmentTime: request.InvestmentTime,
-		Amount:         request.Amount,
-		Description:    request.Description,
+		ID:           primitive.NewObjectID(),
+		UserID:       userId,
+		SpendingTime: request.SpendingTime,
+		Amount:       request.Amount,
+		Description:  request.Description,
 	}
 
 	result, err := collection.InsertOne(ctx, statement)

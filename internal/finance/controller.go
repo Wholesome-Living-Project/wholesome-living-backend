@@ -20,34 +20,34 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 	}
 }
 
-type createInvestmentRequest struct {
-	Amount         int    `json:"amount" bson:"amount"`
-	InvestmentTime int64  `json:"investmentTime" bson:"investmentTime"`
-	Description    string `json:"description" bson:"description"`
+type createSpendingRequest struct {
+	Amount       int    `json:"amount" bson:"amount"`
+	SpendingTime int64  `json:"spendingTime" bson:"spendingTime"`
+	Description  string `json:"description" bson:"description"`
 }
 
-type createInvestmentResponse struct {
+type createSpendingResponse struct {
 	ID string `json:"id"`
 }
 
 type getInvestmentResponse struct {
-	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
-	InvestmentTime int64              `json:"investmentTime" bson:"investmentTime"`
-	Amount         int                `json:"amount" bson:"amount"`
+	UserID       primitive.ObjectID `json:"userId" bson:"userId"`
+	SpendingTime int64              `json:"spendingTime" bson:"spendingTime"`
+	Amount       int                `json:"amount" bson:"amount"`
 }
 
-// @Summary Create a investment.
-// @Description Creates a new investment.
+// @Summary Create a spending.
+// @Description Creates a new spending.
 // @Tags finance
 // @Accept */*
 // @Produce json
 // @param userId header string true "User ID"
-// @Param investment body createInvestmentRequest true "investment to create"
-// @Success 200 {object} createInvestmentResponse
+// @Param investment body createSpendingRequest true "spending to create"
+// @Success 200 {object} createSpendingResponse
 // @Router /finance [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createInvestmentRequest
+	var req createSpendingRequest
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -64,7 +64,6 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	}
 
 	//TODO correct error handling
-	// create investment record
 	id, err := t.storage.create(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -72,7 +71,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"err":     err,
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(createInvestmentResponse{
+	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
 	})
 }
