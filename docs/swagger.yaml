@@ -1,30 +1,213 @@
 basePath: /
 definitions:
-  handlers.CreateMeditationDTO:
+  finance.createInvestmentRequest:
     properties:
-      meditationTime:
-        type: string
-    type: object
-  handlers.CreateTodoDTO:
-    properties:
-      completed:
-        type: boolean
-      date:
-        type: string
+      amount:
+        type: integer
       description:
         type: string
-      title:
-        type: string
+      investmentTime:
+        type: integer
     type: object
-  handlers.CreateTodoResDTO:
+  finance.createInvestmentResponse:
     properties:
-      inserted_id:
+      id:
         type: string
     type: object
-  handlers.CreateUserDTO:
+  finance.getInvestmentResponse:
+    properties:
+      amount:
+        type: integer
+      investmentTime:
+        type: integer
+      userId:
+        type: string
+    type: object
+  meditation.createMeditationRequest:
+    properties:
+      endTime:
+        type: integer
+      meditationTime:
+        type: integer
+    type: object
+  meditation.createMeditationResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  meditation.getMeditationResponse:
+    properties:
+      endTime:
+        type: integer
+      id:
+        type: string
+      meditationTime:
+        type: integer
+      userId:
+        type: string
+    type: object
+  settings.CreateSettingsRequest:
+    properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
+  settings.ElevatorSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      goal:
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+    type: object
+  settings.FinanceSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      investmentGoal:
+        description: The user's investment goal.
+        type: integer
+      investmentTimeGoal:
+        description: The user's investment time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+      strategy:
+        $ref: '#/definitions/settings.StrategyType'
+      strategyAmount:
+        type: integer
+    type: object
+  settings.MeditationSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      meditationTimeGoal:
+        description: The user's meditation time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+    type: object
+  settings.NotificationType:
+    enum:
+    - Day
+    - Month
+    - Week
+    type: string
+    x-enum-varnames:
+    - NotificationTypeDay
+    - NotificationTypeMonth
+    - NotificationTypeWeek
+  settings.PluginName:
+    enum:
+    - finance
+    - meditation
+    - elevator
+    type: string
+    x-enum-varnames:
+    - PluginNameFinance
+    - PluginNameMeditation
+    - PluginNameElevator
+  settings.StrategyType:
+    enum:
+    - Round
+    - Plus
+    - Percent
+    type: string
+    x-enum-varnames:
+    - StrategyTypeRound
+    - StrategyTypePlus
+    - StrategyTypePercent
+  settings.createInvestmentResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  settings.getSettingsResponse:
+    properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
+  user.PluginName:
+    enum:
+    - meditation
+    - finance
+    - elevator
+    type: string
+    x-enum-varnames:
+    - PluginNameMeditation
+    - PluginNameFinance
+    - PluginNameElevator
+  user.UserDB:
     properties:
       createdAt:
+        type: integer
+      dateOfBirth:
         type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      plugins:
+        items:
+          $ref: '#/definitions/user.PluginName'
+        type: array
+    type: object
+  user.createUserRequest:
+    properties:
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+    type: object
+  user.createUserResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  user.updateUserRequest:
+    properties:
       dateOfBirth:
         type: string
       email:
@@ -33,103 +216,105 @@ definitions:
         type: string
       lastName:
         type: string
+      plugins:
+        items:
+          $ref: '#/definitions/user.PluginName'
+        type: array
     type: object
-  handlers.CreateUserResDTO:
-    properties:
-      inserted_id:
-        type: string
-    type: object
-  handlers.DeleteTodoResDTO:
-    properties:
-      deleted_count:
-        type: integer
-    type: object
-  handlers.UpdateTodoDTO:
-    properties:
-      completed:
-        type: boolean
-      date:
-        type: string
-      description:
-        type: string
-      title:
-        type: string
-    type: object
-  handlers.UpdateTodoResDTO:
-    properties:
-      updated_count:
-        type: integer
-    type: object
-  models.Meditation:
-    properties:
-      completed:
-        type: string
-      date:
-        type: string
-      id:
-        type: string
-      meditationTime:
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.Todo:
-    properties:
-      completed:
-        type: boolean
-      date:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      title:
-        type: string
-    type: object
-  models.User:
-    properties:
-      completed:
-        type: string
-      date:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      title:
-        type: string
-    type: object
-host: localhost:8080
 info:
   contact:
-    name: Ben Davis
-  description: An example template of a Golang backend API using Fiber and MongoDB
+    name: Wholesome Living
+  description: A backend for Wholesome Living written in Golang backend API using
+    Fiber and MongoDB
   license:
     name: MIT
   title: Wholesome Living Backend
   version: "0.1"
 paths:
-  /health:
+  /finance:
     get:
-      consumes:
-      - '*/*'
-      description: get the status of server.
+      description: Query Investments with the user ID, start time and end time.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: investment ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
           description: OK
-      summary: Show the status of server.
+          schema:
+            $ref: '#/definitions/finance.getInvestmentResponse'
+      summary: Query Investments with the user ID, start time and end time.
       tags:
-      - health
-  /meditation/{id}:
-    get:
-      description: fetch a single user.
+      - finance
+    post:
+      consumes:
+      - '*/*'
+      description: Creates a new investment.
       parameters:
-      - description: Meditationo ID
-        in: path
-        name: id
+      - description: User ID
+        in: header
+        name: userId
         required: true
+        type: string
+      - description: investment to create
+        in: body
+        name: investment
+        required: true
+        schema:
+          $ref: '#/definitions/finance.createInvestmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finance.createInvestmentResponse'
+      summary: Create a investment.
+      tags:
+      - finance
+  /meditation:
+    get:
+      description: Fetch one or multiple meditation sessions.
+      parameters:
+      - description: Meditation ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
+      - description: duration start time
+        in: query
+        name: durationStart
+        type: integer
+      - description: duration end time
+        in: query
+        name: durationEnd
+        type: integer
+      - description: User ID
+        in: header
+        name: userId
         type: string
       produces:
       - application/json
@@ -137,10 +322,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/meditation.getMeditationResponse'
+      summary: Get meditation sessions
       tags:
-      - user
+      - meditation
     post:
+      consumes:
+      - '*/*'
       description: Creates a new meditation.
       parameters:
       - description: Meditation to create
@@ -148,11 +336,10 @@ paths:
         name: meditation
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateMeditationDTO'
+          $ref: '#/definitions/meditation.createMeditationRequest'
       - description: User ID
-        in: path
-        name: id
-        required: true
+        in: header
+        name: userId
         type: string
       produces:
       - application/json
@@ -160,14 +347,233 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Meditation'
+            $ref: '#/definitions/meditation.createMeditationResponse'
+      summary: Create meditation.
       tags:
       - meditation
-  /todos:
+  /settings:
+    delete:
+      consumes:
+      - '*/*'
+      description: Delete settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Delete settings of a user.
+      tags:
+      - settings
+    get:
+      description: fetch settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.getSettingsResponse'
+      summary: Get settings for a user.
+      tags:
+      - settings
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.CreateSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createInvestmentResponse'
+      summary: Create onboarding in backend, set settings.
+      tags:
+      - settings
+  /settings/elevator:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the elevator plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update settings for the elevator Plugin.
+      tags:
+      - settings
+  /settings/finance:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for the finance Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.FinanceSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the finance plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for a user for onr Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.FinanceSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: updateFinanceSettings settings for the finance plugin.
+      tags:
+      - settings
+  /settings/meditation:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for the meditation plugin
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.MeditationSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the meditation Plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for a user
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.MeditationSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update settings for the meditation Plugin.
+      tags:
+      - settings
+  /users:
     get:
       consumes:
       - '*/*'
-      description: fetch every todo available.
+      description: fetch every user available.
       produces:
       - application/json
       responses:
@@ -175,120 +581,62 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Todo'
+              $ref: '#/definitions/user.UserDB'
             type: array
-      summary: Get all todos.
+      summary: Get all users.
       tags:
-      - todos
+      - users
     post:
       consumes:
-      - application/json
-      description: create a single todo.
+      - '*/*'
+      description: creates one user.
       parameters:
-      - description: Todo to create
-        in: body
-        name: todo
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.CreateTodoDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.CreateTodoResDTO'
-      summary: Create a todo.
-      tags:
-      - todos
-  /todos/{id}:
-    delete:
-      description: delete a single todo by id.
-      parameters:
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.DeleteTodoResDTO'
-      summary: Delete a single todo.
-      tags:
-      - todos
-    get:
-      description: fetch a single todo.
-      parameters:
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Todo'
-      summary: Get a single todo.
-      tags:
-      - todos
-    put:
-      consumes:
-      - application/json
-      description: update a single todo.
-      parameters:
-      - description: Todo update data
-        in: body
-        name: todo
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.UpdateTodoDTO'
-      - description: Todo ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.UpdateTodoResDTO'
-      summary: Update a todo.
-      tags:
-      - todos
-  /user:
-    post:
-      consumes:
-      - application/json
-      description: creates a user and returns it.
-      parameters:
-      - description: Todo to create
+      - description: User to create
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateUserDTO'
+          $ref: '#/definitions/user.createUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CreateUserResDTO'
-      summary: Create a user.
+            $ref: '#/definitions/user.createUserResponse'
+      summary: Create one user.
       tags:
-      - user
-  /user/{id}:
+      - users
+    put:
+      consumes:
+      - '*/*'
+      description: update a user by id.
+      parameters:
+      - description: User to update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.updateUserRequest'
+      - description: User ID
+        in: header
+        name: userId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.UserDB'
+      summary: Update a user.
+      tags:
+      - users
+  /users/{id}:
     get:
-      description: fetch a single user.
+      consumes:
+      - '*/*'
+      description: fetch a user by id.
       parameters:
       - description: User ID
         in: path
@@ -301,8 +649,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
-      summary: Get a single user.
+            $ref: '#/definitions/user.UserDB'
+      summary: Get a user.
       tags:
-      - user
+      - users
 swagger: "2.0"

@@ -1,28 +1,59 @@
-# the-better-backend
-A GoLang backend using Fiber and MongoDB for the Wholesome living Project
+# Wholesome Living
 
-## Getting Started
+Backend for Wholesome Living
 
-### Prerequisites
+## Prerequisites
 
-- [GoLang](https://golang.org/doc/install)
-- [MongoDB](https://docs.mongodb.com/manual/installation/)
+-   go
+-   task
+-   Wholesome-Living-backend (repo)
 
-### Installing
+#### 1. Step: Clone the repository
 
-0. Install extra packages: 
-    ```go install github.com/cosmtrek/air@latest```
-    ```go install github.com/swaggo/swag/cmd/swag@latest```
-1. Clone the repo
-2. Add .env file
-3. ```make dev```
-4. view docs at http://localhost:8080/swagger
+```bash
+git clone https://github.com/Wholesome-Living-Project/wholesome-living-backend.git 
+```
 
-### Scripts
+#### 2. Step: Install task
 
-- ```make dev``` - runs the server in development mode
-- ```make swagger``` - generates the swagger docs
-- ```make test``` - runs the tests
+```bash
+go install github.com/go-task/task/v3/cmd/task@latest
+```
 
-### Testing
-Run test ```make test``` or ```go test ./...``` 
+## Dependencies
+
+To install the dependencies, please run the following command:
+
+```bash
+task install
+```
+
+## Docs
+
+For creating the initial documentation.
+
+```bash
+task docs
+```
+
+## Starting the Server
+
+### Dev environment (hot-reloading)
+
+```bash
+task dev
+```
+
+### Production environment
+
+#### 1. Step: Build the server
+
+```bash
+task build
+```
+
+#### 2. Step: Start the server
+
+```bash
+task start
+```

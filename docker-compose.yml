@@ -1,0 +1,22 @@
+services:
+  backend:
+      build: .
+      restart: always
+      environment:
+        MONGODB_URI: mongodb://wholesome-db:27017
+        MONGODB_NAME: wholesome-db
+        PORT: 8080
+        GO_ENV: production
+      ports:
+        - "8080:8080"
+
+
+  db:
+    image: mongo
+    container_name: wholesome-db
+    restart: always
+    environment:
+      MONGODB_URI: mongodb://localhost:27017
+      MONGODB_NAME: wholesome-db
+    ports:
+        - "27017:27017"
