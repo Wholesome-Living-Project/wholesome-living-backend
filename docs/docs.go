@@ -232,7 +232,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/settings.getInvestmentResponse"
+                            "$ref": "#/definitions/settings.getSettingsResponse"
                         }
                     }
                 }
@@ -816,7 +816,7 @@ const docTemplate = `{
                 "amountNotifications": {
                     "type": "integer"
                 },
-                "meditationTime": {
+                "meditationTimeGoal": {
                     "description": "The user's meditation time goal.",
                     "type": "integer"
                 },
@@ -875,9 +875,12 @@ const docTemplate = `{
                 }
             }
         },
-        "settings.getInvestmentResponse": {
+        "settings.getSettingsResponse": {
             "type": "object",
             "properties": {
+                "elevator": {
+                    "$ref": "#/definitions/settings.ElevatorSettings"
+                },
                 "enabledPlugins": {
                     "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",

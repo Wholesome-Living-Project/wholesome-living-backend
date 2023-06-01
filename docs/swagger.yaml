@@ -98,7 +98,7 @@ definitions:
     properties:
       amountNotifications:
         type: integer
-      meditationTime:
+      meditationTimeGoal:
         description: The user's meditation time goal.
         type: integer
       notifications:
@@ -141,8 +141,10 @@ definitions:
       id:
         type: string
     type: object
-  settings.getInvestmentResponse:
+  settings.getSettingsResponse:
     properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
       enabledPlugins:
         description: A list with the Plugins that the user has enabled.
         items:
@@ -390,7 +392,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/settings.getInvestmentResponse'
+            $ref: '#/definitions/settings.getSettingsResponse'
       summary: Get settings for a user.
       tags:
       - settings

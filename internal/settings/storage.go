@@ -54,7 +54,7 @@ type FinanceSettings struct {
 
 type MeditationSettings struct {
 	// The user's meditation time goal.
-	MeditationTimeGoal  int              `json:"meditationTime" bson:"meditationTime"`
+	MeditationTimeGoal  int              `json:"meditationTimeGoal" bson:"meditationTimeGoal"`
 	Notifications       bool             `json:"notifications" bson:"notifications"`
 	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
 	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`

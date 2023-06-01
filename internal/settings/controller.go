@@ -36,13 +36,14 @@ type createInvestmentResponse struct {
 	ID string `json:"id"`
 }
 
-type getInvestmentResponse struct {
+type getSettingsResponse struct {
 	// A list with the Plugins that the user has enabled.
 	EnabledPlugins []PluginName `json:"enabledPlugins" bson:"enabledPlugins"`
 	// The user's settings for the meditation plugin.
 	Meditation MeditationSettings `json:"meditation" bson:"meditation"`
 	// The user's settings for the finance plugin.
-	Finance FinanceSettings `json:"finance" bson:"finance"`
+	Finance  FinanceSettings  `json:"finance" bson:"finance"`
+	Elevator ElevatorSettings `json:"elevator" bson:"elevator"`
 }
 
 // @Summary Create onboarding in backend, set settings.
@@ -86,7 +87,7 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 // @param userId header string true "User ID"
 // @Param plugin query string false "Plugin name"
 // @Produce json
-// @Success 200 {object} getInvestmentResponse
+// @Success 200 {object} getSettingsResponse
 // @Router /settings [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	userId := string(c.Request().Header.Peek("userId"))
