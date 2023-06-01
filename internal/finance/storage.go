@@ -8,11 +8,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type investmentDB struct {
+type financeDB struct {
 	ID             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         string             `json:"userId" bson:"userId"`
 	InvestmentTime int64              `json:"investmentTime" bson:"investmentTime"`
 	Amount         int                `json:"amount" bson:"amount"`
+	Description    string             `json:"description" bson:"description"`
 }
 
 type Storage struct {
@@ -35,11 +36,12 @@ func (s *Storage) create(request createInvestmentRequest, userId string, ctx con
 	if err := userResult.Err(); err != nil {
 		return "", err
 	}
-	statement := investmentDB{
+	statement := financeDB{
 		ID:             primitive.NewObjectID(),
 		UserID:         userId,
 		InvestmentTime: request.InvestmentTime,
 		Amount:         request.Amount,
+		Description:    request.Description,
 	}
 
 	result, err := collection.InsertOne(ctx, statement)
@@ -52,9 +54,9 @@ func (s *Storage) create(request createInvestmentRequest, userId string, ctx con
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (s *Storage) get(investmentID string, ctx context.Context) (investmentDB, error) {
+func (s *Storage) get(investmentID string, ctx context.Context) (financeDB, error) {
 	collection := s.db.Collection("investment")
-	db := investmentDB{}
+	db := financeDB{}
 
 	objectID, err := primitive.ObjectIDFromHex(investmentID)
 	if err != nil {
@@ -73,7 +75,7 @@ func (s *Storage) get(investmentID string, ctx context.Context) (investmentDB, e
 	return db, nil
 }
 
-func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]investmentDB, error) {
+func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]financeDB, error) {
 	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
@@ -91,9 +93,9 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]investm
 	}
 	defer cursor.Close(ctx)
 
-	investments := make([]investmentDB, 0)
+	investments := make([]financeDB, 0)
 	for cursor.Next(ctx) {
-		var investment investmentDB
+		var investment financeDB
 		if err := cursor.Decode(&investment); err != nil {
 			return nil, err
 		}
@@ -107,7 +109,7 @@ func (s *Storage) getAllOfOneUser(userID string, ctx context.Context) ([]investm
 	return investments, nil
 }
 
-func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime int64, ctx context.Context) ([]investmentDB, error) {
+func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime int64, ctx context.Context) ([]financeDB, error) {
 	// get all investments of one user between two times
 	collection := s.db.Collection("investment")
 	var cursor *mongo.Cursor
@@ -122,9 +124,9 @@ func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime
 		}
 	}
 
-	investments := make([]investmentDB, 0)
+	investments := make([]financeDB, 0)
 	for cursor.Next(ctx) {
-		var investment investmentDB
+		var investment financeDB
 		if err := cursor.Decode(&investment); err != nil {
 			return nil, err
 		}

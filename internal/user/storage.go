@@ -11,13 +11,12 @@ import (
 
 // how the user is stored in the database
 type UserDB struct {
-	FirstName   string       `json:"firstName" bson:"firstName"`
-	LastName    string       `json:"lastName" bson:"lastName"`
-	DateOfBirth string       `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string       `json:"email" bson:"email"`
-	CreatedAt   int64        `json:"createdAt" bson:"createdAt"`
-	ID          string       `json:"id" bson:"_id"`
-	Plugins     []pluginType `json:"plugins" bson:"plugins"`
+	FirstName   string `json:"firstName" bson:"firstName"`
+	LastName    string `json:"lastName" bson:"lastName"`
+	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email       string `json:"email" bson:"email"`
+	CreatedAt   int64  `json:"createdAt" bson:"createdAt"`
+	ID          string `json:"id" bson:"_id"`
 }
 
 type Storage struct {
@@ -34,7 +33,6 @@ func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context
 	collection := s.db.Collection("users")
 
 	createdAt := time.Now().Unix()
-	var plugins []pluginType
 
 	insertObj := UserDB{
 		FirstName:   createUserObject.FirstName,
@@ -43,7 +41,6 @@ func (s *Storage) Create(createUserObject createUserRequest, ctx context.Context
 		Email:       createUserObject.Email,
 		CreatedAt:   createdAt,
 		ID:          createUserObject.ID,
-		Plugins:     plugins,
 	}
 
 	result, err := collection.InsertOne(ctx, insertObj)
@@ -91,7 +88,7 @@ func (s *Storage) GetAll(ctx context.Context) ([]UserDB, error) {
 
 func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
 	collection := s.db.Collection("users")
-	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "plugins": user.Plugins}}, nil)
+	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email}}, nil)
 
 	if result.Err() != nil {
 		return user, result.Err()

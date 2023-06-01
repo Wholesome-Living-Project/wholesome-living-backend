@@ -21,7 +21,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/investment": {
+        "/finance": {
             "get": {
                 "description": "Query Investments with the user ID, start time and end time.",
                 "produces": [
@@ -120,7 +120,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "investment ID",
+                        "description": "Meditation ID",
                         "name": "id",
                         "in": "query"
                     },
@@ -199,6 +199,335 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/meditation.createMeditationResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/settings": {
+            "get": {
+                "description": "fetch settings for a user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Get settings for a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin name",
+                        "name": "plugin",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/settings.getSettingsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates settings for a user.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create onboarding in backend, set settings.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.CreateSettingsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/settings.createInvestmentResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete settings for a user.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Delete settings of a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin name",
+                        "name": "plugin",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/settings/elevator": {
+            "put": {
+                "description": "Update settings for the elevator Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update settings for the elevator Plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.ElevatorSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates settings for a user for the elevator Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings for the elevator plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.ElevatorSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/settings/finance": {
+            "put": {
+                "description": "Update settings for a user for onr Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "updateFinanceSettings settings for the finance plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates settings for a user for the finance Plugin.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings for the finance plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/settings/meditation": {
+            "put": {
+                "description": "Update settings for a user",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update settings for the meditation Plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates settings for the meditation plugin",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Create settings for the meditation Plugin.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "onboarding to create",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -339,6 +668,9 @@ const docTemplate = `{
                 "amount": {
                     "type": "integer"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "investmentTime": {
                     "type": "integer"
                 }
@@ -402,6 +734,191 @@ const docTemplate = `{
                 }
             }
         },
+        "settings.CreateSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "elevator": {
+                    "$ref": "#/definitions/settings.ElevatorSettings"
+                },
+                "enabledPlugins": {
+                    "description": "A list with the Plugins that the user has enabled.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/settings.PluginName"
+                    }
+                },
+                "finance": {
+                    "description": "The user's settings for the finance plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    ]
+                },
+                "meditation": {
+                    "description": "The user's settings for the meditation plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    ]
+                }
+            }
+        },
+        "settings.ElevatorSettings": {
+            "type": "object",
+            "properties": {
+                "amountNotifications": {
+                    "type": "integer"
+                },
+                "goal": {
+                    "type": "integer"
+                },
+                "notifications": {
+                    "type": "boolean"
+                },
+                "periodNotifications": {
+                    "$ref": "#/definitions/settings.NotificationType"
+                }
+            }
+        },
+        "settings.FinanceSettings": {
+            "type": "object",
+            "properties": {
+                "amountNotifications": {
+                    "type": "integer"
+                },
+                "investmentGoal": {
+                    "description": "The user's investment goal.",
+                    "type": "integer"
+                },
+                "investmentTimeGoal": {
+                    "description": "The user's investment time goal.",
+                    "type": "integer"
+                },
+                "notifications": {
+                    "type": "boolean"
+                },
+                "periodNotifications": {
+                    "$ref": "#/definitions/settings.NotificationType"
+                },
+                "strategy": {
+                    "$ref": "#/definitions/settings.StrategyType"
+                },
+                "strategyAmount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "settings.MeditationSettings": {
+            "type": "object",
+            "properties": {
+                "amountNotifications": {
+                    "type": "integer"
+                },
+                "meditationTimeGoal": {
+                    "description": "The user's meditation time goal.",
+                    "type": "integer"
+                },
+                "notifications": {
+                    "type": "boolean"
+                },
+                "periodNotifications": {
+                    "$ref": "#/definitions/settings.NotificationType"
+                }
+            }
+        },
+        "settings.NotificationType": {
+            "type": "string",
+            "enum": [
+                "Day",
+                "Month",
+                "Week"
+            ],
+            "x-enum-varnames": [
+                "NotificationTypeDay",
+                "NotificationTypeMonth",
+                "NotificationTypeWeek"
+            ]
+        },
+        "settings.PluginName": {
+            "type": "string",
+            "enum": [
+                "finance",
+                "meditation",
+                "elevator"
+            ],
+            "x-enum-varnames": [
+                "PluginNameFinance",
+                "PluginNameMeditation",
+                "PluginNameElevator"
+            ]
+        },
+        "settings.StrategyType": {
+            "type": "string",
+            "enum": [
+                "Round",
+                "Plus",
+                "Percent"
+            ],
+            "x-enum-varnames": [
+                "StrategyTypeRound",
+                "StrategyTypePlus",
+                "StrategyTypePercent"
+            ]
+        },
+        "settings.createInvestmentResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "settings.getSettingsResponse": {
+            "type": "object",
+            "properties": {
+                "elevator": {
+                    "$ref": "#/definitions/settings.ElevatorSettings"
+                },
+                "enabledPlugins": {
+                    "description": "A list with the Plugins that the user has enabled.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/settings.PluginName"
+                    }
+                },
+                "finance": {
+                    "description": "The user's settings for the finance plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.FinanceSettings"
+                        }
+                    ]
+                },
+                "meditation": {
+                    "description": "The user's settings for the meditation plugin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/settings.MeditationSettings"
+                        }
+                    ]
+                }
+            }
+        },
+        "user.PluginName": {
+            "type": "string",
+            "enum": [
+                "meditation",
+                "finance",
+                "elevator"
+            ],
+            "x-enum-varnames": [
+                "PluginNameMeditation",
+                "PluginNameFinance",
+                "PluginNameElevator"
+            ]
+        },
         "user.UserDB": {
             "type": "object",
             "properties": {
@@ -426,7 +943,7 @@ const docTemplate = `{
                 "plugins": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/user.pluginType"
+                        "$ref": "#/definitions/user.PluginName"
                     }
                 }
             }
@@ -459,17 +976,6 @@ const docTemplate = `{
                 }
             }
         },
-        "user.pluginType": {
-            "type": "string",
-            "enum": [
-                "meditation",
-                "workout"
-            ],
-            "x-enum-varnames": [
-                "PluginTypeMeditation",
-                "PluginTypeWorkout"
-            ]
-        },
         "user.updateUserRequest": {
             "type": "object",
             "properties": {
@@ -488,7 +994,7 @@ const docTemplate = `{
                 "plugins": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/user.pluginType"
+                        "$ref": "#/definitions/user.PluginName"
                     }
                 }
             }

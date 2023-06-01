@@ -4,6 +4,8 @@ definitions:
     properties:
       amount:
         type: integer
+      description:
+        type: string
       investmentTime:
         type: integer
     type: object
@@ -44,6 +46,129 @@ definitions:
       userId:
         type: string
     type: object
+  settings.CreateSettingsRequest:
+    properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
+  settings.ElevatorSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      goal:
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+    type: object
+  settings.FinanceSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      investmentGoal:
+        description: The user's investment goal.
+        type: integer
+      investmentTimeGoal:
+        description: The user's investment time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+      strategy:
+        $ref: '#/definitions/settings.StrategyType'
+      strategyAmount:
+        type: integer
+    type: object
+  settings.MeditationSettings:
+    properties:
+      amountNotifications:
+        type: integer
+      meditationTimeGoal:
+        description: The user's meditation time goal.
+        type: integer
+      notifications:
+        type: boolean
+      periodNotifications:
+        $ref: '#/definitions/settings.NotificationType'
+    type: object
+  settings.NotificationType:
+    enum:
+    - Day
+    - Month
+    - Week
+    type: string
+    x-enum-varnames:
+    - NotificationTypeDay
+    - NotificationTypeMonth
+    - NotificationTypeWeek
+  settings.PluginName:
+    enum:
+    - finance
+    - meditation
+    - elevator
+    type: string
+    x-enum-varnames:
+    - PluginNameFinance
+    - PluginNameMeditation
+    - PluginNameElevator
+  settings.StrategyType:
+    enum:
+    - Round
+    - Plus
+    - Percent
+    type: string
+    x-enum-varnames:
+    - StrategyTypeRound
+    - StrategyTypePlus
+    - StrategyTypePercent
+  settings.createInvestmentResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  settings.getSettingsResponse:
+    properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
+      enabledPlugins:
+        description: A list with the Plugins that the user has enabled.
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        allOf:
+        - $ref: '#/definitions/settings.FinanceSettings'
+        description: The user's settings for the finance plugin.
+      meditation:
+        allOf:
+        - $ref: '#/definitions/settings.MeditationSettings'
+        description: The user's settings for the meditation plugin.
+    type: object
+  user.PluginName:
+    enum:
+    - meditation
+    - finance
+    - elevator
+    type: string
+    x-enum-varnames:
+    - PluginNameMeditation
+    - PluginNameFinance
+    - PluginNameElevator
   user.UserDB:
     properties:
       createdAt:
@@ -60,7 +185,7 @@ definitions:
         type: string
       plugins:
         items:
-          $ref: '#/definitions/user.pluginType'
+          $ref: '#/definitions/user.PluginName'
         type: array
     type: object
   user.createUserRequest:
@@ -81,14 +206,6 @@ definitions:
       id:
         type: string
     type: object
-  user.pluginType:
-    enum:
-    - meditation
-    - workout
-    type: string
-    x-enum-varnames:
-    - PluginTypeMeditation
-    - PluginTypeWorkout
   user.updateUserRequest:
     properties:
       dateOfBirth:
@@ -101,7 +218,7 @@ definitions:
         type: string
       plugins:
         items:
-          $ref: '#/definitions/user.pluginType'
+          $ref: '#/definitions/user.PluginName'
         type: array
     type: object
 info:
@@ -114,7 +231,7 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
-  /investment:
+  /finance:
     get:
       description: Query Investments with the user ID, start time and end time.
       parameters:
@@ -175,7 +292,7 @@ paths:
     get:
       description: Fetch one or multiple meditation sessions.
       parameters:
-      - description: investment ID
+      - description: Meditation ID
         in: query
         name: id
         type: string
@@ -234,6 +351,224 @@ paths:
       summary: Create meditation.
       tags:
       - meditation
+  /settings:
+    delete:
+      consumes:
+      - '*/*'
+      description: Delete settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Delete settings of a user.
+      tags:
+      - settings
+    get:
+      description: fetch settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: Plugin name
+        in: query
+        name: plugin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.getSettingsResponse'
+      summary: Get settings for a user.
+      tags:
+      - settings
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.CreateSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createInvestmentResponse'
+      summary: Create onboarding in backend, set settings.
+      tags:
+      - settings
+  /settings/elevator:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the elevator plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for the elevator Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.ElevatorSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update settings for the elevator Plugin.
+      tags:
+      - settings
+  /settings/finance:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for a user for the finance Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.FinanceSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the finance plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for a user for onr Plugin.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.FinanceSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: updateFinanceSettings settings for the finance plugin.
+      tags:
+      - settings
+  /settings/meditation:
+    post:
+      consumes:
+      - '*/*'
+      description: Creates settings for the meditation plugin
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.MeditationSettings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create settings for the meditation Plugin.
+      tags:
+      - settings
+    put:
+      consumes:
+      - '*/*'
+      description: Update settings for a user
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      - description: onboarding to create
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/settings.MeditationSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update settings for the meditation Plugin.
+      tags:
+      - settings
   /users:
     get:
       consumes:
