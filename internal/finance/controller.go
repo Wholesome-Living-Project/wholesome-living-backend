@@ -1,6 +1,8 @@
 package finance
 
 import (
+	"cmd/http/main.go/internal/progress"
+	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -9,14 +11,16 @@ import (
 )
 
 type Controller struct {
-	storage     *Storage
-	userStorage *user.Storage
+	storage         *Storage
+	userStorage     *user.Storage
+	progressStorage *progress.Storage
 }
 
-func NewController(storage *Storage, userStorage *user.Storage) *Controller {
+func NewController(storage *Storage, userStorage *user.Storage, progressStorage *progress.Storage) *Controller {
 	return &Controller{
-		storage:     storage,
-		userStorage: userStorage,
+		storage:         storage,
+		userStorage:     userStorage,
+		progressStorage: progressStorage,
 	}
 }
 
@@ -70,6 +74,11 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"message": "Failed to create",
 			"err":     err,
 		})
+	}
+
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, req.Amount)
+	if err != nil {
+		return err
 	}
 	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
