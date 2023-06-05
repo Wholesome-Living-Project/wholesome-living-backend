@@ -3,8 +3,6 @@ package progress
 import (
 	"cmd/http/main.go/internal/user"
 	"github.com/gofiber/fiber/v2"
-	"reflect"
-	"strings"
 )
 
 type Controller struct {
@@ -23,7 +21,6 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 // @Description fetch progress and level for a user.
 // @Tags progress
 // @param userId header string true "User ID"
-// @Param plugin query string false "Plugin name"
 // @Produce json
 // @Success 200
 // @Router /progress [get]
@@ -35,26 +32,12 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		})
 	}
 	// Get plugin from query
-	plugin := c.Query("plugin")
 
-	settings, err := t.storage.Get(userId, c.Context(), plugin)
+	settings, err := t.storage.Get(userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not get settings, because: " + err.Error(),
 		})
-	}
-
-	if plugin != "" {
-		r := reflect.ValueOf(settings)
-		f := reflect.Indirect(r).FieldByName(strings.Title(plugin))
-
-		if f.IsValid() {
-			return c.Status(fiber.StatusOK).JSON(f.Interface())
-		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid plugin name",
-			})
-		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(settings)

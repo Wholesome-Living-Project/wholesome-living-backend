@@ -322,6 +322,7 @@ paths:
       - description: User ID
         in: header
         name: userId
+        required: true
         type: string
       produces:
       - application/json
@@ -341,10 +342,6 @@ paths:
         in: header
         name: userId
         required: true
-        type: string
-      - description: Plugin name
-        in: query
-        name: plugin
         type: string
       produces:
       - application/json

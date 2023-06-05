@@ -190,7 +190,8 @@ const docTemplate = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "userId",
-                        "in": "header"
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -220,12 +221,6 @@ const docTemplate = `{
                         "name": "userId",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Plugin name",
-                        "name": "plugin",
-                        "in": "query"
                     }
                 ],
                 "responses": {

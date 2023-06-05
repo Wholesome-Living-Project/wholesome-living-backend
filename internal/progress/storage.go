@@ -4,7 +4,6 @@ import (
 	"cmd/http/main.go/internal/settings"
 	"context"
 	"errors"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"math"
@@ -38,7 +37,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Get(userId string, ctx context.Context, plugin string) (Response, error) {
+func (s *Storage) Get(userId string, ctx context.Context) (Response, error) {
 	collection := s.db.Collection("progress")
 	userCollection := s.db.Collection("users")
 
@@ -50,17 +49,10 @@ func (s *Storage) Get(userId string, ctx context.Context, plugin string) (Respon
 
 	var db Db
 	var err error
-	if plugin != "" {
-		// Get for certain plugin
-		err = collection.FindOne(ctx, bson.M{"_id": userId}).Decode(&db)
-		if err != nil {
-			return Response{}, err
-		}
-	} else {
-		err = collection.FindOne(ctx, bson.M{"_id": userId}).Decode(&db)
-		if err != nil {
-			return Response{}, err
-		}
+
+	err = collection.FindOne(ctx, bson.M{"_id": userId}).Decode(&db)
+	if err != nil {
+		return Response{}, err
 	}
 
 	// Calculate level
@@ -104,8 +96,7 @@ func (s *Storage) AddExperience(userId string, ctx context.Context, plugin setti
 		}
 	}
 	// Add experience to the plugin
-	fmt.Println(db.Experience[plugin])
-	fmt.Println(experienceToAdd)
+
 	db.Experience[plugin] += experienceToAdd
 
 	// Update the user settings in the database
