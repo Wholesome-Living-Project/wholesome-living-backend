@@ -134,9 +134,6 @@ func (s *Storage) CreateOnboarding(request CreateSettingsRequest, userId string,
 
 	//Check if user exists
 	userResult := userCollection.FindOne(ctx, bson.M{"_id": userId})
-	if err := userResult.Err(); err != nil {
-		return "", errors.New("User not found!")
-	}
 	// Check if user already has onboarding settings
 	userSettings := collection.FindOne(ctx, bson.M{"_id": userId})
 	if userSettings.Err() == nil {
