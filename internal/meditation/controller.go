@@ -40,10 +40,7 @@ type getAllMeditationResponse []struct {
 }
 
 type getMeditationResponse struct {
-	Id             primitive.ObjectID `json:"id" bson:"_id"`
-	UserID         primitive.ObjectID `json:"userId" bson:"userId"`
-	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64              `json:"endTime" bson:"endTime"`
+	Meditations []MeditationDB `json:"meditations"`
 }
 
 // @Summary Create meditation.
@@ -132,7 +129,10 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"message": "Failed to get meditation",
 			})
 		}
-		return c.JSON(meditation)
+		// convert to array
+		return c.Status(fiber.StatusOK).JSON(
+			[]MeditationDB{meditation},
+		)
 	}
 
 	userId := string(c.Request().Header.Peek("userId"))
