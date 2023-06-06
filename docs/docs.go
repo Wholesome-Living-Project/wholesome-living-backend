@@ -225,7 +225,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/progress.Response"
+                        }
                     }
                 }
             }
@@ -758,6 +761,20 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "progress.Experience": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "integer"
+            }
+        },
+        "progress.Response": {
+            "type": "object",
+            "properties": {
+                "experience": {
+                    "$ref": "#/definitions/progress.Experience"
                 }
             }
         },

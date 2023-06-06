@@ -46,6 +46,15 @@ definitions:
       userId:
         type: string
     type: object
+  progress.Experience:
+    additionalProperties:
+      type: integer
+    type: object
+  progress.Response:
+    properties:
+      experience:
+        $ref: '#/definitions/progress.Experience'
+    type: object
   settings.CreateSettingsRequest:
     properties:
       elevator:
@@ -348,6 +357,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/progress.Response'
       summary: Get progress nad level for a user.
       tags:
       - progress

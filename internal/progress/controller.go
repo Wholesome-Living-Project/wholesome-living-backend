@@ -22,7 +22,7 @@ func NewController(storage *Storage, userStorage *user.Storage) *Controller {
 // @Tags progress
 // @param userId header string true "User ID"
 // @Produce json
-// @Success 200
+// @Success 200 {object} Response
 // @Router /progress [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	userId := string(c.Request().Header.Peek("userId"))
