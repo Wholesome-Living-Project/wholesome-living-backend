@@ -35,7 +35,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 
 	settings, err := t.storage.Get(userId, c.Context())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Could not get settings, because: " + err.Error(),
 		})
 	}
