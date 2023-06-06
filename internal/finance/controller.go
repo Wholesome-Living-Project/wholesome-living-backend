@@ -76,7 +76,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, req.Amount)
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Amount)/2)
 	if err != nil {
 		return err
 	}

@@ -92,7 +92,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"err":     err,
 		})
 	}
-	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameMeditation, req.MeditationTime)
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameMeditation, float64(req.MeditationTime))
 	if err != nil {
 		return err
 	}

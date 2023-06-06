@@ -11,7 +11,8 @@ import (
 
 type NotificationType string
 
-type Experience map[settings.PluginName]int
+type Experience map[settings.PluginName]float64
+type ExperienceToNewLevel map[settings.PluginName]float64
 
 const maxLevel = 6
 
@@ -24,7 +25,8 @@ type Db struct {
 }
 
 type Response struct {
-	Experience Experience `json:"experience"`
+	Experience           Experience           `json:"level"`
+	ExperienceToNewLevel ExperienceToNewLevel `json:"experienceToNewLevel"`
 }
 
 type Storage struct {
@@ -57,18 +59,21 @@ func (s *Storage) Get(userId string, ctx context.Context) (Response, error) {
 
 	// Calculate level
 	level := make(Experience)
+	toNewLevel := make(ExperienceToNewLevel)
+
 	for plugin, experience := range db.Experience {
-		calculatedLevel := int(math.Floor(float64(experience) / float64(experienceToNewLevel)))
+		calculatedLevel := math.Floor(experience / float64(experienceToNewLevel))
 		if calculatedLevel > maxLevel {
 			calculatedLevel = maxLevel
 		}
-		level[plugin] = calculatedLevel
-
+		level[plugin] = float64(calculatedLevel)
+		toNewLevel[plugin] = math.Remainder(experience, float64(experienceToNewLevel))
 	}
-	return Response{Experience: level}, nil
+	return Response{Experience: level,
+		ExperienceToNewLevel: toNewLevel}, nil
 }
 
-func (s *Storage) AddExperience(userId string, ctx context.Context, plugin settings.PluginName, experienceToAdd int) error {
+func (s *Storage) AddExperience(userId string, ctx context.Context, plugin settings.PluginName, experienceToAdd float64) error {
 	collection := s.db.Collection("progress")
 	userCollection := s.db.Collection("users")
 

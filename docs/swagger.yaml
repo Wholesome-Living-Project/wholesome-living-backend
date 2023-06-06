@@ -48,12 +48,18 @@ definitions:
     type: object
   progress.Experience:
     additionalProperties:
-      type: integer
+      type: number
+    type: object
+  progress.ExperienceToNewLevel:
+    additionalProperties:
+      type: number
     type: object
   progress.Response:
     properties:
       experience:
         $ref: '#/definitions/progress.Experience'
+      experienceToNewLevel:
+        $ref: '#/definitions/progress.ExperienceToNewLevel'
     type: object
   settings.CreateSettingsRequest:
     properties:

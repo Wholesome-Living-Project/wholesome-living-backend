@@ -767,7 +767,13 @@ const docTemplate = `{
         "progress.Experience": {
             "type": "object",
             "additionalProperties": {
-                "type": "integer"
+                "type": "number"
+            }
+        },
+        "progress.ExperienceToNewLevel": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "number"
             }
         },
         "progress.Response": {
@@ -775,6 +781,9 @@ const docTemplate = `{
             "properties": {
                 "experience": {
                     "$ref": "#/definitions/progress.Experience"
+                },
+                "experienceToNewLevel": {
+                    "$ref": "#/definitions/progress.ExperienceToNewLevel"
                 }
             }
         },
