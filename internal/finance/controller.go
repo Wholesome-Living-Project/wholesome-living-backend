@@ -25,9 +25,10 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 }
 
 type createSpendingRequest struct {
-	Amount       int    `json:"amount" bson:"amount"`
-	SpendingTime int64  `json:"spendingTime" bson:"spendingTime"`
-	Description  string `json:"description" bson:"description"`
+	Amount       float64 `json:"amount" bson:"amount"`
+	Saving       float64 `json:"saving" bson:"saving"`
+	SpendingTime int64   `json:"spendingTime" bson:"spendingTime"`
+	Description  string  `json:"description" bson:"description"`
 }
 
 type createSpendingResponse struct {
@@ -38,7 +39,8 @@ type getInvestmentResponse struct {
 	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	UserID       string             `json:"userId" bson:"userId"`
 	SpendingTime int64              `json:"spendingTime" bson:"spendingTime"`
-	Amount       int                `json:"amount" bson:"amount"`
+	Amount       float64            `json:"amount" bson:"amount"`
+	Saving       float64            `json:"saving" bson:"saving"`
 	Description  string             `json:"description" bson:"description"`
 }
 
@@ -81,7 +83,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Amount)/2)
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Saving)/2)
 	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
 	})
@@ -140,6 +142,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			UserID:       investment.UserID,
 			SpendingTime: investment.SpendingTime,
 			Amount:       investment.Amount,
+			Saving:       investment.Saving,
 			Description:  investment.Description,
 		}
 		return c.JSON([]getInvestmentResponse{investmentResponse})

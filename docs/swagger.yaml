@@ -3,9 +3,11 @@ definitions:
   finance.createSpendingRequest:
     properties:
       amount:
-        type: integer
+        type: number
       description:
         type: string
+      saving:
+        type: number
       spendingTime:
         type: integer
     type: object
@@ -17,7 +19,13 @@ definitions:
   finance.getInvestmentResponse:
     properties:
       amount:
-        type: integer
+        type: number
+      description:
+        type: string
+      id:
+        type: string
+      saving:
+        type: number
       spendingTime:
         type: integer
       userId:
