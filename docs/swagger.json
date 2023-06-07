@@ -720,6 +720,23 @@
                 }
             }
         },
+        "meditation.MeditationDB": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meditationTime": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "meditation.createMeditationRequest": {
             "type": "object",
             "properties": {
@@ -742,17 +759,11 @@
         "meditation.getMeditationResponse": {
             "type": "object",
             "properties": {
-                "endTime": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "meditationTime": {
-                    "type": "integer"
-                },
-                "userId": {
-                    "type": "string"
+                "meditations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/meditation.MeditationDB"
+                    }
                 }
             }
         },
@@ -771,11 +782,11 @@
         "progress.Response": {
             "type": "object",
             "properties": {
-                "experience": {
-                    "$ref": "#/definitions/progress.Experience"
-                },
                 "experienceToNewLevel": {
                     "$ref": "#/definitions/progress.ExperienceToNewLevel"
+                },
+                "level": {
+                    "$ref": "#/definitions/progress.Experience"
                 }
             }
         },

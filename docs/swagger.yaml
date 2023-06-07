@@ -23,6 +23,17 @@ definitions:
       userId:
         type: string
     type: object
+  meditation.MeditationDB:
+    properties:
+      endTime:
+        type: integer
+      id:
+        type: string
+      meditationTime:
+        type: integer
+      userId:
+        type: string
+    type: object
   meditation.createMeditationRequest:
     properties:
       endTime:
@@ -37,14 +48,10 @@ definitions:
     type: object
   meditation.getMeditationResponse:
     properties:
-      endTime:
-        type: integer
-      id:
-        type: string
-      meditationTime:
-        type: integer
-      userId:
-        type: string
+      meditations:
+        items:
+          $ref: '#/definitions/meditation.MeditationDB'
+        type: array
     type: object
   progress.Experience:
     additionalProperties:
@@ -56,10 +63,10 @@ definitions:
     type: object
   progress.Response:
     properties:
-      experience:
-        $ref: '#/definitions/progress.Experience'
       experienceToNewLevel:
         $ref: '#/definitions/progress.ExperienceToNewLevel'
+      level:
+        $ref: '#/definitions/progress.Experience'
     type: object
   settings.CreateSettingsRequest:
     properties:
