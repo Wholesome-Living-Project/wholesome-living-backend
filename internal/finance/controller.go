@@ -35,9 +35,11 @@ type createSpendingResponse struct {
 }
 
 type getInvestmentResponse struct {
-	UserID       primitive.ObjectID `json:"userId" bson:"userId"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	UserID       string             `json:"userId" bson:"userId"`
 	SpendingTime int64              `json:"spendingTime" bson:"spendingTime"`
 	Amount       int                `json:"amount" bson:"amount"`
+	Description  string             `json:"description" bson:"description"`
 }
 
 // @Summary Create a spending.
@@ -76,10 +78,10 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Amount)/2)
 	if err != nil {
 		return err
 	}
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Amount)/2)
 	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
 	})
@@ -132,7 +134,15 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"message": "Failed to get investment",
 			})
 		}
-		return c.JSON(investment)
+		// Convert FinanceDb to getInvestmentResponse
+		investmentResponse := getInvestmentResponse{
+			ID:           investment.ID,
+			UserID:       investment.UserID,
+			SpendingTime: investment.SpendingTime,
+			Amount:       investment.Amount,
+			Description:  investment.Description,
+		}
+		return c.JSON([]getInvestmentResponse{investmentResponse})
 	}
 
 	userId := string(c.Request().Header.Peek("userId"))
