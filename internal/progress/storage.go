@@ -67,7 +67,7 @@ func (s *Storage) Get(userId string, ctx context.Context) (Response, error) {
 			calculatedLevel = maxLevel
 		}
 		level[plugin] = float64(calculatedLevel)
-		toNewLevel[plugin] = math.Remainder(experience, float64(experienceToNewLevel))
+		toNewLevel[plugin] = math.Mod(experience, float64(experienceToNewLevel))
 	}
 	return Response{Experience: level,
 		ExperienceToNewLevel: toNewLevel}, nil
