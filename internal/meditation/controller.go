@@ -1,6 +1,8 @@
 package meditation
 
 import (
+	"cmd/http/main.go/internal/progress"
+	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -8,14 +10,16 @@ import (
 )
 
 type Controller struct {
-	storage     *Storage
-	userStorage *user.Storage
+	storage         *Storage
+	userStorage     *user.Storage
+	progressStorage *progress.Storage
 }
 
-func NewController(storage *Storage, userStorage *user.Storage) *Controller {
+func NewController(storage *Storage, userStorage *user.Storage, progressStorage *progress.Storage) *Controller {
 	return &Controller{
-		storage:     storage,
-		userStorage: userStorage,
+		storage:         storage,
+		userStorage:     userStorage,
+		progressStorage: progressStorage,
 	}
 }
 
@@ -45,7 +49,7 @@ type getMeditationResponse struct {
 // @Accept */*
 // @Produce json
 // @Param meditation body createMeditationRequest true "Meditation to create"
-// @Param userId header string false "User ID"
+// @Param userId header string true "User ID"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
 func (t *Controller) create(c *fiber.Ctx) error {
@@ -84,6 +88,10 @@ func (t *Controller) create(c *fiber.Ctx) error {
 			"message": "Failed to Create Meditation",
 			"err":     err,
 		})
+	}
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameMeditation, float64(req.MeditationTime))
+	if err != nil {
+		return err
 	}
 	return c.Status(fiber.StatusCreated).JSON(createMeditationResponse{
 		ID: id,
