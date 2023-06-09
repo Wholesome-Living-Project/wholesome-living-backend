@@ -12,7 +12,8 @@ type financeDB struct {
 	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	UserID       string             `json:"userId" bson:"userId"`
 	SpendingTime int64              `json:"spendingTime" bson:"spendingTime"`
-	Amount       int                `json:"amount" bson:"amount"`
+	Amount       float64            `json:"amount" bson:"amount"`
+	Saving       float64            `json:"saving" bson:"saving"`
 	Description  string             `json:"description" bson:"description"`
 }
 
@@ -41,6 +42,7 @@ func (s *Storage) create(request createSpendingRequest, userId string, ctx conte
 		UserID:       userId,
 		SpendingTime: request.SpendingTime,
 		Amount:       request.Amount,
+		Saving:       request.Saving,
 		Description:  request.Description,
 	}
 

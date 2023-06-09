@@ -5,6 +5,7 @@ import (
 	_ "cmd/http/main.go/docs"
 	"cmd/http/main.go/internal/finance"
 	"cmd/http/main.go/internal/meditation"
+	"cmd/http/main.go/internal/progress"
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
@@ -108,6 +109,11 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	userController := user.NewController(userStore)
 	user.Routes(app, userController)
 
+	//create finance domain
+	progressStore := progress.NewStorage(db)
+	progressController := progress.NewController(progressStore, userStore)
+	progress.Routes(app, progressController)
+
 	// create the settings domain
 	metadataStore := settings.NewStorage(db)
 	metadataController := settings.NewController(metadataStore, userStore)
@@ -115,12 +121,12 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	//create meditation domain
 	meditationStore := meditation.NewStorage(db)
-	meditationController := meditation.NewController(meditationStore, userStore)
+	meditationController := meditation.NewController(meditationStore, userStore, progressStore)
 	meditation.Routes(app, meditationController)
 
 	//create finance domain
 	financeStore := finance.NewStorage(db)
-	financeController := finance.NewController(financeStore, userStore)
+	financeController := finance.NewController(financeStore, userStore, progressStore)
 	finance.Routes(app, financeController)
 
 	return app, func() {

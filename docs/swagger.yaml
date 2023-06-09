@@ -1,15 +1,17 @@
 basePath: /
 definitions:
-  finance.createInvestmentRequest:
+  finance.createSpendingRequest:
     properties:
       amount:
-        type: integer
+        type: number
       description:
         type: string
-      investmentTime:
+      saving:
+        type: number
+      spendingTime:
         type: integer
     type: object
-  finance.createInvestmentResponse:
+  finance.createSpendingResponse:
     properties:
       id:
         type: string
@@ -17,8 +19,25 @@ definitions:
   finance.getInvestmentResponse:
     properties:
       amount:
+        type: number
+      description:
+        type: string
+      id:
+        type: string
+      saving:
+        type: number
+      spendingTime:
         type: integer
-      investmentTime:
+      userId:
+        type: string
+    type: object
+  meditation.MeditationDB:
+    properties:
+      endTime:
+        type: integer
+      id:
+        type: string
+      meditationTime:
         type: integer
       userId:
         type: string
@@ -37,14 +56,25 @@ definitions:
     type: object
   meditation.getMeditationResponse:
     properties:
-      endTime:
-        type: integer
-      id:
-        type: string
-      meditationTime:
-        type: integer
-      userId:
-        type: string
+      meditations:
+        items:
+          $ref: '#/definitions/meditation.MeditationDB'
+        type: array
+    type: object
+  progress.Experience:
+    additionalProperties:
+      type: number
+    type: object
+  progress.ExperienceToNewLevel:
+    additionalProperties:
+      type: number
+    type: object
+  progress.Response:
+    properties:
+      experienceToNewLevel:
+        $ref: '#/definitions/progress.ExperienceToNewLevel'
+      level:
+        $ref: '#/definitions/progress.Experience'
     type: object
   settings.CreateSettingsRequest:
     properties:
@@ -159,16 +189,6 @@ definitions:
         - $ref: '#/definitions/settings.MeditationSettings'
         description: The user's settings for the meditation plugin.
     type: object
-  user.PluginName:
-    enum:
-    - meditation
-    - finance
-    - elevator
-    type: string
-    x-enum-varnames:
-    - PluginNameMeditation
-    - PluginNameFinance
-    - PluginNameElevator
   user.UserDB:
     properties:
       createdAt:
@@ -183,10 +203,6 @@ definitions:
         type: string
       lastName:
         type: string
-      plugins:
-        items:
-          $ref: '#/definitions/user.PluginName'
-        type: array
     type: object
   user.createUserRequest:
     properties:
@@ -216,10 +232,6 @@ definitions:
         type: string
       lastName:
         type: string
-      plugins:
-        items:
-          $ref: '#/definitions/user.PluginName'
-        type: array
     type: object
 info:
   contact:
@@ -265,27 +277,27 @@ paths:
     post:
       consumes:
       - '*/*'
-      description: Creates a new investment.
+      description: Creates a new spending.
       parameters:
       - description: User ID
         in: header
         name: userId
         required: true
         type: string
-      - description: investment to create
+      - description: spending to create
         in: body
         name: investment
         required: true
         schema:
-          $ref: '#/definitions/finance.createInvestmentRequest'
+          $ref: '#/definitions/finance.createSpendingRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/finance.createInvestmentResponse'
-      summary: Create a investment.
+            $ref: '#/definitions/finance.createSpendingResponse'
+      summary: Create a spending.
       tags:
       - finance
   /meditation:
@@ -340,6 +352,7 @@ paths:
       - description: User ID
         in: header
         name: userId
+        required: true
         type: string
       produces:
       - application/json
@@ -351,6 +364,25 @@ paths:
       summary: Create meditation.
       tags:
       - meditation
+  /progress:
+    get:
+      description: fetch progress and level for a user.
+      parameters:
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/progress.Response'
+      summary: Get progress nad level for a user.
+      tags:
+      - progress
   /settings:
     delete:
       consumes:

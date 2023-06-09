@@ -68,7 +68,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Creates a new investment.",
+                "description": "Creates a new spending.",
                 "consumes": [
                     "*/*"
                 ],
@@ -78,7 +78,7 @@ const docTemplate = `{
                 "tags": [
                     "finance"
                 ],
-                "summary": "Create a investment.",
+                "summary": "Create a spending.",
                 "parameters": [
                     {
                         "type": "string",
@@ -88,12 +88,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "investment to create",
+                        "description": "spending to create",
                         "name": "investment",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/finance.createInvestmentRequest"
+                            "$ref": "#/definitions/finance.createSpendingRequest"
                         }
                     }
                 ],
@@ -101,7 +101,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/finance.createInvestmentResponse"
+                            "$ref": "#/definitions/finance.createSpendingResponse"
                         }
                     }
                 }
@@ -190,7 +190,8 @@ const docTemplate = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "userId",
-                        "in": "header"
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -198,6 +199,35 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/meditation.createMeditationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/progress": {
+            "get": {
+                "description": "fetch progress and level for a user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "progress"
+                ],
+                "summary": "Get progress nad level for a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/progress.Response"
                         }
                     }
                 }
@@ -662,21 +692,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "finance.createInvestmentRequest": {
+        "finance.createSpendingRequest": {
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "description": {
                     "type": "string"
                 },
-                "investmentTime": {
+                "saving": {
+                    "type": "number"
+                },
+                "spendingTime": {
                     "type": "integer"
                 }
             }
         },
-        "finance.createInvestmentResponse": {
+        "finance.createSpendingResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -688,9 +721,35 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "saving": {
+                    "type": "number"
+                },
+                "spendingTime": {
                     "type": "integer"
                 },
-                "investmentTime": {
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "meditation.MeditationDB": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meditationTime": {
                     "type": "integer"
                 },
                 "userId": {
@@ -720,17 +779,34 @@ const docTemplate = `{
         "meditation.getMeditationResponse": {
             "type": "object",
             "properties": {
-                "endTime": {
-                    "type": "integer"
+                "meditations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/meditation.MeditationDB"
+                    }
+                }
+            }
+        },
+        "progress.Experience": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "number"
+            }
+        },
+        "progress.ExperienceToNewLevel": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "number"
+            }
+        },
+        "progress.Response": {
+            "type": "object",
+            "properties": {
+                "experienceToNewLevel": {
+                    "$ref": "#/definitions/progress.ExperienceToNewLevel"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "meditationTime": {
-                    "type": "integer"
-                },
-                "userId": {
-                    "type": "string"
+                "level": {
+                    "$ref": "#/definitions/progress.Experience"
                 }
             }
         },
@@ -906,19 +982,6 @@ const docTemplate = `{
                 }
             }
         },
-        "user.PluginName": {
-            "type": "string",
-            "enum": [
-                "meditation",
-                "finance",
-                "elevator"
-            ],
-            "x-enum-varnames": [
-                "PluginNameMeditation",
-                "PluginNameFinance",
-                "PluginNameElevator"
-            ]
-        },
         "user.UserDB": {
             "type": "object",
             "properties": {
@@ -939,12 +1002,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.PluginName"
-                    }
                 }
             }
         },
@@ -990,12 +1047,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.PluginName"
-                    }
                 }
             }
         }
