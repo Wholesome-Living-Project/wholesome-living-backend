@@ -19,6 +19,14 @@ const (
 	PluginNameElevator   PluginName = "elevator"
 )
 
+// AND ADD ALSO HERE
+// map of PluginName to Capitized names
+var pluginNameToCap = map[PluginName]string{
+	PluginNameFinance:    "Finance",
+	PluginNameMeditation: "Meditation",
+	PluginNameElevator:   "Elevator",
+}
+
 var validPlugins = map[PluginName]bool{
 	PluginNameFinance:    true,
 	PluginNameMeditation: true,
@@ -63,7 +71,7 @@ func (f FinanceSettings) getPeriodNotifications() NotificationType {
 
 func (f FinanceSettings) validate() error {
 	if !isValidNotificationType(f) || !isValidStrategy(f.Strategy) {
-		return errors.New("Invalid notification type, either strategy or notification")
+		return errors.New("invalid finance strategy")
 	}
 	return nil
 }
@@ -79,8 +87,10 @@ func (m MeditationSettings) getPeriodNotifications() NotificationType {
 	return m.PeriodNotifications
 }
 
-// TODO
 func (f MeditationSettings) validate() error {
+	if !isValidNotificationType(f) {
+		return errors.New("Invalid notification type")
+	}
 	return nil
 }
 
@@ -106,9 +116,9 @@ func (f ElevatorSettings) validate() error {
 type SettingsDB struct {
 	ID             string             `json:"id" bson:"_id"`
 	EnabledPlugins []PluginName       `json:"enabledPlugins" bson:"enabledPlugins"`
-	Meditation     MeditationSettings `json:"meditation" bson:"meditation"`
-	Finance        FinanceSettings    `json:"finance" bson:"finance"`
-	Elevator       ElevatorSettings   `json:"elevator" bson:"elevator"`
+	Meditation     MeditationSettings `json:"meditation" bson:"meditation,omitempty" `
+	Finance        FinanceSettings    `json:"finance" bson:"finance,omitempty"`
+	Elevator       ElevatorSettings   `json:"elevator" bson:"elevator,omitempty"`
 }
 
 type Storage struct {
@@ -185,23 +195,18 @@ func (s *Storage) CreateOnboarding(request CreateOnboardingSettingResponse, user
 	}
 
 	// Validate request
-	// FIXME: loop over all enabled plugins and check if they are valid
 	if err := validateSettingsRequest(request); err != nil {
 		return "Invalid settings", err
 	}
 
-	// FIXME: make more dynamic
-	// Add new plugin to onboarding here
-	settings := SettingsDB{
-		ID:             userId,
-		EnabledPlugins: request.EnabledPlugins,
-		Meditation:     request.Meditation,
-		Finance:        request.Finance,
-		Elevator:       request.Elevator,
+	// Create settings
+	settings, err := createEnabledSettings(request, userId)
+	if err != nil {
+		return "", err
 	}
 
+	// Insert settings
 	result, err := collection.InsertOne(ctx, settings)
-
 	if err != nil {
 		return result.InsertedID.(string), err
 	}
@@ -209,14 +214,19 @@ func (s *Storage) CreateOnboarding(request CreateOnboardingSettingResponse, user
 	return "", err
 }
 
-func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, pluginName string, ctx context.Context) (string, error) {
+func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, pluginName string, ctx context.Context) error {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
 
 	// Check if user exists
 	user := userCollection.FindOne(ctx, bson.M{"_id": userId})
 	if err := user.Err(); err != nil {
-		return "", errors.New("User not found!")
+		return errors.New("User not found!")
+	}
+
+	// Check if plugin exists
+	if err := validateSettings(request); err != nil {
+		return err
 	}
 
 	// Check if user already has onboarding settings
@@ -225,70 +235,45 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, plu
 
 		// Check if user already has the specified plugin settings
 		if collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName}).Err() == nil {
-			return "", errors.New("User already has " + pluginName + " settings, use put")
+			return errors.New("User already has " + pluginName + " settings")
 		}
 
 		// Create plugin settings and keep the other settings
 		var settingsRecord SettingsDB
 		if err := settings.Decode(&settingsRecord); err != nil {
-			return "", err
-		}
-
-		// Check if plugin exists
-		if err := validateSettings(request); err != nil {
-			return "", err
+			return err
 		}
 
 		// Add new plugin to onboarding here
 		settingsRecord.EnabledPlugins = append(settingsRecord.EnabledPlugins, PluginName(pluginName))
 
-		// FIXME: make more dynamic
-		// maybe through update logic or throught setters on settings
-		switch pluginName {
-		case "finance":
-			settingsRecord.Finance = *(request.(*FinanceSettings))
-		case "meditation":
-			settingsRecord.Meditation = *(request.(*MeditationSettings))
-		case "elevator":
-			settingsRecord.Elevator = *(request.(*ElevatorSettings))
-		}
+		// Change plugin settings
+		setPluginOnOnboardingSettings(pluginName, &settingsRecord, request)
 
 		// Update the settings with the new settings
 		result := collection.FindOneAndReplace(ctx, bson.M{"_id": userId}, bson.M{"$set": settingsRecord})
 		if result.Err() != nil {
-			return "", result.Err()
+			return result.Err()
 		}
 
-		return "Created", nil
-
-	} else {
-		// Create new settings since the user has no settings yet
-		if err := validateSettings(request); err != nil {
-			return "Invalid settings", errors.New("Invalid settings: " + err.Error())
-		}
-		settings := SettingsDB{
-			ID:             userId,
-			EnabledPlugins: []PluginName{PluginName(pluginName)},
-		}
-
-		switch pluginName {
-		case "finance":
-			settings.Finance = *(request.(*FinanceSettings))
-		case "meditation":
-			settings.Meditation = *(request.(*MeditationSettings))
-		case "elevator":
-			settings.Elevator = *(request.(*ElevatorSettings))
-		}
-
-		// Insert the settings
-		_, err := collection.InsertOne(ctx, settings)
-
-		if err != nil {
-			return "", err
-		}
-
-		return "Inserted", err
+		return nil
 	}
+
+	// Create new settings since the user has no settings yet
+	sett := SettingsDB{
+		ID:             userId,
+		EnabledPlugins: []PluginName{PluginName(pluginName)},
+	}
+
+	// Add the plugin settings
+	setPluginOnOnboardingSettings(pluginName, &sett, request)
+
+	// Insert the settings
+	if _, err := collection.InsertOne(ctx, settings); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // TODO: encapsulate the single setting in update request object
@@ -311,20 +296,12 @@ func (s *Storage) UpdatePluginSettings(request SingleSetting, userId string, plu
 	if err := validateSettings(request); err != nil {
 		return "", err
 	}
-
 	// Update the OnboardingSettings with the new settings
 	cursor := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": bson.M{pluginName: request}})
 	if cursor.Err() != nil {
 		return "", cursor.Err()
 	}
 
-	// TODO: return the updated document
-	// Decode the record
-	//  if err := cursor.Decode(&settingsRecord); err != nil {
-	//		return settingsRecord, err
-	// }
-
-	// Fixme: see above
 	return "Updated", nil
 }
 
@@ -399,11 +376,51 @@ func (s *Storage) Delete(userId string, plugin string, ctx context.Context) erro
 }
 
 func validateSettingsRequest(request CreateOnboardingSettingResponse) error {
-	if !isValidNotificationType(request.Finance) || !isValidStrategy(request.Finance.Strategy) || !isValidNotificationType(request.Meditation) || !isValidPlugins(request.EnabledPlugins) {
-		return errors.New("Invalid settings, notification, strategy, or plugin not supported")
+	if !isValidPlugins(request.EnabledPlugins) {
+		return errors.New("Invalid enabled plugin ")
 	}
 
+	for _, v := range request.EnabledPlugins {
+		pluginCap, ok := pluginNameToCap[PluginName(v)]
+		if !ok {
+			return errors.New("Invalid plugin name: " + string(v))
+		}
+
+		// Validate field if present
+		field := reflect.ValueOf(request).FieldByName(string(pluginCap))
+		if field.CanInterface() {
+			log.Println("Validating field: ", field.Type())
+			singset, ok := field.Interface().(SingleSetting)
+			if !ok {
+				return errors.New("Invalid field type: " + string(pluginCap) + " is not a SingleSetting")
+			}
+
+			if err := singset.validate(); err != nil {
+				return err
+			}
+		}
+
+	}
 	return nil
+}
+
+func createEnabledSettings(request CreateOnboardingSettingResponse, userId string) (SettingsDB, error) {
+	settingsDB := SettingsDB{ID: userId, EnabledPlugins: request.EnabledPlugins}
+
+	for _, v := range request.EnabledPlugins {
+		pluginCap, ok := pluginNameToCap[PluginName(v)]
+		if !ok {
+			return settingsDB, errors.New("Invalid plugin name: " + string(v))
+		}
+
+		if srcField := reflect.ValueOf(request).FieldByName(string(pluginCap)); srcField.CanInterface() {
+			log.Println("Validating src-field: ", srcField.Type())
+			dstField := reflect.ValueOf(&settingsDB).Elem().FieldByName(string(pluginCap))
+			dstField.Set(srcField)
+		}
+	}
+
+	return settingsDB, nil
 }
 
 // function to validate each setting of a plugin
@@ -450,4 +467,16 @@ func isValidStrategy(strat StrategyType) bool {
 	default:
 		return false
 	}
+}
+
+func setPluginOnOnboardingSettings(plugin string, setting *SettingsDB, req SingleSetting) {
+	switch plugin {
+	case "finance":
+		setting.Finance = req.(FinanceSettings)
+	case "meditation":
+		setting.Meditation = req.(MeditationSettings)
+	case "elevator":
+		setting.Elevator = req.(ElevatorSettings)
+	}
+
 }

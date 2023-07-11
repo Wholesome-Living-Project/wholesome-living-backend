@@ -78,7 +78,7 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 	http, err := t.storage.CreateOnboarding(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Could not create onboarding, because " + err.Error(),
+			"message": "Could not create onboarding, because: " + err.Error(),
 		})
 	}
 
@@ -196,13 +196,13 @@ func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error
 		})
 	}
 
-	http, err := t.storage.CreatePluginSettings(req, userId, pluginName, c.Context())
+	err := t.storage.CreatePluginSettings(req, userId, pluginName, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not create " + pluginName + " settings: " + err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(http)
+	return c.Status(fiber.StatusCreated).JSON("Created")
 }
 
 // updateFinanceSettings
