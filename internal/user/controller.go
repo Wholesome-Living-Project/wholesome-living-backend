@@ -2,6 +2,8 @@ package user
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -69,6 +71,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	//Create user
 	_, err := t.storage.Create(req, c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to Create user",
 		})
@@ -93,6 +96,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	user, err := t.storage.Get(id, c.Context())
 
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to Get users",
 		})
@@ -112,6 +116,7 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	// Get all users
 	users, err := t.storage.GetAll(c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to Get users",
 		})
