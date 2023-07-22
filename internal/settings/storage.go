@@ -74,6 +74,7 @@ func (f FinanceSettings) getName() string {
 	return "finance"
 }
 
+// TODO check if enough
 func (f FinanceSettings) validate() error {
 	if !isValidNotificationType(f) || !isValidStrategy(f.Strategy) {
 		return errors.New("invalid finance strategy")
@@ -96,6 +97,7 @@ func (m MeditationSettings) getName() string {
 	return "meditation"
 }
 
+// TODO check if enough
 func (m MeditationSettings) validate() error {
 	if !isValidNotificationType(m) {
 		return errors.New("Invalid notification type")
@@ -118,8 +120,11 @@ func (e ElevatorSettings) getName() string {
 	return "elevator"
 }
 
-// TODO
-func (f ElevatorSettings) validate() error {
+// TODO check if enough
+func (e ElevatorSettings) validate() error {
+	if !isValidNotificationType(e) {
+		return errors.New("Invalid notification type")
+	}
 	return nil
 }
 
@@ -224,7 +229,7 @@ func (s *Storage) CreateOnboarding(request CreateOnboardingSettingResponse, user
 		return result.InsertedID.(string), err
 	}
 
-	return "", err
+	return "Created", err
 }
 
 func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx context.Context) error {
@@ -259,10 +264,16 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx
 		}
 
 		// Add new plugin to onboarding here
-		settingsRecord.EnabledPlugins = append(settingsRecord.EnabledPlugins, PluginName(pluginName))
+		updatedEnabled := append(settingsRecord.EnabledPlugins, PluginName(pluginName))
 
 		// Update the settings with the new settings
-		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": bson.M{pluginName: request}})
+		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId},
+			bson.M{"$set": bson.M{
+				"enabledPlugins": updatedEnabled,
+				pluginName:       request,
+			},
+			})
+
 		if result.Err() != nil {
 			return result.Err()
 		}
@@ -276,6 +287,7 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx
 		EnabledPlugins: []PluginName{PluginName(pluginName)},
 	}
 
+	// TODO check if nesesary, check if cannot be replaced in the insert
 	// Add the plugin settings
 	setPluginOnOnboardingSettings(pluginName, &sett, request)
 
@@ -288,8 +300,9 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx
 }
 
 // TODO: encapsulate the single setting in update request object
-func (s *Storage) UpdatePluginSettings(request SingleSetting, userId string, pluginName string, ctx context.Context) (string, error) {
+func (s *Storage) UpdatePluginSettings(request SingleSetting, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
+	pluginName := request.getName()
 
 	// Check if user already has the specified plugin settings
 	oldSettings := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName})
