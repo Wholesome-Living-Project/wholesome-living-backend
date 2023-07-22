@@ -51,6 +51,7 @@ const (
 
 type SingleSetting interface {
 	getPeriodNotifications() NotificationType
+	getName() string
 	validate() error
 }
 
@@ -67,6 +68,10 @@ type FinanceSettings struct {
 
 func (f FinanceSettings) getPeriodNotifications() NotificationType {
 	return f.PeriodNotifications
+}
+
+func (f FinanceSettings) getName() string {
+	return "finance"
 }
 
 func (f FinanceSettings) validate() error {
@@ -87,8 +92,12 @@ func (m MeditationSettings) getPeriodNotifications() NotificationType {
 	return m.PeriodNotifications
 }
 
-func (f MeditationSettings) validate() error {
-	if !isValidNotificationType(f) {
+func (m MeditationSettings) getName() string {
+	return "meditation"
+}
+
+func (m MeditationSettings) validate() error {
+	if !isValidNotificationType(m) {
 		return errors.New("Invalid notification type")
 	}
 	return nil
@@ -103,6 +112,10 @@ type ElevatorSettings struct {
 
 func (e ElevatorSettings) getPeriodNotifications() NotificationType {
 	return e.PeriodNotifications
+}
+
+func (e ElevatorSettings) getName() string {
+	return "elevator"
 }
 
 // TODO
@@ -214,9 +227,10 @@ func (s *Storage) CreateOnboarding(request CreateOnboardingSettingResponse, user
 	return "", err
 }
 
-func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, pluginName string, ctx context.Context) error {
+func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx context.Context) error {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
+	pluginName := request.getName()
 
 	// Check if user exists
 	user := userCollection.FindOne(ctx, bson.M{"_id": userId})
@@ -247,11 +261,8 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, plu
 		// Add new plugin to onboarding here
 		settingsRecord.EnabledPlugins = append(settingsRecord.EnabledPlugins, PluginName(pluginName))
 
-		// Change plugin settings
-		setPluginOnOnboardingSettings(pluginName, &settingsRecord, request)
-
 		// Update the settings with the new settings
-		result := collection.FindOneAndReplace(ctx, bson.M{"_id": userId}, bson.M{"$set": settingsRecord})
+		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{"$set": bson.M{pluginName: request}})
 		if result.Err() != nil {
 			return result.Err()
 		}
@@ -424,7 +435,6 @@ func createEnabledSettings(request CreateOnboardingSettingResponse, userId strin
 }
 
 // function to validate each setting of a plugin
-// Todo: make dynamic
 func validateSettings(setting SingleSetting) error {
 	if err := setting.validate(); err != nil {
 		return err
@@ -469,6 +479,7 @@ func isValidStrategy(strat StrategyType) bool {
 	}
 }
 
+// FIXME: change to be more dynamic
 func setPluginOnOnboardingSettings(plugin string, setting *SettingsDB, req SingleSetting) {
 	switch plugin {
 	case "finance":

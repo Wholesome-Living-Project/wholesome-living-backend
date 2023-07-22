@@ -136,7 +136,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Success 201
 // @Router /settings/finance [post]
 func (t *Controller) createFinanceSettings(c *fiber.Ctx) error {
-	return t.createPluginSettings(c, "finance")
+	return t.createPluginSettings(&FinanceSettings{}, c)
 }
 
 // @Summary Create settings for the elevator plugin.
@@ -149,7 +149,7 @@ func (t *Controller) createFinanceSettings(c *fiber.Ctx) error {
 // @Success 201
 // @Router /settings/elevator [post]
 func (t *Controller) createElevatorSettings(c *fiber.Ctx) error {
-	return t.createPluginSettings(c, "elevator")
+	return t.createPluginSettings(&ElevatorSettings{}, c)
 }
 
 // @Summary Create settings for the meditation Plugin.
@@ -162,26 +162,11 @@ func (t *Controller) createElevatorSettings(c *fiber.Ctx) error {
 // @Success 201
 // @Router /settings/meditation [post]
 func (t *Controller) createMeditationSettings(c *fiber.Ctx) error {
-	return t.createPluginSettings(c, "meditation")
+	return t.createPluginSettings(&MeditationSettings{}, c)
 }
 
-func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error {
+func (t *Controller) createPluginSettings(settingType SingleSetting, c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-
-	var req SingleSetting
-
-	switch pluginName {
-	case "finance":
-		req = &FinanceSettings{}
-	case "meditation":
-		req = &MeditationSettings{}
-	case "elevator":
-		req = &ElevatorSettings{}
-	default:
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid plugin name",
-		})
-	}
 
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
@@ -190,16 +175,16 @@ func (t *Controller) createPluginSettings(c *fiber.Ctx, pluginName string) error
 		})
 	}
 
-	if err := c.BodyParser(req); err != nil {
+	if err := c.BodyParser(settingType); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
+			"message": "Invalid request body" + err.Error(),
 		})
 	}
 
-	err := t.storage.CreatePluginSettings(req, userId, pluginName, c.Context())
+	err := t.storage.CreatePluginSettings(settingType, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Could not create " + pluginName + " settings: " + err.Error(),
+			"message": "Could not create " + settingType.getName() + " settings: " + err.Error(),
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON("Created")
