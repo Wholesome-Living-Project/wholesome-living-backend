@@ -60,7 +60,7 @@ type getPluginSettingResponse struct {
 // @Router /settings [post]
 func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req CreateOnboardingSettingResponse
+	var req CreateSettingsRequest
 
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
@@ -249,7 +249,13 @@ func (t *Controller) updatePluginSettings(settingType SingleSetting, c *fiber.Ct
 
 	http, err := t.storage.UpdatePluginSettings(settingType, userId, c.Context())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Could not create " + settingType.getName() + " settings: " + err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(
+			fiber.Map{
+				"message": "Could not update" +
+					settingType.getName() +
+					" settings: " + err.Error(),
+			},
+		)
 	}
 	return c.Status(fiber.StatusCreated).JSON(http)
 }

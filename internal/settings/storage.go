@@ -196,7 +196,7 @@ func (s *Storage) Get(userId string, plugin string, ctx context.Context) (Settin
 }
 
 // TODO: Settings should be when onboarding is made or a user choses a ned plugin
-func (s *Storage) CreateOnboarding(request CreateOnboardingSettingResponse, userId string, ctx context.Context) (string, error) {
+func (s *Storage) CreateOnboarding(request CreateSettingsRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 	userCollection := s.db.Collection("users")
 
@@ -250,56 +250,53 @@ func (s *Storage) CreatePluginSettings(request SingleSetting, userId string, ctx
 
 	// Check if user already has onboarding settings
 	settings := collection.FindOne(ctx, bson.M{"_id": userId})
-	if settings.Err() == nil {
-
-		// Check if user already has the specified plugin settings
-		if collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName}).Err() == nil {
-			return errors.New("User already has " + pluginName + " settings")
+	if settings.Err() != nil {
+		// Create new settings since the user has no settings yet
+		sett := SettingsDB{
+			ID:             userId,
+			EnabledPlugins: []PluginName{PluginName(pluginName)},
 		}
 
-		// Create plugin settings and keep the other settings
-		var settingsRecord SettingsDB
-		if err := settings.Decode(&settingsRecord); err != nil {
+		// Insert the settings
+		if _, err := collection.InsertOne(ctx, sett); err != nil {
 			return err
 		}
-
-		// Add new plugin to onboarding here
-		updatedEnabled := append(settingsRecord.EnabledPlugins, PluginName(pluginName))
-
-		// Update the settings with the new settings
-		result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId},
-			bson.M{"$set": bson.M{
-				"enabledPlugins": updatedEnabled,
-				pluginName:       request,
-			},
-			})
-
-		if result.Err() != nil {
-			return result.Err()
-		}
-
-		return nil
 	}
 
-	// Create new settings since the user has no settings yet
-	sett := SettingsDB{
-		ID:             userId,
-		EnabledPlugins: []PluginName{PluginName(pluginName)},
-	}
+	// settings should exist now
+	settings = collection.FindOne(ctx, bson.M{"_id": userId})
 
-	// TODO check if nesesary, check if cannot be replaced in the insert
-	// Add the plugin settings
-	setPluginOnOnboardingSettings(pluginName, &sett, request)
-
-	// Insert the settings
-	if _, err := collection.InsertOne(ctx, settings); err != nil {
+	// Create plugin settings and keep the other settings
+	var settingsRecord SettingsDB
+	if err := settings.Decode(&settingsRecord); err != nil {
 		return err
+	}
+
+	// Check if user already has the specified plugin settings
+	for _, plugin := range settingsRecord.EnabledPlugins {
+		if plugin == PluginName(pluginName) {
+			return errors.New("User already has " + pluginName + " settings")
+		}
+	}
+
+	// Add new plugin to onboarding here
+	updatedEnabled := append(settingsRecord.EnabledPlugins, PluginName(pluginName))
+
+	// Update the settings with the new settings
+	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId},
+		bson.M{"$set": bson.M{
+			"enabledPlugins": updatedEnabled,
+			pluginName:       request,
+		},
+		})
+
+	if result.Err() != nil {
+		return result.Err()
 	}
 
 	return nil
 }
 
-// TODO: encapsulate the single setting in update request object
 func (s *Storage) UpdatePluginSettings(request SingleSetting, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("settings")
 	pluginName := request.getName()
@@ -399,7 +396,7 @@ func (s *Storage) Delete(userId string, plugin string, ctx context.Context) erro
 	return nil
 }
 
-func validateSettingsRequest(request CreateOnboardingSettingResponse) error {
+func validateSettingsRequest(request CreateSettingsRequest) error {
 	if !isValidPlugins(request.EnabledPlugins) {
 		return errors.New("Invalid enabled plugin ")
 	}
@@ -428,7 +425,7 @@ func validateSettingsRequest(request CreateOnboardingSettingResponse) error {
 	return nil
 }
 
-func createEnabledSettings(request CreateOnboardingSettingResponse, userId string) (SettingsDB, error) {
+func createEnabledSettings(request CreateSettingsRequest, userId string) (SettingsDB, error) {
 	settingsDB := SettingsDB{ID: userId, EnabledPlugins: request.EnabledPlugins}
 
 	for _, v := range request.EnabledPlugins {
@@ -490,17 +487,4 @@ func isValidStrategy(strat StrategyType) bool {
 	default:
 		return false
 	}
-}
-
-// FIXME: change to be more dynamic
-func setPluginOnOnboardingSettings(plugin string, setting *SettingsDB, req SingleSetting) {
-	switch plugin {
-	case "finance":
-		setting.Finance = req.(FinanceSettings)
-	case "meditation":
-		setting.Meditation = req.(MeditationSettings)
-	case "elevator":
-		setting.Elevator = req.(ElevatorSettings)
-	}
-
 }
