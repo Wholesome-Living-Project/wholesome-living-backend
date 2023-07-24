@@ -3,6 +3,7 @@ package main
 import (
 	"cmd/http/main.go/config"
 	_ "cmd/http/main.go/docs"
+	"cmd/http/main.go/internal/elevator"
 	"cmd/http/main.go/internal/finance"
 	"cmd/http/main.go/internal/meditation"
 	"cmd/http/main.go/internal/progress"
@@ -128,6 +129,11 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	financeStore := finance.NewStorage(db)
 	financeController := finance.NewController(financeStore, userStore, progressStore)
 	finance.Routes(app, financeController)
+
+	//create finance domain
+	elevatorStore := elevator.NewStorage(db)
+	elevatorController := elevator.NewController(elevatorStore, userStore, progressStore)
+	elevator.Routes(app, elevatorController)
 
 	return app, func() {
 		err := storage.CloseMongo(db)

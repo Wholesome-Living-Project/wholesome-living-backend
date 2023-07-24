@@ -21,6 +21,103 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/elevator": {
+            "get": {
+                "description": "Fetch one or multiple elevator sessions.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "elevator"
+                ],
+                "summary": "Get elevator sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Elevator ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "start time",
+                        "name": "startTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "end time",
+                        "name": "endTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "duration start time",
+                        "name": "durationStart",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "duration end time",
+                        "name": "durationEnd",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/elevator.getElevatorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new elevator.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "elevator"
+                ],
+                "summary": "Create elevator.",
+                "parameters": [
+                    {
+                        "description": "Elevator to create",
+                        "name": "elevator",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/elevator.createElevatorRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/elevator.createElevatorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/finance": {
             "get": {
                 "description": "Query Investments with the user ID, start time and end time.",
@@ -692,6 +789,45 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "elevator.createElevatorRequest": {
+            "type": "object",
+            "properties": {
+                "amountStairs": {
+                    "type": "integer"
+                },
+                "stairs": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "elevator.createElevatorResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "elevator.getElevatorResponse": {
+            "type": "object",
+            "properties": {
+                "amountStairs": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "stairs": {
+                    "type": "boolean"
+                },
+                "time": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "finance.createSpendingRequest": {
             "type": "object",
             "properties": {
