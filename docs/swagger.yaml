@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  elevator.ElevatorDB:
+    properties:
+      amountStairs:
+        type: integer
+      id:
+        type: string
+      stairs:
+        type: boolean
+      time:
+        type: integer
+      userId:
+        type: string
+    type: object
   elevator.createElevatorRequest:
     properties:
       amountStairs:
@@ -14,16 +27,10 @@ definitions:
     type: object
   elevator.getElevatorResponse:
     properties:
-      amountStairs:
-        type: integer
-      id:
-        type: string
-      stairs:
-        type: boolean
-      time:
-        type: integer
-      userId:
-        type: string
+      elevators:
+        items:
+          $ref: '#/definitions/elevator.ElevatorDB'
+        type: array
     type: object
   finance.createSpendingRequest:
     properties:

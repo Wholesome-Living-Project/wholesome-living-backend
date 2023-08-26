@@ -31,12 +31,9 @@ type createElevatorRequest struct {
 type createElevatorResponse struct {
 	ID string `json:"id"`
 }
+
 type getElevatorResponse struct {
-	ID           string `json:"id"`
-	UserID       string `json:"userId"`
-	Time         int    `json:"time"`
-	Stairs       bool   `json:"stairs"`
-	AmountStairs int    `json:"amountStairs"`
+	Meditations []ElevatorDB `json:"elevators"`
 }
 
 // @Summary Create elevator.

@@ -789,6 +789,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "elevator.ElevatorDB": {
+            "type": "object",
+            "properties": {
+                "amountStairs": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "stairs": {
+                    "type": "boolean"
+                },
+                "time": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "elevator.createElevatorRequest": {
             "type": "object",
             "properties": {
@@ -811,20 +831,11 @@ const docTemplate = `{
         "elevator.getElevatorResponse": {
             "type": "object",
             "properties": {
-                "amountStairs": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "stairs": {
-                    "type": "boolean"
-                },
-                "time": {
-                    "type": "integer"
-                },
-                "userId": {
-                    "type": "string"
+                "elevators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/elevator.ElevatorDB"
+                    }
                 }
             }
         },
