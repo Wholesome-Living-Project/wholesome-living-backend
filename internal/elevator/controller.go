@@ -24,8 +24,9 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 }
 
 type createElevatorRequest struct {
-	Stairs       bool `json:"stairs" bson:"stairs"`
-	AmountStairs int  `json:"amountStairs" bson:"amountStairs"`
+	Stairs       bool  `json:"stairs" bson:"stairs"`
+	AmountStairs int   `json:"amountStairs" bson:"amountStairs"`
+	HeightGain   int64 `json:"heightGain" bson:"heightGain"`
 }
 
 type createElevatorResponse struct {
@@ -93,6 +94,8 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Param endTime query int64 false "end time"
 // @Param durationStart query int64 false "duration start time"
 // @Param durationEnd query int64 false "duration end time"
+// @Param minGain query int64 false "Minimum amount of height gained"
+// @Param maxGain query int64 false "Maximum amount of height gained"
 // @Param userId header string false "User ID"
 // @Produce json
 // @Success 200 {object} []ElevatorDB
@@ -108,6 +111,11 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		"startDuration": convertToInt64(c.Query("durationStart")),
 		"durationEnd":   convertToInt64(c.Query("durationEnd")),
 	}
+	gain := map[string]int64{
+		"minGain": convertToInt64(c.Query("minGain")),
+		"maxGain": convertToInt64(c.Query("maxGain")),
+	}
+
 	if elevatorId != "" {
 		// Get particular elevator
 		elevator, err := t.storage.Get(elevatorId, c.Context())
@@ -138,7 +146,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			})
 		}
 		// all elevators items for a user between a time range and duration
-		elevators, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, c.Context())
+		elevators, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, gain, c.Context())
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": "Failed to get elevators in time range",

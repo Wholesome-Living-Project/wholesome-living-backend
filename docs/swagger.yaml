@@ -4,6 +4,8 @@ definitions:
     properties:
       amountStairs:
         type: integer
+      heightGain:
+        type: integer
       id:
         type: string
       stairs:
@@ -16,6 +18,8 @@ definitions:
   elevator.createElevatorRequest:
     properties:
       amountStairs:
+        type: integer
+      heightGain:
         type: integer
       stairs:
         type: boolean
@@ -284,6 +288,14 @@ paths:
       - description: duration end time
         in: query
         name: durationEnd
+        type: integer
+      - description: Minimum amount of height gained
+        in: query
+        name: minGain
+        type: integer
+      - description: Maximum amount of height gained
+        in: query
+        name: maxGain
         type: integer
       - description: User ID
         in: header

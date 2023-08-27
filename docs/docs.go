@@ -63,6 +63,18 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "description": "Minimum amount of height gained",
+                        "name": "minGain",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum amount of height gained",
+                        "name": "maxGain",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "User ID",
                         "name": "userId",
@@ -801,6 +813,9 @@ const docTemplate = `{
                 "amountStairs": {
                     "type": "integer"
                 },
+                "heightGain": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -819,6 +834,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amountStairs": {
+                    "type": "integer"
+                },
+                "heightGain": {
                     "type": "integer"
                 },
                 "stairs": {

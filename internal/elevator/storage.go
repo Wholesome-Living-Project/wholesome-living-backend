@@ -16,6 +16,7 @@ type ElevatorDB struct {
 	Time         int64              `json:"time" bson:"time"`
 	Stairs       bool               `json:"stairs" bson:"stairs"`
 	AmountStairs int                `json:"amountStairs" bson:"amountStairs"`
+	HeightGain   int64              `json:"heightGain" bson:"heightGain"`
 }
 
 type Storage struct {
@@ -42,6 +43,7 @@ func (s *Storage) Create(request createElevatorRequest, userId string, ctx conte
 		Time:         createdAt,
 		Stairs:       request.Stairs,
 		AmountStairs: request.AmountStairs,
+		HeightGain:   request.HeightGain,
 	}
 
 	result, err := collection.InsertOne(ctx, elevator)
@@ -75,7 +77,7 @@ func (s *Storage) Get(elevatorID string, ctx context.Context) (ElevatorDB, error
 	return elevatorRecord, nil
 }
 
-func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, times map[string]int64, ctx context.Context) ([]ElevatorDB, error) {
+func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, times map[string]int64, gain map[string]int64, ctx context.Context) ([]ElevatorDB, error) {
 	// get all elevators of one user between two times
 	collection := s.db.Collection("elevator")
 	var cursor *mongo.Cursor
@@ -86,8 +88,12 @@ func (s *Storage) GetAllOfOneUserBetweenTimeAndDuration(userId string, times map
 	if times["durationEnd"] == 0 {
 		times["durationEnd"] = math.MaxInt64
 	}
+	if gain["maxGain"] == 0 {
+		gain["maxGain"] = math.MaxInt64
+	}
+
 	elevators := make([]ElevatorDB, 0)
-	cursor, err = collection.Find(ctx, bson.M{"userId": userId, "time": bson.M{"$gte": times["startTime"], "$lte": times["endTime"]}, "amountStairs": bson.M{"$gte": times["durationStart"], "$lte": times["durationEnd"]}})
+	cursor, err = collection.Find(ctx, bson.M{"userId": userId, "time": bson.M{"$gte": times["startTime"], "$lte": times["endTime"]}, "amountStairs": bson.M{"$gte": times["durationStart"], "$lte": times["durationEnd"]}, "heightGain": bson.M{"$gte": gain["minGain"], "$lte": gain["maxGain"]}})
 	if err != nil {
 		return nil, err
 	}
