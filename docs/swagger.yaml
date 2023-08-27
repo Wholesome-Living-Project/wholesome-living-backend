@@ -25,13 +25,6 @@ definitions:
       id:
         type: string
     type: object
-  elevator.getElevatorResponse:
-    properties:
-      elevators:
-        items:
-          $ref: '#/definitions/elevator.ElevatorDB'
-        type: array
-    type: object
   finance.createSpendingRequest:
     properties:
       amount:
@@ -85,13 +78,6 @@ definitions:
     properties:
       id:
         type: string
-    type: object
-  meditation.getMeditationResponse:
-    properties:
-      meditations:
-        items:
-          $ref: '#/definitions/meditation.MeditationDB'
-        type: array
     type: object
   progress.Experience:
     additionalProperties:
@@ -309,7 +295,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/elevator.getElevatorResponse'
+            items:
+              $ref: '#/definitions/elevator.ElevatorDB'
+            type: array
       summary: Get elevator sessions
       tags:
       - elevator
@@ -430,7 +418,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/meditation.getMeditationResponse'
+            items:
+              $ref: '#/definitions/meditation.MeditationDB'
+            type: array
       summary: Get meditation sessions
       tags:
       - meditation

@@ -39,10 +39,6 @@ type getAllMeditationResponse []struct {
 	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
 
-type getMeditationResponse struct {
-	Meditations []MeditationDB `json:"meditations"`
-}
-
 // @Summary Create meditation.
 // @Description Creates a new meditation.
 // @Tags meditation
@@ -108,7 +104,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Param durationEnd query int64 false "duration end time"
 // @Param userId header string false "User ID"
 // @Produce json
-// @Success 200 {object} getMeditationResponse
+// @Success 200 {object} []MeditationDB
 // @Router /meditation [Get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")

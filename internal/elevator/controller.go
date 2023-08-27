@@ -32,10 +32,6 @@ type createElevatorResponse struct {
 	ID string `json:"id"`
 }
 
-type getElevatorResponse struct {
-	Meditations []ElevatorDB `json:"elevators"`
-}
-
 // @Summary Create elevator.
 // @Description Creates a new elevator.
 // @Tags elevator
@@ -99,7 +95,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 // @Param durationEnd query int64 false "duration end time"
 // @Param userId header string false "User ID"
 // @Produce json
-// @Success 200 {object} getElevatorResponse
+// @Success 200 {object} []ElevatorDB
 // @Router /elevator [Get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
