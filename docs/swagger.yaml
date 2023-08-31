@@ -1,5 +1,34 @@
 basePath: /
 definitions:
+  elevator.ElevatorDB:
+    properties:
+      amountStairs:
+        type: integer
+      heightGain:
+        type: integer
+      id:
+        type: string
+      stairs:
+        type: boolean
+      time:
+        type: integer
+      userId:
+        type: string
+    type: object
+  elevator.createElevatorRequest:
+    properties:
+      amountStairs:
+        type: integer
+      heightGain:
+        type: integer
+      stairs:
+        type: boolean
+    type: object
+  elevator.createElevatorResponse:
+    properties:
+      id:
+        type: string
+    type: object
   finance.createSpendingRequest:
     properties:
       amount:
@@ -53,13 +82,6 @@ definitions:
     properties:
       id:
         type: string
-    type: object
-  meditation.getMeditationResponse:
-    properties:
-      meditations:
-        items:
-          $ref: '#/definitions/meditation.MeditationDB'
-        type: array
     type: object
   progress.Experience:
     additionalProperties:
@@ -243,6 +265,80 @@ info:
   title: Wholesome Living Backend
   version: "0.1"
 paths:
+  /elevator:
+    get:
+      description: Fetch one or multiple elevator sessions.
+      parameters:
+      - description: Elevator ID
+        in: query
+        name: id
+        type: string
+      - description: start time
+        in: query
+        name: startTime
+        type: integer
+      - description: end time
+        in: query
+        name: endTime
+        type: integer
+      - description: duration start time
+        in: query
+        name: durationStart
+        type: integer
+      - description: duration end time
+        in: query
+        name: durationEnd
+        type: integer
+      - description: Minimum amount of height gained
+        in: query
+        name: minGain
+        type: integer
+      - description: Maximum amount of height gained
+        in: query
+        name: maxGain
+        type: integer
+      - description: User ID
+        in: header
+        name: userId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/elevator.ElevatorDB'
+            type: array
+      summary: Get elevator sessions
+      tags:
+      - elevator
+    post:
+      consumes:
+      - '*/*'
+      description: Creates a new elevator.
+      parameters:
+      - description: Elevator to create
+        in: body
+        name: elevator
+        required: true
+        schema:
+          $ref: '#/definitions/elevator.createElevatorRequest'
+      - description: User ID
+        in: header
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/elevator.createElevatorResponse'
+      summary: Create elevator.
+      tags:
+      - elevator
   /finance:
     get:
       description: Query Investments with the user ID, start time and end time.
@@ -334,7 +430,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/meditation.getMeditationResponse'
+            items:
+              $ref: '#/definitions/meditation.MeditationDB'
+            type: array
       summary: Get meditation sessions
       tags:
       - meditation

@@ -1,11 +1,11 @@
-package meditation
+package elevator
 
 import (
 	"cmd/http/main.go/internal/progress"
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	_ "go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
 )
 
@@ -23,34 +23,28 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createMeditationRequest struct {
-	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64 `json:"endTime" bson:"endTime"`
+type createElevatorRequest struct {
+	Stairs       bool  `json:"stairs" bson:"stairs"`
+	AmountStairs int   `json:"amountStairs" bson:"amountStairs"`
+	HeightGain   int64 `json:"heightGain" bson:"heightGain"`
 }
 
-type createMeditationResponse struct {
+type createElevatorResponse struct {
 	ID string `json:"id"`
 }
 
-type getAllMeditationResponse []struct {
-	Id             primitive.ObjectID `json:"id" bson:"_id"`
-	UserID         string             `json:"userId" bson:"userId"`
-	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
-	EndTime        int64              `json:"endTime" bson:"endTime"`
-}
-
-// @Summary Create meditation.
-// @Description Creates a new meditation.
-// @Tags meditation
+// @Summary Create elevator.
+// @Description Creates a new elevator.
+// @Tags elevator
 // @Accept */*
 // @Produce json
-// @Param meditation body createMeditationRequest true "Meditation to create"
+// @Param elevator body createElevatorRequest true "Elevator to create"
 // @Param userId header string true "User ID"
-// @Success 200 {object} createMeditationResponse
-// @Router /meditation [post]
+// @Success 200 {object} createElevatorResponse
+// @Router /elevator [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createMeditationRequest
+	var req createElevatorRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -76,40 +70,40 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO correct error handling
-	// Create meditation record
 	id, err := t.storage.Create(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Failed to Create Meditation",
-			"err":     err,
+			"message": "Failed to Create Elevator",
+			"err":     err.Error(),
 		})
 	}
-	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameMeditation, float64(req.MeditationTime))
+	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameElevator, float64(req.AmountStairs/10))
 	if err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusCreated).JSON(createMeditationResponse{
+	return c.Status(fiber.StatusCreated).JSON(createElevatorResponse{
 		ID: id,
 	})
 }
 
-// @Summary Get meditation sessions
-// @Description Fetch one or multiple meditation sessions.
-// @Tags meditation
-// @Param id query string false "Meditation ID"
+// @Summary Get elevator sessions
+// @Description Fetch one or multiple elevator sessions.
+// @Tags elevator
+// @Param id query string false "Elevator ID"
 // @Param startTime query int64 false "start time"
 // @Param endTime query int64 false "end time"
 // @Param durationStart query int64 false "duration start time"
 // @Param durationEnd query int64 false "duration end time"
+// @Param minGain query int64 false "Minimum amount of height gained"
+// @Param maxGain query int64 false "Maximum amount of height gained"
 // @Param userId header string false "User ID"
 // @Produce json
-// @Success 200 {object} []MeditationDB
-// @Router /meditation [Get]
+// @Success 200 {object} []ElevatorDB
+// @Router /elevator [Get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 	//parse Query values
-	meditationId := c.Query("id")
+	elevatorId := c.Query("id")
 	//map for time parameters
 	times := map[string]int64{
 		"startTime":     convertToInt64(c.Query("startTime")),
@@ -117,17 +111,22 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		"startDuration": convertToInt64(c.Query("durationStart")),
 		"durationEnd":   convertToInt64(c.Query("durationEnd")),
 	}
-	if meditationId != "" {
-		// Get particular meditation
-		meditation, err := t.storage.Get(meditationId, c.Context())
+	gain := map[string]int64{
+		"minGain": convertToInt64(c.Query("minGain")),
+		"maxGain": convertToInt64(c.Query("maxGain")),
+	}
+
+	if elevatorId != "" {
+		// Get particular elevator
+		elevator, err := t.storage.Get(elevatorId, c.Context())
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": "Failed to get meditation",
+				"message": "Failed to get elevator",
 			})
 		}
 		// convert to array
 		return c.Status(fiber.StatusOK).JSON(
-			[]MeditationDB{meditation},
+			[]ElevatorDB{elevator},
 		)
 	}
 
@@ -146,22 +145,22 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
-		// all meditations for a user between a time range and duration
-		meditations, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, c.Context())
+		// all elevators items for a user between a time range and duration
+		elevators, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, gain, c.Context())
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": "Failed to get meditations in time range",
+				"message": "Failed to get elevators in time range",
 				"err":     err,
 			})
 		}
-		if len(meditations) != 0 {
-			//check if user is allowed to get this meditation
-			if meditations[0].UserID != userId {
+		if len(elevators) != 0 {
+			//check if user is allowed to get this elevator
+			if elevators[0].UserID != userId {
 				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-					"message": "User is not allowed to get this meditation",
+					"message": "User is not allowed to get this elevator",
 				})
 			}
-			return c.Status(fiber.StatusOK).JSON(meditations)
+			return c.Status(fiber.StatusOK).JSON(elevators)
 		}
 
 	}
