@@ -12,4 +12,5 @@ func Routes(app *fiber.App, controller *Controller) {
 	user.Put("/", controller.update)
 	user.Get("/", controller.getAll)
 	user.Get("/:id", controller.get)
+	user.Delete("/:id", controller.delete)
 }

@@ -180,3 +180,26 @@ func (t *Controller) update(c *fiber.Ctx) error {
 
 	return c.JSON(result)
 }
+
+// @Summary Delete a user.
+// @Description delete a user by id with all its progress in all plugins.
+// @Tags users
+// @Accept */*
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /users/{id} [delete]
+func (t *Controller) delete(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	err := t.storage.Delete(id, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to delete user",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User deleted successfully",
+	})
+}

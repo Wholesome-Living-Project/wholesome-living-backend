@@ -107,3 +107,50 @@ func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
 	return user, nil
 
 }
+
+func (s *Storage) Delete(id string, ctx context.Context) error {
+	collection := s.db.Collection("users")
+
+	// Initialize the elevator collection
+	elevatorCollection := s.db.Collection("elevator")
+	_, err := elevatorCollection.DeleteMany(ctx, bson.M{"userId": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from elevator collection: %w", err)
+	}
+
+	// Initialize the meditation collection
+	meditationCollection := s.db.Collection("meditation")
+	_, err = meditationCollection.DeleteMany(ctx, bson.M{"userId": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from meditation collection: %w", err)
+	}
+
+	// Initialize the finance collection
+	financeCollection := s.db.Collection("finance")
+	_, err = financeCollection.DeleteMany(ctx, bson.M{"userId": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from finance collection: %w", err)
+	}
+
+	// Initialize the settings collection
+	settingsCollection := s.db.Collection("settings")
+	_, err = settingsCollection.DeleteMany(ctx, bson.M{"userId": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from settings collection: %w", err)
+	}
+
+	// Initialize the progress collection
+	progressCollection := s.db.Collection("progres")
+	_, err = progressCollection.DeleteMany(ctx, bson.M{"userId": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from pogress collection: %w", err)
+	}
+
+	// Delete from the main users collection
+	_, err = collection.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return fmt.Errorf("failed to delete from users collection: %w", err)
+	}
+
+	return nil
+}
