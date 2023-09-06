@@ -20,3 +20,12 @@ tasks:
     test:
         cmds:
           - go test ./...
+            
+    testcov:
+        cmds:
+          - go test -cover ./...
+
+    guicov:
+        cmds:
+          - go test -coverprofile=./tmp/coverage.out ./... || echo fail
+          - go tool cover -html=./tmp/coverage.out 
