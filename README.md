@@ -1,5 +1,17 @@
 # Wholesome Living
 
+<p align="left">
+  <a href="https://github.com/Wholesome-Living-Project/wholesome-living-backend/actions/workflows/go.yml">
+    <img alt="Releases" src="https://github.com/Wholesome-Living-Project/wholesome-living-backend/actions/workflows/go.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/Wholesome-Living-Project/wholesome-living-backend/actions/workflows/golint.yml">
+    <img alt="Releases" src="https://github.com/Wholesome-Living-Project/wholesome-living-backend/actions/workflows/golint.yml/badge.svg" />
+  </a>
+  <a href=""><img alt="" src="" /></a>
+</p>
+
+
+
 Backend for Wholesome Living
 
 ### Prerequisites
