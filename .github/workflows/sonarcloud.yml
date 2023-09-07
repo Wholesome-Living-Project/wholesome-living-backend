@@ -30,11 +30,11 @@ name: SonarCloud analysis
 
 on:
   push:
-        branches:
-          - main        # The default branch
-          - branch-*    # The other branches to be analyzed
+    branches-ignore:
+      - none  # Remove this line to include all branches
   pull_request:
-    branches: [ "main"]
+    branches: [ "*" ]  # '*' wildcard to include all branches
+
   workflow_dispatch:
 
 permissions:
