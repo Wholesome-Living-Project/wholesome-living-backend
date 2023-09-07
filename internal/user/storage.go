@@ -58,6 +58,8 @@ func (s *Storage) Get(id string, ctx context.Context) (UserDB, error) {
 	result := collection.FindOne(ctx, bson.M{"_id": id})
 	user := UserDB{}
 
+	// Handle if user does not exist
+
 	if result.Err() != nil {
 		return user, result.Err()
 	}

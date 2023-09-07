@@ -94,8 +94,13 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	user, err := t.storage.Get(id, c.Context())
 
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to Get users",
+			"message": "Something went wrong",
 		})
 	}
 
