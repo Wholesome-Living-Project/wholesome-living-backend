@@ -100,7 +100,13 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	plugin := c.Query("plugin")
 
 	settings, err := t.storage.Get(userId, c.Context(), plugin)
+
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Plugin does not exist",
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not get settings, because: " + err.Error(),
 		})
@@ -303,7 +309,7 @@ func (t *Controller) delete(c *fiber.Ctx) error {
 	_, err := t.storage.Delete(userId, c.Context(), plugin)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Could not delete settings because: " + err.Error(),
+			"message": "Could not delete settings, because: " + err.Error(),
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
