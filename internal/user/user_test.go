@@ -31,7 +31,7 @@
 //		Routes(app, userController)
 //		app.Post("/users", userController.create)
 //
-//		reqBody, _ := json.Marshal(createUserRequest{FirstName: "John", LastName: "Doe", DateOfBirth: "01.01.2000", ID: "1"})
+//		reqBody, _ := json.Marshal(CreateUserRequest{FirstName: "John", LastName: "Doe", DateOfBirth: "01.01.2000", ID: "1"})
 //		req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(reqBody))
 //		req.Header.Set("Content-Type", "application/json")
 //		resp, _ := app.Test(req)
@@ -196,7 +196,7 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 	}
 
 	// create a test user (just for userId purposes)
-	testId, err := suite.store.Create(createUserRequest{
+	testId, err := suite.store.Create(CreateUserRequest{
 		FirstName: "test",
 		ID:        "testId",
 	}, context.Background())
@@ -378,33 +378,45 @@ func (suite *Suite) TestPutUser() {
 
 }
 
-func (suite *Suite) TestDeleteFast() {
+func (suite *Suite) TestDeleteUser() {
 	tests := []struct {
-		description  string // description of the test case
-		route        string // route path to test
-		expectedCode int    // expected HTTP status code
+		description  string
+		userId       string
+		expectedCode int
 	}{
 		{
-			description:  "Delete existing user (fast)",
-			route:        "/users/" + suite.testUserId,
-			expectedCode: 200,
+			description:  "Delete existing user",
+			userId:       suite.testUserId,
+			expectedCode: fiber.StatusOK,
+		},
+		{
+			description:  "Delete non-existing user",
+			userId:       "nonexistent",
+			expectedCode: fiber.StatusNotFound,
 		},
 	}
 
 	for _, test := range tests {
 		suite.T().Log(test.description)
-		req := httptest.NewRequest("DELETE", test.route, nil)
-		resp, _ := suite.app.Test(req, 1)
+		req := httptest.NewRequest("DELETE", "/users/"+test.userId, nil)
+		resp, err := suite.app.Test(req, -1)
+		if err != nil {
+			suite.T().Errorf("Could not make request: %v", err)
+		}
+
 		suite.Equal(test.expectedCode, resp.StatusCode)
 	}
-}
-
-// cleanup after the the suite
-func (suite *Suite) TearDownSuite() {
 }
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(Suite))
+}
+
+// cleanup after the the suite
+func (suite *Suite) TearDownSuite() {
+	if err := suite.store.db.Collection("users").Drop(context.Background()); err != nil {
+		log.Println("Error: ", err)
+	}
 }
