@@ -388,7 +388,6 @@ func (suite *Suite) TestDeleteFast() {
 			description:  "Delete existing user (fast)",
 			route:        "/users/" + suite.testUserId,
 			expectedCode: 200,
-			// test + new
 		},
 	}
 
