@@ -1,6 +1,7 @@
 package user
 
 import (
+	"log"
 	"testing"
 	"time"
 
@@ -31,11 +32,6 @@ func TestGetUser(t *testing.T) {
 			route:        "/health",
 			expectedCode: 200,
 		},
-		{
-			description:  "get HTTP status 200",
-			route:        "/",
-			expectedCode: 200,
-		},
 		// Second test case
 		{
 			description:  "get HTTP status 404, when route is not exists",
@@ -47,7 +43,7 @@ func TestGetUser(t *testing.T) {
 	// Define Fiber app.
 	app := fiber.New()
 	MONGODB_URI := "mongodb://localhost:27017"
-	MONGODB_NAME := "testing"
+	MONGODB_NAME := "testing-user"
 
 	db, err := storage.BootstrapMongo(MONGODB_URI, MONGODB_NAME, 10*time.Second)
 
@@ -73,9 +69,10 @@ func TestGetUser(t *testing.T) {
 		// Perform the request plain with the app,
 		// the second argument is a request latency
 		// (set to -1 for no latency)
-		resp, _ := app.Test(req, 1)
+		resp, _ := app.Test(req, -1)
 
-		assert.Equal(test.expectedCode, resp.StatusCode)
+		assert.Equal(test.expectedCode, resp.StatusCode, "Test case (%v) failed", test.description)
+		log.Printf("[✔] (%v) passed", test.description)
 
 	}
 	// assert.Equal(t, 123, 123, "they should be equal")

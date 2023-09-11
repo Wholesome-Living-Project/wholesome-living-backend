@@ -31,7 +31,7 @@ func (suite *Suite) SetupSuite() {
 	// Define Fiber app.
 	app := fiber.New()
 	MONGODB_URI := "mongodb://localhost:27017"
-	MONGODB_NAME := "testing"
+	MONGODB_NAME := "testing-meditation"
 
 	db, err := storage.BootstrapMongo(MONGODB_URI, MONGODB_NAME, 10*time.Second)
 
@@ -66,13 +66,18 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		log.Println("Error: ", err)
 	}
 
+	_, err := suite.store.db.Collection("users").Indexes().DropOne(context.Background(), "testId")
+	if err != nil {
+		log.Println("Error: ", err)
+	}
+
 	if err := suite.store.db.Collection("meditation").Drop(context.Background()); err != nil {
 		log.Println("Error: ", err)
 	}
 
 	// create a test user (just for userId purposes)
 	testId := "testId"
-	_, err := suite.userStore.Get(testId, context.Background())
+	_, err = suite.userStore.Get(testId, context.Background())
 
 	if err != nil {
 		_, err := suite.userStore.Create(user.CreateUserRequest{
@@ -88,8 +93,6 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 	}
 
 	suite.testUserId = testId
-
-	log.Println("BEFORE TEST DONE", testId)
 
 	// create test evelevators
 	meditationId, err := suite.store.Create(CreateMeditationRequest{

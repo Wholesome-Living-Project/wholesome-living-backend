@@ -1,4 +1,4 @@
-package elevator
+package finance
 
 import (
 	"bytes"
@@ -24,7 +24,7 @@ type Suite struct {
 	store      *Storage
 	userStore  *user.Storage
 	testUserId string
-	elevatorId string
+	financeId  string
 }
 
 func (suite *Suite) SetupSuite() {
@@ -48,8 +48,8 @@ func (suite *Suite) SetupSuite() {
 	progressStore := progress.NewStorage(db)
 
 	suite.store = NewStorage(db)
-	elevatorController := NewController(suite.store, userStore, progressStore)
-	Routes(app, elevatorController)
+	finCon := NewController(suite.store, userStore, progressStore)
+	Routes(app, finCon)
 
 	// // add health check
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -59,7 +59,6 @@ func (suite *Suite) SetupSuite() {
 	suite.app = app
 
 	log.Println("SETUP DONE")
-
 }
 
 func (suite *Suite) BeforeTest(suiteName, testName string) {
@@ -67,46 +66,44 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		log.Println("Error: ", err)
 	}
 
-	_, err := suite.store.db.Collection("users").Indexes().DropOne(context.Background(), "testId")
-	if err != nil {
-		log.Println("Error: ", err)
-	}
-
-	if err := suite.store.db.Collection("elevator").Drop(context.Background()); err != nil {
+	if err := suite.store.db.Collection("investment").Drop(context.Background()); err != nil {
 		log.Println("Error: ", err)
 	}
 
 	// create a test user (just for userId purposes)
-	testId, err := suite.userStore.Create(user.CreateUserRequest{
-		ID:        "testId",
-		FirstName: "test",
-		LastName:  "testId",
-	}, context.Background())
+	testId := "testId"
+	_, err := suite.userStore.Get(testId, context.Background())
 
 	if err != nil {
-		suite.T().Errorf("Could not create test user: %v", err)
-		testId = "testId"
+		_, err := suite.userStore.Create(user.CreateUserRequest{
+			ID:        "testId",
+			FirstName: "test",
+			LastName:  "testId",
+		}, context.Background())
+
+		if err != nil {
+			suite.T().Errorf("Could not create test user: %v", err)
+		}
+
 	}
 
 	suite.testUserId = testId
 
-	// create test evelevators
-	elevatorId, err := suite.store.Create(createElevatorRequest{
-		Stairs:       true,
-		AmountStairs: 12,
-		HeightGain:   12,
-	}, "testId", context.Background())
+	log.Println("BEFORE TEST DONE", testId)
 
-	suite.elevatorId = elevatorId
+	// create test evelevators
+	meditationId, err := suite.store.Create(CreateMeditationRequest{
+		MeditationTime: 10,
+		EndTime:        time.Now().Unix(),
+	}, testId, context.Background())
+
+	suite.meditationId = meditationId
 }
 
 func (suite *Suite) TestPost() {
-	route := "/elevator"
+	route := "/meditation"
 
 	type Body struct {
-		Stairs       bool    `json:"stairs"`
-		AmountStairs int     `json:"amountStairs"`
-		HeightGain   float64 `json:"heightGain"`
 	}
 
 	tests := []struct {
@@ -118,30 +115,25 @@ func (suite *Suite) TestPost() {
 	}{
 		{
 			description:  "Create successfully",
-			body:         Body{true, 12, 12},
+			body:         Body{},
 			expectedCode: fiber.StatusCreated,
 		},
 		{
 			description:  "Another sucess test",
-			body:         Body{true, 100, 12},
+			body:         CreateMeditationRequest{MeditationTime: 30, EndTime: time.Now().Unix()},
 			expectedCode: fiber.StatusCreated,
 		},
 		{
 			description:  "User does not exist",
 			userId:       "doesntexist",
-			body:         Body{true, 100, 12},
+			body:         Body{},
 			expectedCode: fiber.StatusNotFound,
 		},
 		{
 			description:   "Missing userId header",
 			missingHeader: true,
-			body:          Body{true, 100, 12},
+			body:          Body{},
 			expectedCode:  fiber.StatusBadRequest,
-		},
-		{
-			description:  "Wrongly setting amount of stairs",
-			body:         Body{false, 12, 12},
-			expectedCode: fiber.StatusNotFound,
 		},
 	}
 
@@ -181,7 +173,7 @@ func (suite *Suite) TestPost() {
 }
 
 func (suite *Suite) TestGet() {
-	route := "/elevator"
+	route := "/meditation"
 
 	type Query struct {
 		Stairs       bool    `json:"stairs"`
@@ -199,7 +191,7 @@ func (suite *Suite) TestGet() {
 		{
 			description: "simple test one",
 			query: map[string]string{
-				"id": suite.elevatorId,
+				"id": suite.meditationId,
 			},
 			expectedCode: fiber.StatusOK,
 		},
@@ -241,7 +233,7 @@ func (suite *Suite) TestGet() {
 			expectedCode: fiber.StatusOK,
 		},
 		{
-			description: "Valid body",
+			description: "valid body",
 			query: map[string]string{
 				"startTime": "10",
 			},
