@@ -104,6 +104,10 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		Description:  "test",
 	}, testId, context.Background())
 
+	if err != nil {
+		suite.T().Errorf("Could not create test finance: %v", err)
+	}
+
 	suite.financeId = financeId
 }
 

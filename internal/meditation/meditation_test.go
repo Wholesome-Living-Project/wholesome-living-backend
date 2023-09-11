@@ -100,6 +100,10 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		EndTime:        time.Now().Unix(),
 	}, testId, context.Background())
 
+	if err != nil {
+		suite.T().Errorf("Could not create test meditation: %v", err)
+	}
+
 	suite.meditationId = meditationId
 }
 
@@ -177,12 +181,6 @@ func (suite *Suite) TestPost() {
 
 func (suite *Suite) TestGet() {
 	route := "/meditation"
-
-	type Query struct {
-		Stairs       bool    `json:"stairs"`
-		AmountStairs int     `json:"amountStairs"`
-		HeightGain   float64 `json:"heightGain"`
-	}
 
 	tests := []struct {
 		missingHeader bool

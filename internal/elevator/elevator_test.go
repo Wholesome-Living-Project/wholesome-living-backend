@@ -97,6 +97,10 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		HeightGain:   12,
 	}, "testId", context.Background())
 
+	if err != nil {
+		suite.T().Errorf("Could not create test elevator: %v", err)
+	}
+
 	suite.elevatorId = elevatorId
 }
 
@@ -182,12 +186,6 @@ func (suite *Suite) TestPost() {
 
 func (suite *Suite) TestGet() {
 	route := "/elevator"
-
-	type Query struct {
-		Stairs       bool    `json:"stairs"`
-		AmountStairs int     `json:"amountStairs"`
-		HeightGain   float64 `json:"heightGain"`
-	}
 
 	tests := []struct {
 		missingHeader bool
