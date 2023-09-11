@@ -31,7 +31,7 @@ func (suite *Suite) SetupSuite() {
 	// Define Fiber app.
 	app := fiber.New()
 	MONGODB_URI := "mongodb://localhost:27017"
-	MONGODB_NAME := "testing"
+	MONGODB_NAME := "testing-finance"
 
 	db, err := storage.BootstrapMongo(MONGODB_URI, MONGODB_NAME, 10*time.Second)
 
@@ -66,13 +66,18 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 		log.Println("Error: ", err)
 	}
 
+	_, err := suite.store.db.Collection("users").Indexes().DropOne(context.Background(), "testId")
+	if err != nil {
+		log.Println("Error: ", err)
+	}
+
 	if err := suite.store.db.Collection("investment").Drop(context.Background()); err != nil {
 		log.Println("Error: ", err)
 	}
 
 	// create a test user (just for userId purposes)
 	testId := "testId"
-	_, err := suite.userStore.Get(testId, context.Background())
+	_, err = suite.userStore.Get(testId, context.Background())
 
 	if err != nil {
 		_, err := suite.userStore.Create(user.CreateUserRequest{
@@ -92,16 +97,18 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 	log.Println("BEFORE TEST DONE", testId)
 
 	// create test evelevators
-	meditationId, err := suite.store.Create(CreateMeditationRequest{
-		MeditationTime: 10,
-		EndTime:        time.Now().Unix(),
+	financeId, err := suite.store.create(CreateSpendingRequest{
+		Amount:       100,
+		Saving:       100,
+		SpendingTime: time.Now().Unix(),
+		Description:  "test",
 	}, testId, context.Background())
 
-	suite.meditationId = meditationId
+	suite.financeId = financeId
 }
 
 func (suite *Suite) TestPost() {
-	route := "/meditation"
+	route := "/finance"
 
 	type Body struct {
 	}
@@ -120,7 +127,7 @@ func (suite *Suite) TestPost() {
 		},
 		{
 			description:  "Another sucess test",
-			body:         CreateMeditationRequest{MeditationTime: 30, EndTime: time.Now().Unix()},
+			body:         CreateSpendingRequest{Amount: 400.12, Saving: 10.2, SpendingTime: time.Now().Unix(), Description: "test"},
 			expectedCode: fiber.StatusCreated,
 		},
 		{
@@ -173,13 +180,7 @@ func (suite *Suite) TestPost() {
 }
 
 func (suite *Suite) TestGet() {
-	route := "/meditation"
-
-	type Query struct {
-		Stairs       bool    `json:"stairs"`
-		AmountStairs int     `json:"amountStairs"`
-		HeightGain   float64 `json:"heightGain"`
-	}
+	route := "/finance"
 
 	tests := []struct {
 		missingHeader bool
@@ -191,7 +192,7 @@ func (suite *Suite) TestGet() {
 		{
 			description: "simple test one",
 			query: map[string]string{
-				"id": suite.meditationId,
+				"id": suite.financeId,
 			},
 			expectedCode: fiber.StatusOK,
 		},
@@ -226,16 +227,25 @@ func (suite *Suite) TestGet() {
 				"startTime":     "kasldkfjasldf",
 				"endTime":       "",
 				"startDuration": "aaldkfjaslkdfjaskldj",
-				"durationEnd":   "",
-				"minGain":       "",
-				"maxGain":       "",
+			},
+			expectedCode: fiber.StatusBadRequest,
+		},
+		{
+			description: "valid body with starttime",
+			query: map[string]string{
+				"startTime": "10",
 			},
 			expectedCode: fiber.StatusOK,
 		},
 		{
-			description: "valid body",
+			description:  "valid body empty",
+			query:        map[string]string{},
+			expectedCode: fiber.StatusOK,
+		},
+		{
+			description: "valid body with endtime",
 			query: map[string]string{
-				"startTime": "10",
+				"endTime": "10",
 			},
 			expectedCode: fiber.StatusOK,
 		},
