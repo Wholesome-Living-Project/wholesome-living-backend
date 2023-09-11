@@ -4,9 +4,10 @@ import (
 	"cmd/http/main.go/internal/progress"
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	_ "go.mongodb.org/mongo-driver/bson/primitive"
-	"strconv"
 )
 
 type Controller struct {
@@ -153,15 +154,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
-		if len(elevators) != 0 {
-			//check if user is allowed to get this elevator
-			if elevators[0].UserID != userId {
-				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-					"message": "User is not allowed to get this elevator",
-				})
-			}
-			return c.Status(fiber.StatusOK).JSON(elevators)
-		}
+		return c.Status(fiber.StatusOK).JSON(elevators)
 
 	}
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
