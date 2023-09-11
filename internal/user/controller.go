@@ -35,9 +35,12 @@ type createUserResponse struct {
 	ID string `json:"id"`
 }
 
+// TODO remove if not needed
+/*
 type getUserRequest struct {
 	ID string `json:"id"`
 }
+*/
 
 type updateUserRequest struct {
 	FirstName   string `json:"firstName" bson:"firstName"`

@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Controller struct {
@@ -33,12 +32,15 @@ type createMeditationResponse struct {
 	ID string `json:"id"`
 }
 
+// TODO remove if not needed
+/*
 type getAllMeditationResponse []struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         string             `json:"userId" bson:"userId"`
 	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
 	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
+*/
 
 // @Summary Create meditation.
 // @Description Creates a new meditation.

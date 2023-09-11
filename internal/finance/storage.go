@@ -122,9 +122,9 @@ func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime
 		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime}})
 	} else {
 		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime, "$lte": endTime}})
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	investments := make([]financeDB, 0)

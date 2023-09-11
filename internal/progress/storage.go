@@ -4,9 +4,10 @@ import (
 	"cmd/http/main.go/internal/settings"
 	"context"
 	"errors"
+	"math"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"math"
 )
 
 type NotificationType string
@@ -50,9 +51,8 @@ func (s *Storage) Get(userId string, ctx context.Context) (Response, error) {
 	}
 
 	var db Db
-	var err error
 
-	err = collection.FindOne(ctx, bson.M{"_id": userId}).Decode(&db)
+	err := collection.FindOne(ctx, bson.M{"_id": userId}).Decode(&db)
 	if err != nil {
 		return Response{}, err
 	}

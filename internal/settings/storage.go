@@ -3,9 +3,10 @@ package settings
 import (
 	"context"
 	"errors"
+	"reflect"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"reflect"
 )
 
 type NotificationType string
@@ -242,8 +243,6 @@ func (s *Storage) CreatePluginSettings(request interface{}, userId string, plugi
 		}
 		return "Inserted", err
 	}
-
-	return "Something went wrong", nil
 }
 
 func (s *Storage) UpdatePluginSettings(request interface{}, userId string, pluginName string, ctx context.Context) (string, error) {
@@ -307,7 +306,7 @@ func (s *Storage) Delete(userId string, ctx context.Context, plugin string) (int
 		}
 	} else {
 		// validate plugin name
-		if isValidPlugins(plugin) != true {
+		if !isValidPlugins(plugin) {
 			return errors.New("Error"), errors.New("Invalid plugin name")
 		}
 		pluginName := PluginName(plugin)

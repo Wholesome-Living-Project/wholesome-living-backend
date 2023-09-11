@@ -85,6 +85,12 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		return err
 	}
 	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Saving)/2)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to add experience",
+			"err":     err,
+		})
+	}
 	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
 	})
@@ -138,14 +144,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			})
 		}
 		// Convert FinanceDb to getInvestmentResponse
-		investmentResponse := getInvestmentResponse{
-			ID:           investment.ID,
-			UserID:       investment.UserID,
-			SpendingTime: investment.SpendingTime,
-			Amount:       investment.Amount,
-			Saving:       investment.Saving,
-			Description:  investment.Description,
-		}
+		investmentResponse := getInvestmentResponse(investment)
 		return c.JSON([]getInvestmentResponse{investmentResponse})
 	}
 

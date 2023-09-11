@@ -2,9 +2,10 @@ package settings
 
 import (
 	"cmd/http/main.go/internal/user"
-	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Controller struct {
@@ -32,6 +33,7 @@ type CreateSettingsRequest struct {
 
 // TODO for each Plugin a creat endpoint
 
+/*
 type createInvestmentResponse struct {
 	ID string `json:"id"`
 }
@@ -45,6 +47,7 @@ type getSettingsResponse struct {
 	Finance  FinanceSettings  `json:"finance" bson:"finance"`
 	Elevator ElevatorSettings `json:"elevator" bson:"elevator"`
 }
+*/
 
 // @Summary Create onboarding in backend, set settings.
 // @Description Creates settings for a user.
