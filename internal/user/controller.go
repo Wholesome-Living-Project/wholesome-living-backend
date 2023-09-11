@@ -23,7 +23,7 @@ func NewController(storage *Storage) *Controller {
 	}
 }
 
-type createUserRequest struct {
+type CreateUserRequest struct {
 	FirstName   string `json:"firstName" bson:"firstName"`
 	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
@@ -57,7 +57,7 @@ type updateUserRequest struct {
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 
-	var req createUserRequest
+	var req CreateUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		fmt.Println(err)
