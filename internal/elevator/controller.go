@@ -136,8 +136,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Missing userId header",
 		})
-	}
-	if userId != "" {
+	} else {
 		_, err := t.userStorage.Get(userId, c.Context())
 
 		if err != nil {
@@ -155,9 +154,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			})
 		}
 		return c.Status(fiber.StatusOK).JSON(elevators)
-
 	}
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
 }
 
 func convertToInt64(value string) int64 {

@@ -80,6 +80,7 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 
 	if err != nil {
 		suite.T().Errorf("Could not create test user: %v", err)
+		testId = "testId"
 	}
 
 	suite.testUserId = testId
@@ -231,6 +232,13 @@ func (suite *Suite) TestGet() {
 				"durationEnd":   "",
 				"minGain":       "",
 				"maxGain":       "",
+			},
+			expectedCode: fiber.StatusOK,
+		},
+		{
+			description: "Valid body",
+			query: map[string]string{
+				"startTime": "10",
 			},
 			expectedCode: fiber.StatusOK,
 		},
