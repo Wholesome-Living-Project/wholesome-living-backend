@@ -55,7 +55,7 @@ type updateUserRequest struct {
 // @Tags users
 // @Accept */*
 // @Produce json
-// @Param user body createUserRequest true "User to create"
+// @Param user body CreateUserRequest true "User to create"
 // @Success 200 {object} createUserResponse
 // @Router /users [post]
 func (t *Controller) create(c *fiber.Ctx) error {
@@ -99,9 +99,13 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	user, err := t.storage.Get(id, c.Context())
 
 	if err != nil {
-		log.Println(err)
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to Get users",
+			"message": "Something went wrong",
 		})
 	}
 
@@ -201,13 +205,20 @@ func (t *Controller) delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	err := t.storage.Delete(id, c.Context())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to delete user",
+	if err == nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "User deleted successfully",
 		})
 	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User deleted successfully",
+	if err != nil {
+		// there is no user with this id
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+			})
+		}
+	}
+	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		"message": "Failed to delete user",
 	})
 }

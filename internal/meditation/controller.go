@@ -47,7 +47,7 @@ type getAllMeditationResponse []struct {
 // @Tags meditation
 // @Accept */*
 // @Produce json
-// @Param meditation body createMeditationRequest true "Meditation to create"
+// @Param meditation body CreateMeditationRequest true "Meditation to create"
 // @Param userId header string true "User ID"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]

@@ -58,6 +58,8 @@ func (s *Storage) Get(id string, ctx context.Context) (UserDB, error) {
 	result := collection.FindOne(ctx, bson.M{"_id": id})
 	user := UserDB{}
 
+	// Handle if user does not exist
+
 	if result.Err() != nil {
 		return user, result.Err()
 	}
@@ -146,10 +148,12 @@ func (s *Storage) Delete(id string, ctx context.Context) error {
 		return fmt.Errorf("failed to delete from pogress collection: %w", err)
 	}
 
-	// Delete from the main users collection
-	_, err = collection.DeleteOne(ctx, bson.M{"_id": id})
+	// Delete the user
+	err = collection.FindOneAndDelete(ctx, bson.M{"_id": id}).Err()
+
 	if err != nil {
-		return fmt.Errorf("failed to delete from users collection: %w", err)
+		fmt.Println(err, "error user delete")
+		return err
 	}
 
 	return nil

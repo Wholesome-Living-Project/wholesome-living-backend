@@ -91,7 +91,7 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 	suite.testUserId = testId
 
 	// create test evelevators
-	elevatorId, err := suite.store.Create(createElevatorRequest{
+	elevatorId, err := suite.store.Create(CreateElevatorRequest{
 		Stairs:       true,
 		AmountStairs: 12,
 		HeightGain:   12,

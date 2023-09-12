@@ -120,7 +120,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusOK).JSON(f.Interface())
 		} else {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid plugin name",
+				"message": "Plugin does not exist",
 			})
 		}
 	}
@@ -259,7 +259,7 @@ func (t *Controller) updatePluginSettings(settingType SingleSetting, c *fiber.Ct
 			},
 		)
 	}
-	return c.Status(fiber.StatusCreated).JSON(http)
+	return c.Status(fiber.StatusOK).JSON(http)
 }
 
 // @Summary Delete plugin-settings of a user.
@@ -281,8 +281,13 @@ func (t *Controller) delete(c *fiber.Ctx) error {
 	plugin := c.Query("plugin")
 	err := t.storage.Delete(userId, plugin, c.Context())
 	if err != nil {
+		if err.Error() == "User not found" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "User not found" + err.Error(),
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Could not delete settings because: " + err.Error(),
+			"message": "Could not delete settings, because: " + err.Error(),
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
