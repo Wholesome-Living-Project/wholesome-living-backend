@@ -23,7 +23,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createMeditationRequest struct {
+type CreateMeditationRequest struct {
 	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
 	EndTime        int64 `json:"endTime" bson:"endTime"`
 }
@@ -44,13 +44,13 @@ type getAllMeditationResponse []struct {
 // @Tags meditation
 // @Accept */*
 // @Produce json
-// @Param meditation body createMeditationRequest true "Meditation to create"
+// @Param meditation body CreateMeditationRequest true "Meditation to create"
 // @Param userId header string true "User ID"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createMeditationRequest
+	var req CreateMeditationRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

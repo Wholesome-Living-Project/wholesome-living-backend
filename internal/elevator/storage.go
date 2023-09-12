@@ -29,7 +29,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createElevatorRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) Create(request CreateElevatorRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("elevator")
 
 	createdAt := time.Now().Unix()

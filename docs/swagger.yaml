@@ -226,7 +226,7 @@ definitions:
       lastName:
         type: string
     type: object
-  user.createUserRequest:
+  user.CreateUserRequest:
     properties:
       dateOfBirth:
         type: string
@@ -726,7 +726,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/user.createUserRequest'
+          $ref: '#/definitions/user.CreateUserRequest'
       produces:
       - application/json
       responses:

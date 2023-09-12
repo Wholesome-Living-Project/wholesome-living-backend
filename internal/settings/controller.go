@@ -107,22 +107,21 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"message": "Plugin does not exist",
 			})
 		}
+		if plugin != "" {
+			r := reflect.ValueOf(settings)
+			f := reflect.Indirect(r).FieldByName(strings.Title(plugin))
+
+			if f.IsValid() {
+				return c.Status(fiber.StatusOK).JSON(f.Interface())
+			} else {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"message": "Invalid plugin name",
+				})
+			}
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not get settings, because: " + err.Error(),
 		})
-	}
-
-	if plugin != "" {
-		r := reflect.ValueOf(settings)
-		f := reflect.Indirect(r).FieldByName(strings.Title(plugin))
-
-		if f.IsValid() {
-			return c.Status(fiber.StatusOK).JSON(f.Interface())
-		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid plugin name",
-			})
-		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(settings)
@@ -286,7 +285,7 @@ func (t *Controller) updatePluginSettings(c *fiber.Ctx, pluginName string) error
 			"message": "Could not create " + pluginName + " settings: " + err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(http)
+	return c.Status(fiber.StatusOK).JSON(http)
 }
 
 // @Summary Delete settings of a user.
@@ -308,6 +307,11 @@ func (t *Controller) delete(c *fiber.Ctx) error {
 	plugin := c.Query("plugin")
 	_, err := t.storage.Delete(userId, c.Context(), plugin)
 	if err != nil {
+		if err.Error() == "User not found" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "User not found" + err.Error(),
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not delete settings, because: " + err.Error(),
 		})

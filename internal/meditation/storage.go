@@ -26,7 +26,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createMeditationRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) Create(request CreateMeditationRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
 
 	createdAt := time.Now().Unix()

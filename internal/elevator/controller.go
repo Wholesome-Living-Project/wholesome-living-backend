@@ -23,7 +23,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createElevatorRequest struct {
+type CreateElevatorRequest struct {
 	Stairs       bool  `json:"stairs" bson:"stairs"`
 	AmountStairs int   `json:"amountStairs" bson:"amountStairs"`
 	HeightGain   int64 `json:"heightGain" bson:"heightGain"`
@@ -38,13 +38,13 @@ type createElevatorResponse struct {
 // @Tags elevator
 // @Accept */*
 // @Produce json
-// @Param elevator body createElevatorRequest true "Elevator to create"
+// @Param elevator body CreateElevatorRequest true "Elevator to create"
 // @Param userId header string true "User ID"
 // @Success 200 {object} createElevatorResponse
 // @Router /elevator [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createElevatorRequest
+	var req CreateElevatorRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -759,7 +759,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.createUserRequest"
+                            "$ref": "#/definitions/user.CreateUserRequest"
                         }
                     }
                 ],
@@ -1185,7 +1185,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.createUserRequest": {
+        "user.CreateUserRequest": {
             "type": "object",
             "properties": {
                 "dateOfBirth": {
