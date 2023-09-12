@@ -346,7 +346,7 @@ func (s *Storage) Delete(userId string, plugin string, ctx context.Context) erro
 	}
 
 	// Validate plugin name
-	if isValidPlugins(plugin) != true {
+	if !isValidPlugins(plugin) {
 		return errors.New("Invalid plugin name")
 	}
 

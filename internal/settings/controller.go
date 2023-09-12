@@ -3,7 +3,9 @@ package settings
 import (
 	"cmd/http/main.go/internal/user"
 	"reflect"
-	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -114,7 +116,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 
 	if plugin != "" {
 		r := reflect.ValueOf(settings)
-		f := reflect.Indirect(r).FieldByName(strings.Title(plugin))
+		f := reflect.Indirect(r).FieldByName(cases.Title(language.English).String(plugin))
 
 		if f.IsValid() {
 			return c.Status(fiber.StatusOK).JSON(f.Interface())

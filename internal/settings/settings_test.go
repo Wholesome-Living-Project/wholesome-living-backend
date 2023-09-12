@@ -22,7 +22,6 @@ type SettingsSuite struct {
 	store       *Storage      // Initialize as per your setup
 	userStorage *user.Storage // Initialize as per your setup
 	testUserId  string
-	testUserId2 string
 }
 
 func (suite *SettingsSuite) SetupSuite() {
