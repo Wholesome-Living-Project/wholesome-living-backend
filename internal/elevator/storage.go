@@ -3,11 +3,12 @@ package elevator
 import (
 	"context"
 	"fmt"
+	"math"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"math"
-	"time"
 )
 
 type ElevatorDB struct {
@@ -29,11 +30,11 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createElevatorRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) Create(request CreateElevatorRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("elevator")
 
 	createdAt := time.Now().Unix()
-	if request.AmountStairs != 0 && request.Stairs != true {
+	if request.AmountStairs != 0 && !request.Stairs {
 		return "", fmt.Errorf("amountStairs can only be set if stairs is true")
 	}
 

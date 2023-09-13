@@ -2,11 +2,12 @@ package meditation
 
 import (
 	"context"
+	"math"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"math"
-	"time"
 )
 
 type MeditationDB struct {
@@ -26,7 +27,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) Create(request createMeditationRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) Create(request CreateMeditationRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("meditation")
 
 	createdAt := time.Now().Unix()

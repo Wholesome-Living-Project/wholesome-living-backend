@@ -4,9 +4,9 @@ import (
 	"cmd/http/main.go/internal/progress"
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Controller struct {
@@ -23,7 +23,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createMeditationRequest struct {
+type CreateMeditationRequest struct {
 	MeditationTime int   `json:"meditationTime" bson:"meditationTime"`
 	EndTime        int64 `json:"endTime" bson:"endTime"`
 }
@@ -32,25 +32,28 @@ type createMeditationResponse struct {
 	ID string `json:"id"`
 }
 
+// TODO remove if not needed
+/*
 type getAllMeditationResponse []struct {
 	Id             primitive.ObjectID `json:"id" bson:"_id"`
 	UserID         string             `json:"userId" bson:"userId"`
 	MeditationTime int                `json:"meditationTime" bson:"meditationTime"`
 	EndTime        int64              `json:"endTime" bson:"endTime"`
 }
+*/
 
 // @Summary Create meditation.
 // @Description Creates a new meditation.
 // @Tags meditation
 // @Accept */*
 // @Produce json
-// @Param meditation body createMeditationRequest true "Meditation to create"
+// @Param meditation body CreateMeditationRequest true "Meditation to create"
 // @Param userId header string true "User ID"
 // @Success 200 {object} createMeditationResponse
 // @Router /meditation [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createMeditationRequest
+	var req CreateMeditationRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -136,8 +139,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Missing userId header",
 		})
-	}
-	if userId != "" {
+	} else {
 		_, err := t.userStorage.Get(userId, c.Context())
 
 		if err != nil {
@@ -146,6 +148,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
+
 		// all meditations for a user between a time range and duration
 		meditations, err := t.storage.GetAllOfOneUserBetweenTimeAndDuration(userId, times, c.Context())
 		if err != nil {
@@ -154,18 +157,9 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
-		if len(meditations) != 0 {
-			//check if user is allowed to get this meditation
-			if meditations[0].UserID != userId {
-				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-					"message": "User is not allowed to get this meditation",
-				})
-			}
-			return c.Status(fiber.StatusOK).JSON(meditations)
-		}
 
+		return c.Status(fiber.StatusOK).JSON(meditations)
 	}
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
 }
 
 func convertToInt64(value string) int64 {

@@ -4,9 +4,10 @@ import (
 	"cmd/http/main.go/internal/progress"
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	_ "go.mongodb.org/mongo-driver/bson/primitive"
-	"strconv"
 )
 
 type Controller struct {
@@ -23,7 +24,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createElevatorRequest struct {
+type CreateElevatorRequest struct {
 	Stairs       bool  `json:"stairs" bson:"stairs"`
 	AmountStairs int   `json:"amountStairs" bson:"amountStairs"`
 	HeightGain   int64 `json:"heightGain" bson:"heightGain"`
@@ -38,13 +39,13 @@ type createElevatorResponse struct {
 // @Tags elevator
 // @Accept */*
 // @Produce json
-// @Param elevator body createElevatorRequest true "Elevator to create"
+// @Param elevator body CreateElevatorRequest true "Elevator to create"
 // @Param userId header string true "User ID"
 // @Success 200 {object} createElevatorResponse
 // @Router /elevator [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createElevatorRequest
+	var req CreateElevatorRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -135,8 +136,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Missing userId header",
 		})
-	}
-	if userId != "" {
+	} else {
 		_, err := t.userStorage.Get(userId, c.Context())
 
 		if err != nil {
@@ -153,18 +153,8 @@ func (t *Controller) get(c *fiber.Ctx) error {
 				"err":     err,
 			})
 		}
-		if len(elevators) != 0 {
-			//check if user is allowed to get this elevator
-			if elevators[0].UserID != userId {
-				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-					"message": "User is not allowed to get this elevator",
-				})
-			}
-			return c.Status(fiber.StatusOK).JSON(elevators)
-		}
-
+		return c.Status(fiber.StatusOK).JSON(elevators)
 	}
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Query constraints do not yield any results"})
 }
 
 func convertToInt64(value string) int64 {

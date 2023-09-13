@@ -226,7 +226,7 @@ definitions:
       lastName:
         type: string
     type: object
-  user.createUserRequest:
+  user.CreateUserRequest:
     properties:
       dateOfBirth:
         type: string
@@ -726,7 +726,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/user.createUserRequest'
+          $ref: '#/definitions/user.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -763,6 +763,27 @@ paths:
       tags:
       - users
   /users/{id}:
+    delete:
+      consumes:
+      - '*/*'
+      description: delete a user by id.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a user.
+      tags:
+      - users
     get:
       consumes:
       - '*/*'

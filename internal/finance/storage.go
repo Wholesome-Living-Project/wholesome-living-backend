@@ -3,6 +3,7 @@ package finance
 import (
 	"context"
 	"fmt"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -27,7 +28,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request createSpendingRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) create(request CreateSpendingRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 
@@ -121,9 +122,9 @@ func (s *Storage) getAllOfOneUserBetweenTime(id string, startTime int64, endTime
 		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime}})
 	} else {
 		cursor, err = collection.Find(ctx, bson.M{"userId": id, "investmentTime": bson.M{"$gte": startTime, "$lte": endTime}})
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	investments := make([]financeDB, 0)

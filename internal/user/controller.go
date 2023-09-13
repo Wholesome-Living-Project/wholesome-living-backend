@@ -2,6 +2,8 @@ package user
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,7 +24,7 @@ func NewController(storage *Storage) *Controller {
 	}
 }
 
-type createUserRequest struct {
+type CreateUserRequest struct {
 	FirstName   string `json:"firstName" bson:"firstName"`
 	LastName    string `json:"lastName" bson:"lastName"`
 	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
@@ -34,9 +36,12 @@ type createUserResponse struct {
 	ID string `json:"id"`
 }
 
+// TODO remove if not needed
+/*
 type getUserRequest struct {
 	ID string `json:"id"`
 }
+*/
 
 type updateUserRequest struct {
 	FirstName   string `json:"firstName" bson:"firstName"`
@@ -50,13 +55,13 @@ type updateUserRequest struct {
 // @Tags users
 // @Accept */*
 // @Produce json
-// @Param user body createUserRequest true "User to create"
+// @Param user body CreateUserRequest true "User to create"
 // @Success 200 {object} createUserResponse
 // @Router /users [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
 
-	var req createUserRequest
+	var req CreateUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		fmt.Println(err)
@@ -69,6 +74,7 @@ func (t *Controller) create(c *fiber.Ctx) error {
 	//Create user
 	_, err := t.storage.Create(req, c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to Create user",
 		})
@@ -93,8 +99,13 @@ func (t *Controller) get(c *fiber.Ctx) error {
 	user, err := t.storage.Get(id, c.Context())
 
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to Get users",
+			"message": "Something went wrong",
 		})
 	}
 
@@ -112,6 +123,7 @@ func (t *Controller) getAll(c *fiber.Ctx) error {
 	// Get all users
 	users, err := t.storage.GetAll(c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to Get users",
 		})
@@ -179,4 +191,34 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(result)
+}
+
+// @Summary Delete a user.
+// @Description delete a user by id with all its progress in all plugins.
+// @Tags users
+// @Accept */*
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /users/{id} [delete]
+func (t *Controller) delete(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	err := t.storage.Delete(id, c.Context())
+	if err == nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "User deleted successfully",
+		})
+	}
+	if err != nil {
+		// there is no user with this id
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User does not exist",
+			})
+		}
+	}
+	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		"message": "Failed to delete user",
+	})
 }

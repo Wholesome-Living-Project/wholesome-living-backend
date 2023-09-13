@@ -5,9 +5,10 @@ import (
 	"cmd/http/main.go/internal/settings"
 	"cmd/http/main.go/internal/user"
 	"fmt"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"strconv"
 )
 
 type Controller struct {
@@ -24,7 +25,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createSpendingRequest struct {
+type CreateSpendingRequest struct {
 	Amount       float64 `json:"amount" bson:"amount"`
 	Saving       float64 `json:"saving" bson:"saving"`
 	SpendingTime int64   `json:"spendingTime" bson:"spendingTime"`
@@ -55,7 +56,7 @@ type getInvestmentResponse struct {
 // @Router /finance [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createSpendingRequest
+	var req CreateSpendingRequest
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -84,6 +85,12 @@ func (t *Controller) create(c *fiber.Ctx) error {
 		return err
 	}
 	err = t.progressStorage.AddExperience(userId, c.Context(), settings.PluginNameFinance, float64(req.Saving)/2)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to add experience",
+			"err":     err,
+		})
+	}
 	return c.Status(fiber.StatusCreated).JSON(createSpendingResponse{
 		ID: id,
 	})
@@ -137,14 +144,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 			})
 		}
 		// Convert FinanceDb to getInvestmentResponse
-		investmentResponse := getInvestmentResponse{
-			ID:           investment.ID,
-			UserID:       investment.UserID,
-			SpendingTime: investment.SpendingTime,
-			Amount:       investment.Amount,
-			Saving:       investment.Saving,
-			Description:  investment.Description,
-		}
+		investmentResponse := getInvestmentResponse(investment)
 		return c.JSON([]getInvestmentResponse{investmentResponse})
 	}
 
@@ -153,8 +153,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Missing userId header",
 		})
-	} //check if user exists
-	if userId != "" {
+	} else {
 		_, err := t.userStorage.Get(userId, c.Context())
 
 		if err != nil {
@@ -185,7 +184,6 @@ func (t *Controller) get(c *fiber.Ctx) error {
 					"message": "Failed to get investments in time range",
 					"err":     err,
 				})
-
 			}
 			return c.Status(fiber.StatusOK).JSON(investments)
 		}
