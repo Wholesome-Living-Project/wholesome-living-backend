@@ -60,7 +60,6 @@ type getPluginSettingResponse struct {
 // @Produce json
 // @param userId header string true "User ID"
 // @Param settings body CreateSettingsRequest true "onboarding to create"
-// @Success 200 {object} createInvestmentResponse
 // @Router /settings [post]
 func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
@@ -95,7 +94,6 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 // @param userId header string true "User ID"
 // @Param plugin query string false "Plugin name"
 // @Produce json
-// @Success 200 {object} getPluginSettingsResponse
 // @Router /settings [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	userId := string(c.Request().Header.Peek("userId"))

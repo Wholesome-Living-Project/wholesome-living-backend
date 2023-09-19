@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  elevator.CreateElevatorRequest:
+    properties:
+      amountStairs:
+        type: integer
+      heightGain:
+        type: integer
+      stairs:
+        type: boolean
+    type: object
   elevator.ElevatorDB:
     properties:
       amountStairs:
@@ -14,15 +23,6 @@ definitions:
         type: integer
       userId:
         type: string
-    type: object
-  elevator.createElevatorRequest:
-    properties:
-      amountStairs:
-        type: integer
-      heightGain:
-        type: integer
-      stairs:
-        type: boolean
     type: object
   elevator.createElevatorResponse:
     properties:
@@ -60,6 +60,13 @@ definitions:
       userId:
         type: string
     type: object
+  meditation.CreateMeditationRequest:
+    properties:
+      endTime:
+        type: integer
+      meditationTime:
+        type: integer
+    type: object
   meditation.MeditationDB:
     properties:
       endTime:
@@ -70,13 +77,6 @@ definitions:
         type: integer
       userId:
         type: string
-    type: object
-  meditation.createMeditationRequest:
-    properties:
-      endTime:
-        type: integer
-      meditationTime:
-        type: integer
     type: object
   meditation.createMeditationResponse:
     properties:
@@ -103,18 +103,13 @@ definitions:
       elevator:
         $ref: '#/definitions/settings.ElevatorSettings'
       enabledPlugins:
-        description: A list with the Plugins that the user has enabled.
         items:
           $ref: '#/definitions/settings.PluginName'
         type: array
       finance:
-        allOf:
-        - $ref: '#/definitions/settings.FinanceSettings'
-        description: The user's settings for the finance plugin.
+        $ref: '#/definitions/settings.FinanceSettings'
       meditation:
-        allOf:
-        - $ref: '#/definitions/settings.MeditationSettings'
-        description: The user's settings for the meditation plugin.
+        $ref: '#/definitions/settings.MeditationSettings'
     type: object
   settings.ElevatorSettings:
     properties:
@@ -132,10 +127,8 @@ definitions:
       amountNotifications:
         type: integer
       investmentGoal:
-        description: The user's investment goal.
         type: integer
       investmentTimeGoal:
-        description: The user's investment time goal.
         type: integer
       notifications:
         type: boolean
@@ -151,7 +144,6 @@ definitions:
       amountNotifications:
         type: integer
       meditationTimeGoal:
-        description: The user's meditation time goal.
         type: integer
       notifications:
         type: boolean
@@ -188,28 +180,18 @@ definitions:
     - StrategyTypeRound
     - StrategyTypePlus
     - StrategyTypePercent
-  settings.createInvestmentResponse:
+  user.CreateUserRequest:
     properties:
+      dateOfBirth:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
       id:
         type: string
-    type: object
-  settings.getSettingsResponse:
-    properties:
-      elevator:
-        $ref: '#/definitions/settings.ElevatorSettings'
-      enabledPlugins:
-        description: A list with the Plugins that the user has enabled.
-        items:
-          $ref: '#/definitions/settings.PluginName'
-        type: array
-      finance:
-        allOf:
-        - $ref: '#/definitions/settings.FinanceSettings'
-        description: The user's settings for the finance plugin.
-      meditation:
-        allOf:
-        - $ref: '#/definitions/settings.MeditationSettings'
-        description: The user's settings for the meditation plugin.
+      lastName:
+        type: string
     type: object
   user.UserDB:
     properties:
@@ -225,19 +207,8 @@ definitions:
         type: string
       lastName:
         type: string
-    type: object
-  user.CreateUserRequest:
-    properties:
-      dateOfBirth:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      lastName:
-        type: string
+      onboardingDone:
+        type: boolean
     type: object
   user.createUserResponse:
     properties:
@@ -254,6 +225,8 @@ definitions:
         type: string
       lastName:
         type: string
+      onboardingDone:
+        type: boolean
     type: object
 info:
   contact:
@@ -323,7 +296,7 @@ paths:
         name: elevator
         required: true
         schema:
-          $ref: '#/definitions/elevator.createElevatorRequest'
+          $ref: '#/definitions/elevator.CreateElevatorRequest'
       - description: User ID
         in: header
         name: userId
@@ -446,7 +419,7 @@ paths:
         name: meditation
         required: true
         schema:
-          $ref: '#/definitions/meditation.createMeditationRequest'
+          $ref: '#/definitions/meditation.CreateMeditationRequest'
       - description: User ID
         in: header
         name: userId
@@ -485,7 +458,7 @@ paths:
     delete:
       consumes:
       - '*/*'
-      description: Delete settings for a user.
+      description: Delete plugin-settings for a user if plugin is "" delete all settings.
       parameters:
       - description: User ID
         in: header
@@ -501,11 +474,11 @@ paths:
       responses:
         "201":
           description: Created
-      summary: Delete settings of a user.
+      summary: Delete plugin-settings of a user.
       tags:
       - settings
     get:
-      description: fetch settings for a user.
+      description: fetch plugin settings for a user.
       parameters:
       - description: User ID
         in: header
@@ -518,12 +491,8 @@ paths:
         type: string
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/settings.getSettingsResponse'
-      summary: Get settings for a user.
+      responses: {}
+      summary: Get plugin settings for a user.
       tags:
       - settings
     post:
@@ -544,11 +513,7 @@ paths:
           $ref: '#/definitions/settings.CreateSettingsRequest'
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/settings.createInvestmentResponse'
+      responses: {}
       summary: Create onboarding in backend, set settings.
       tags:
       - settings
@@ -766,7 +731,7 @@ paths:
     delete:
       consumes:
       - '*/*'
-      description: delete a user by id.
+      description: delete a user by id with all its progress in all plugins.
       parameters:
       - description: User ID
         in: path

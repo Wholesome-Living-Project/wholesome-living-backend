@@ -28,7 +28,7 @@ func NewStorage(db *mongo.Database) *Storage {
 	}
 }
 
-func (s *Storage) create(request CreateSpendingRequest, userId string, ctx context.Context) (string, error) {
+func (s *Storage) create(request createSpendingRequest, userId string, ctx context.Context) (string, error) {
 	collection := s.db.Collection("investment")
 	userCollection := s.db.Collection("users")
 

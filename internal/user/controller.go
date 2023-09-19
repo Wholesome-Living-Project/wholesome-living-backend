@@ -44,10 +44,11 @@ type getUserRequest struct {
 */
 
 type updateUserRequest struct {
-	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    string `json:"lastName" bson:"lastName"`
-	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string `json:"email" bson:"email"`
+	FirstName      string `json:"firstName" bson:"firstName"`
+	LastName       string `json:"lastName" bson:"lastName"`
+	DateOfBirth    string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email          string `json:"email" bson:"email"`
+	OnboardingDone bool   `json:"onboardingDone" bson:"onboardingDone"`
 }
 
 // @Summary Create one user.
@@ -180,6 +181,9 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 	if req.Email != "" {
 		user.Email = req.Email
+	}
+	if req.OnboardingDone != user.OnboardingDone {
+		user.OnboardingDone = req.OnboardingDone
 	}
 
 	// Update the user in the database
