@@ -180,6 +180,26 @@ definitions:
     - StrategyTypeRound
     - StrategyTypePlus
     - StrategyTypePercent
+  settings.createOnboardingResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  settings.getPluginSettingResponse:
+    properties:
+      elevator:
+        $ref: '#/definitions/settings.ElevatorSettings'
+      enabledPlugins:
+        items:
+          $ref: '#/definitions/settings.PluginName'
+        type: array
+      finance:
+        $ref: '#/definitions/settings.FinanceSettings'
+      id:
+        type: string
+      meditation:
+        $ref: '#/definitions/settings.MeditationSettings'
+    type: object
   user.CreateUserRequest:
     properties:
       dateOfBirth:
@@ -207,8 +227,6 @@ definitions:
         type: string
       lastName:
         type: string
-      onboardingDone:
-        type: boolean
     type: object
   user.createUserResponse:
     properties:
@@ -225,8 +243,6 @@ definitions:
         type: string
       lastName:
         type: string
-      onboardingDone:
-        type: boolean
     type: object
 info:
   contact:
@@ -491,7 +507,11 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.getPluginSettingResponse'
       summary: Get plugin settings for a user.
       tags:
       - settings
@@ -513,7 +533,11 @@ paths:
           $ref: '#/definitions/settings.CreateSettingsRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/settings.createOnboardingResponse'
       summary: Create onboarding in backend, set settings.
       tags:
       - settings

@@ -372,7 +372,14 @@ const docTemplate = `{
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/settings.getPluginSettingResponse"
+                        }
+                    }
+                }
             },
             "post": {
                 "description": "Creates settings for a user.",
@@ -404,7 +411,14 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/settings.createOnboardingResponse"
+                        }
+                    }
+                }
             },
             "delete": {
                 "description": "Delete plugin-settings for a user if plugin is \"\" delete all settings.",
@@ -1094,6 +1108,37 @@ const docTemplate = `{
                 "StrategyTypePercent"
             ]
         },
+        "settings.createOnboardingResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "settings.getPluginSettingResponse": {
+            "type": "object",
+            "properties": {
+                "elevator": {
+                    "$ref": "#/definitions/settings.ElevatorSettings"
+                },
+                "enabledPlugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/settings.PluginName"
+                    }
+                },
+                "finance": {
+                    "$ref": "#/definitions/settings.FinanceSettings"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meditation": {
+                    "$ref": "#/definitions/settings.MeditationSettings"
+                }
+            }
+        },
         "user.CreateUserRequest": {
             "type": "object",
             "properties": {
@@ -1134,9 +1179,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "onboardingDone": {
-                    "type": "boolean"
                 }
             }
         },
@@ -1162,9 +1204,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "onboardingDone": {
-                    "type": "boolean"
                 }
             }
         }
