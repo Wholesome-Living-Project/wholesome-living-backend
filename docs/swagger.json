@@ -1141,6 +1141,9 @@
                 "email": {
                     "type": "string"
                 },
+                "expoPushToken": {
+                    "type": "string"
+                },
                 "firstName": {
                     "type": "string"
                 },
@@ -1162,6 +1165,9 @@
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "expoPushToken": {
                     "type": "string"
                 },
                 "firstName": {
@@ -1193,6 +1199,9 @@
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "expoPushToken": {
                     "type": "string"
                 },
                 "firstName": {

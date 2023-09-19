@@ -11,6 +11,7 @@ import (
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
 	"cmd/http/main.go/pkg/shutdown"
+	"github.com/robfig/cron"
 
 	"fmt"
 	"os"
@@ -105,6 +106,9 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 	// add docs
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
+	// create cron for notifications
+	c := cron.New()
+
 	// create the user domain
 	userStore := user.NewStorage(db)
 	userController := user.NewController(userStore)
@@ -117,7 +121,7 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	// create the settings domain
 	metadataStore := settings.NewStorage(db)
-	metadataController := settings.NewController(metadataStore, userStore)
+	metadataController := settings.NewController(metadataStore, userStore, c)
 	settings.Routes(app, metadataController)
 
 	//create meditation domain

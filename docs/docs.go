@@ -1148,6 +1148,9 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "expoPushToken": {
+                    "type": "string"
+                },
                 "firstName": {
                     "type": "string"
                 },
@@ -1169,6 +1172,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "expoPushToken": {
                     "type": "string"
                 },
                 "firstName": {
@@ -1200,6 +1206,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "expoPushToken": {
                     "type": "string"
                 },
                 "firstName": {

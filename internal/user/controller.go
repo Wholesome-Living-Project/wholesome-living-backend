@@ -2,9 +2,8 @@ package user
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/gofiber/fiber/v2"
+	"log"
 )
 
 type PluginName string
@@ -25,11 +24,12 @@ func NewController(storage *Storage) *Controller {
 }
 
 type CreateUserRequest struct {
-	FirstName   string `json:"firstName" bson:"firstName"`
-	LastName    string `json:"lastName" bson:"lastName"`
-	DateOfBirth string `json:"dateOfBirth" bson:"dateOfBirth"`
-	Email       string `json:"email" bson:"email"`
-	ID          string `json:"id" bson:"_id"`
+	FirstName     string `json:"firstName" bson:"firstName"`
+	LastName      string `json:"lastName" bson:"lastName"`
+	DateOfBirth   string `json:"dateOfBirth" bson:"dateOfBirth"`
+	Email         string `json:"email" bson:"email"`
+	ID            string `json:"id" bson:"_id"`
+	ExpoPushToken string `json:"expoPushToken" bson:"expoPushToken"`
 }
 
 type createUserResponse struct {
@@ -49,6 +49,7 @@ type updateUserRequest struct {
 	DateOfBirth    string `json:"dateOfBirth" bson:"dateOfBirth"`
 	Email          string `json:"email" bson:"email"`
 	OnboardingDone bool   `json:"onboardingDone" bson:"onboardingDone"`
+	ExpoPushToken  string `json:"expoPushToken" bson:"expoPushToken"`
 }
 
 // @Summary Create one user.

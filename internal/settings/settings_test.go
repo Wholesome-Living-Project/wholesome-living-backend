@@ -6,6 +6,7 @@ import (
 	"cmd/http/main.go/internal/user"
 	"context"
 	"encoding/json"
+	"github.com/robfig/cron"
 	"io"
 	"log"
 	"net/http/httptest"
@@ -39,9 +40,11 @@ func (suite *SettingsSuite) SetupSuite() {
 		log.Println("Error: ", err)
 	}
 
+	c := cron.New()
+
 	suite.store = NewStorage(db)
 	suite.userStorage = user.NewStorage(db) // Replace with your own initialization
-	SettingsController := NewController(suite.store, suite.userStorage)
+	SettingsController := NewController(suite.store, suite.userStorage, c)
 	Routes(app, SettingsController)
 
 	// // add health check

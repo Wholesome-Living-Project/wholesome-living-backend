@@ -18,6 +18,7 @@ type UserDB struct {
 	CreatedAt      int64  `json:"createdAt" bson:"createdAt"`
 	ID             string `json:"id" bson:"_id"`
 	OnboardingDone bool   `json:"onboardingDone" bson:"onboardingDone"`
+	ExpoPushToken  string `json:"expoPushToken" bson:"expoPushToken"`
 }
 
 type Storage struct {
@@ -36,12 +37,13 @@ func (s *Storage) Create(createUserObject CreateUserRequest, ctx context.Context
 	createdAt := time.Now().Unix()
 
 	insertObj := UserDB{
-		FirstName:   createUserObject.FirstName,
-		LastName:    createUserObject.LastName,
-		DateOfBirth: createUserObject.DateOfBirth,
-		Email:       createUserObject.Email,
-		CreatedAt:   createdAt,
-		ID:          createUserObject.ID,
+		FirstName:     createUserObject.FirstName,
+		LastName:      createUserObject.LastName,
+		DateOfBirth:   createUserObject.DateOfBirth,
+		Email:         createUserObject.Email,
+		CreatedAt:     createdAt,
+		ID:            createUserObject.ID,
+		ExpoPushToken: createUserObject.ExpoPushToken,
 	}
 
 	result, err := collection.InsertOne(ctx, insertObj)

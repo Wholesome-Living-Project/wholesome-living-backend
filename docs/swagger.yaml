@@ -206,6 +206,8 @@ definitions:
         type: string
       email:
         type: string
+      expoPushToken:
+        type: string
       firstName:
         type: string
       id:
@@ -220,6 +222,8 @@ definitions:
       dateOfBirth:
         type: string
       email:
+        type: string
+      expoPushToken:
         type: string
       firstName:
         type: string
@@ -240,6 +244,8 @@ definitions:
       dateOfBirth:
         type: string
       email:
+        type: string
+      expoPushToken:
         type: string
       firstName:
         type: string

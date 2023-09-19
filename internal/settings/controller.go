@@ -2,6 +2,9 @@ package settings
 
 import (
 	"cmd/http/main.go/internal/user"
+	"fmt"
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
+	"github.com/robfig/cron"
 	"reflect"
 
 	"golang.org/x/text/cases"
@@ -13,6 +16,7 @@ import (
 type Controller struct {
 	storage     *Storage
 	userStorage *user.Storage
+	cron        *cron.Cron
 }
 
 // an onboarding request can create settings for all plugins
@@ -23,10 +27,11 @@ type CreateSettingsRequest struct {
 	Elevator       ElevatorSettings   `json:"elevator" bson:"elevator"`
 }
 
-func NewController(storage *Storage, userStorage *user.Storage) *Controller {
+func NewController(storage *Storage, userStorage *user.Storage, cron *cron.Cron) *Controller {
 	return &Controller{
 		storage:     storage,
 		userStorage: userStorage,
+		cron:        cron,
 	}
 }
 
@@ -211,6 +216,42 @@ func (t *Controller) updateFinanceSettings(c *fiber.Ctx) error {
 // @Success 200
 // @Router /settings/meditation [put]
 func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
+	c.Request().Header.Set("Content-Type", "application/json")
+
+	userId := string(c.Request().Header.Peek("userId"))
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing userId header",
+		})
+	}
+
+	user, err := t.userStorage.Get(userId, c.Context())
+
+	// check if user has token
+	if user.ExpoPushToken == "" {
+		return nil
+	}
+
+	// To check the token is valid
+	pushToken, err := expo.NewExponentPushToken(user.ExpoPushToken)
+	if err != nil {
+		panic(err)
+	}
+
+	var req MeditationSettings
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+			"err":     err,
+		})
+	}
+
+	err = t.AddMeditationNotificationInterval(req, pushToken)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not schedule meditation push notification: " + err.Error(),
+		})
+	}
 	return t.updatePluginSettings(&MeditationSettings{}, c)
 }
 
@@ -286,4 +327,50 @@ func (t *Controller) delete(c *fiber.Ctx) error {
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
+}
+
+// Notify @Summary push notification
+// @Description send a push notification to a user's device.
+// @Tags users
+// @Accept */*
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /users/{id} [delete]
+func (t *Controller) Notify(token expo.ExponentPushToken, message string, title string) error {
+	// Create a new Expo SDK client
+	client := expo.NewPushClient(nil)
+
+	// Publish message
+	response, err := client.Publish(
+		&expo.PushMessage{
+			To:       []expo.ExponentPushToken{token},
+			Body:     message,
+			Data:     map[string]string{"withSome": "data"},
+			Sound:    "default",
+			Title:    title,
+			Priority: expo.DefaultPriority,
+		},
+	)
+
+	// Check errors
+	if err != nil {
+		panic(err)
+	}
+
+	// Validate responses
+	if response.ValidateResponse() != nil {
+		fmt.Println(response.PushMessage.To, "failed")
+	}
+
+	return nil
+}
+
+func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken) error {
+
+	if req.PeriodNotifications == "Day" {
+		t.Notify(token, "Did you meditate today?", "It is time meditate!")
+	}
+
+	return nil
 }
