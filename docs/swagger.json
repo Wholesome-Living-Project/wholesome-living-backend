@@ -104,7 +104,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/elevator.createElevatorRequest"
+                            "$ref": "#/definitions/elevator.CreateElevatorRequest"
                         }
                     },
                     {
@@ -197,7 +197,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/finance.createSpendingRequest"
+                            "$ref": "#/definitions/finance.CreateSpendingRequest"
                         }
                     }
                 ],
@@ -290,7 +290,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/meditation.createMeditationRequest"
+                            "$ref": "#/definitions/meditation.CreateMeditationRequest"
                         }
                     },
                     {
@@ -342,14 +342,14 @@
         },
         "/settings": {
             "get": {
-                "description": "fetch settings for a user.",
+                "description": "fetch plugin settings for a user.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "settings"
                 ],
-                "summary": "Get settings for a user.",
+                "summary": "Get plugin settings for a user.",
                 "parameters": [
                     {
                         "type": "string",
@@ -369,7 +369,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/settings.getSettingsResponse"
+                            "$ref": "#/definitions/settings.getPluginSettingResponse"
                         }
                     }
                 }
@@ -408,13 +408,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/settings.createInvestmentResponse"
+                            "$ref": "#/definitions/settings.createOnboardingResponse"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete settings for a user.",
+                "description": "Delete plugin-settings for a user if plugin is \"\" delete all settings.",
                 "consumes": [
                     "*/*"
                 ],
@@ -424,7 +424,7 @@
                 "tags": [
                     "settings"
                 ],
-                "summary": "Delete settings of a user.",
+                "summary": "Delete plugin-settings of a user.",
                 "parameters": [
                     {
                         "type": "string",
@@ -797,7 +797,7 @@
                 }
             },
             "delete": {
-                "description": "delete a user by id.",
+                "description": "delete a user by id with all its progress in all plugins.",
                 "consumes": [
                     "*/*"
                 ],
@@ -830,6 +830,20 @@
         }
     },
     "definitions": {
+        "elevator.CreateElevatorRequest": {
+            "type": "object",
+            "properties": {
+                "amountStairs": {
+                    "type": "integer"
+                },
+                "heightGain": {
+                    "type": "integer"
+                },
+                "stairs": {
+                    "type": "boolean"
+                }
+            }
+        },
         "elevator.ElevatorDB": {
             "type": "object",
             "properties": {
@@ -853,20 +867,6 @@
                 }
             }
         },
-        "elevator.createElevatorRequest": {
-            "type": "object",
-            "properties": {
-                "amountStairs": {
-                    "type": "integer"
-                },
-                "heightGain": {
-                    "type": "integer"
-                },
-                "stairs": {
-                    "type": "boolean"
-                }
-            }
-        },
         "elevator.createElevatorResponse": {
             "type": "object",
             "properties": {
@@ -875,7 +875,7 @@
                 }
             }
         },
-        "finance.createSpendingRequest": {
+        "finance.CreateSpendingRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -923,6 +923,17 @@
                 }
             }
         },
+        "meditation.CreateMeditationRequest": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "integer"
+                },
+                "meditationTime": {
+                    "type": "integer"
+                }
+            }
+        },
         "meditation.MeditationDB": {
             "type": "object",
             "properties": {
@@ -937,17 +948,6 @@
                 },
                 "userId": {
                     "type": "string"
-                }
-            }
-        },
-        "meditation.createMeditationRequest": {
-            "type": "object",
-            "properties": {
-                "endTime": {
-                    "type": "integer"
-                },
-                "meditationTime": {
-                    "type": "integer"
                 }
             }
         },
@@ -989,27 +989,16 @@
                     "$ref": "#/definitions/settings.ElevatorSettings"
                 },
                 "enabledPlugins": {
-                    "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/settings.PluginName"
                     }
                 },
                 "finance": {
-                    "description": "The user's settings for the finance plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.FinanceSettings"
-                        }
-                    ]
+                    "$ref": "#/definitions/settings.FinanceSettings"
                 },
                 "meditation": {
-                    "description": "The user's settings for the meditation plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.MeditationSettings"
-                        }
-                    ]
+                    "$ref": "#/definitions/settings.MeditationSettings"
                 }
             }
         },
@@ -1037,11 +1026,9 @@
                     "type": "integer"
                 },
                 "investmentGoal": {
-                    "description": "The user's investment goal.",
                     "type": "integer"
                 },
                 "investmentTimeGoal": {
-                    "description": "The user's investment time goal.",
                     "type": "integer"
                 },
                 "notifications": {
@@ -1065,7 +1052,6 @@
                     "type": "integer"
                 },
                 "meditationTimeGoal": {
-                    "description": "The user's meditation time goal.",
                     "type": "integer"
                 },
                 "notifications": {
@@ -1115,7 +1101,7 @@
                 "StrategyTypePercent"
             ]
         },
-        "settings.createInvestmentResponse": {
+        "settings.createOnboardingResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1123,43 +1109,32 @@
                 }
             }
         },
-        "settings.getSettingsResponse": {
+        "settings.getPluginSettingResponse": {
             "type": "object",
             "properties": {
                 "elevator": {
                     "$ref": "#/definitions/settings.ElevatorSettings"
                 },
                 "enabledPlugins": {
-                    "description": "A list with the Plugins that the user has enabled.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/settings.PluginName"
                     }
                 },
                 "finance": {
-                    "description": "The user's settings for the finance plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.FinanceSettings"
-                        }
-                    ]
+                    "$ref": "#/definitions/settings.FinanceSettings"
+                },
+                "id": {
+                    "type": "string"
                 },
                 "meditation": {
-                    "description": "The user's settings for the meditation plugin.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/settings.MeditationSettings"
-                        }
-                    ]
+                    "$ref": "#/definitions/settings.MeditationSettings"
                 }
             }
         },
-        "user.UserDB": {
+        "user.CreateUserRequest": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "integer"
-                },
                 "dateOfBirth": {
                     "type": "string"
                 },
@@ -1177,9 +1152,12 @@
                 }
             }
         },
-        "user.CreateUserRequest": {
+        "user.UserDB": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
                 "dateOfBirth": {
                     "type": "string"
                 },

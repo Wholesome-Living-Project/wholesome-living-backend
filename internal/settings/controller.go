@@ -38,20 +38,13 @@ type CreateOnboardingSettingResponse struct {
 	Elevator       ElevatorSettings   `json:"elevator" bson:"elevator"`
 }
 
-// TODO for each Plugin a creat endpoint
-
-/*
-type createInvestmentResponse struct {
+type createOnboardingResponse struct {
 	ID string `json:"id"`
 }
 
 type getPluginSettingResponse struct {
-	EnabledPlugins []PluginName       `json:"enabledPlugins" bson:"enabledPlugins"`
-	Meditation     MeditationSettings `json:"meditation" bson:"meditation"`
-	Finance        FinanceSettings    `json:"finance" bson:"finance"`
-	Elevator       ElevatorSettings   `json:"elevator" bson:"elevator"`
+	SettingsDB
 }
-*/
 
 // @Summary Create onboarding in backend, set settings.
 // @Description Creates settings for a user.
@@ -60,7 +53,7 @@ type getPluginSettingResponse struct {
 // @Produce json
 // @param userId header string true "User ID"
 // @Param settings body CreateSettingsRequest true "onboarding to create"
-// @Success 200 {object} createInvestmentResponse
+// @Success 200 {object} createOnboardingResponse
 // @Router /settings [post]
 func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
@@ -86,7 +79,7 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(http)
+	return c.Status(fiber.StatusCreated).JSON(createOnboardingResponse{http})
 }
 
 // @Summary Get plugin settings for a user.
@@ -95,7 +88,7 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 // @param userId header string true "User ID"
 // @Param plugin query string false "Plugin name"
 // @Produce json
-// @Success 200 {object} getPluginSettingsResponse
+// @Success 200 {object} getPluginSettingResponse
 // @Router /settings [get]
 func (t *Controller) get(c *fiber.Ctx) error {
 	userId := string(c.Request().Header.Peek("userId"))
@@ -127,7 +120,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.Status(fiber.StatusOK).JSON(settings)
+	return c.Status(fiber.StatusOK).JSON(getPluginSettingResponse{settings})
 }
 
 // @Summary Create settings for the finance plugin.
