@@ -204,7 +204,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/finance.createSpendingRequest"
+                            "$ref": "#/definitions/finance.CreateSpendingRequest"
                         }
                     }
                 ],
@@ -868,7 +868,7 @@ const docTemplate = `{
                 }
             }
         },
-        "finance.createSpendingRequest": {
+        "finance.CreateSpendingRequest": {
             "type": "object",
             "properties": {
                 "amount": {

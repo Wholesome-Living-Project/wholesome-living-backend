@@ -97,7 +97,7 @@ func (suite *Suite) BeforeTest(suiteName, testName string) {
 	log.Println("BEFORE TEST DONE", testId)
 
 	// create test evelevators
-	financeId, err := suite.store.create(createSpendingRequest{
+	financeId, err := suite.store.create(CreateSpendingRequest{
 		Amount:       100,
 		Saving:       100,
 		SpendingTime: time.Now().Unix(),
@@ -131,7 +131,7 @@ func (suite *Suite) TestPost() {
 		},
 		{
 			description:  "Another sucess test",
-			body:         createSpendingRequest{Amount: 400.12, Saving: 10.2, SpendingTime: time.Now().Unix(), Description: "test"},
+			body:         CreateSpendingRequest{Amount: 400.12, Saving: 10.2, SpendingTime: time.Now().Unix(), Description: "test"},
 			expectedCode: fiber.StatusCreated,
 		},
 		{

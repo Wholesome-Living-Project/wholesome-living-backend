@@ -25,7 +25,7 @@ func NewController(storage *Storage, userStorage *user.Storage, progressStorage 
 	}
 }
 
-type createSpendingRequest struct {
+type CreateSpendingRequest struct {
 	Amount       float64 `json:"amount" bson:"amount"`
 	Saving       float64 `json:"saving" bson:"saving"`
 	SpendingTime int64   `json:"spendingTime" bson:"spendingTime"`
@@ -51,12 +51,12 @@ type getInvestmentResponse struct {
 // @Accept */*
 // @Produce json
 // @param userId header string true "User ID"
-// @Param investment body createSpendingRequest true "spending to create"
+// @Param investment body CreateSpendingRequest true "spending to create"
 // @Success 200 {object} createSpendingResponse
 // @Router /finance [post]
 func (t *Controller) create(c *fiber.Ctx) error {
 	c.Request().Header.Set("Content-Type", "application/json")
-	var req createSpendingRequest
+	var req CreateSpendingRequest
 	userId := string(c.Request().Header.Peek("userId"))
 	if userId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
