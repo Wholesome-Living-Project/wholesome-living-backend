@@ -1179,6 +1179,9 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "onboardingDone": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1204,6 +1207,9 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "onboardingDone": {
+                    "type": "boolean"
                 }
             }
         }
