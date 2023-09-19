@@ -51,7 +51,7 @@ type getInvestmentResponse struct {
 // @Accept */*
 // @Produce json
 // @param userId header string true "User ID"
-// @Param investment body createSpendingRequest true "spending to create"
+// @Param investment body CreateSpendingRequest true "spending to create"
 // @Success 200 {object} createSpendingResponse
 // @Router /finance [post]
 func (t *Controller) create(c *fiber.Ctx) error {
