@@ -3,6 +3,7 @@ package settings
 import (
 	"context"
 	"errors"
+	"github.com/robfig/cron/v3"
 	"log"
 	"reflect"
 
@@ -64,6 +65,7 @@ type FinanceSettings struct {
 	StrategyAmount      int              `json:"strategyAmount" bson:"strategyAmount"`
 	InvestmentGoal      int              `json:"investmentGoal" bson:"investmentGoal"`
 	InvestmentTimeGoal  int              `json:"investmentTimeGoal" bson:"investmentTimeGoal"`
+	NotificationId      cron.EntryID     `json:"notificationId" bson:"notificationId"`
 }
 
 func (f FinanceSettings) getPeriodNotifications() NotificationType {
@@ -87,6 +89,7 @@ type MeditationSettings struct {
 	Notifications       bool             `json:"notifications" bson:"notifications"`
 	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
 	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
+	NotificationId      cron.EntryID     `json:"notificationId" bson:"notificationId"`
 }
 
 func (m MeditationSettings) getPeriodNotifications() NotificationType {
@@ -110,6 +113,7 @@ type ElevatorSettings struct {
 	AmountNotifications int              `json:"amountNotifications" bson:"amountNotifications"`
 	PeriodNotifications NotificationType `json:"periodNotifications" bson:"periodNotifications"`
 	Goal                int              `json:"goal" bson:"goal"`
+	NotificationId      cron.EntryID     `json:"notificationId" bson:"notificationId"`
 }
 
 func (e ElevatorSettings) getPeriodNotifications() NotificationType {

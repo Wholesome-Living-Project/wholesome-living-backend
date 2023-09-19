@@ -4,7 +4,7 @@ import (
 	"cmd/http/main.go/internal/user"
 	"fmt"
 	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"reflect"
 
 	"golang.org/x/text/cases"
@@ -246,7 +246,7 @@ func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
 		})
 	}
 
-	err = t.AddMeditationNotificationInterval(req, pushToken)
+	err = t.AddMeditationNotificationInterval(req, pushToken, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not schedule meditation push notification: " + err.Error(),
@@ -366,11 +366,18 @@ func (t *Controller) Notify(token expo.ExponentPushToken, message string, title 
 	return nil
 }
 
-func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken) error {
+func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken, c *fiber.Ctx) error {
 
 	if req.PeriodNotifications == "Day" {
-		t.Notify(token, "Did you meditate today?", "It is time meditate!")
+		id, err := t.cron.AddFunc("0 8 * * *", func() { t.Notify(token, "Did you meditate today?", "It is time meditate!") })
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(id)
+		err = t.updatePluginSettings(&MeditationSettings{NotificationId: id}, c)
+		if err != nil {
+			return err
+		}
 	}
-
 	return nil
 }

@@ -11,7 +11,7 @@ import (
 	"cmd/http/main.go/internal/storage"
 	"cmd/http/main.go/internal/user"
 	"cmd/http/main.go/pkg/shutdown"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 
 	"fmt"
 	"os"
@@ -108,6 +108,7 @@ func buildServer(env config.EnvVars) (*fiber.App, func(), error) {
 
 	// create cron for notifications
 	c := cron.New()
+	c.Start()
 
 	// create the user domain
 	userStore := user.NewStorage(db)
