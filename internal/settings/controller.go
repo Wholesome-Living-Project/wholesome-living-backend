@@ -246,7 +246,7 @@ func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
 		})
 	}
 
-	err = t.AddMeditationNotificationInterval(req, pushToken, c)
+	err = t.AddMeditationNotificationInterval(req, pushToken, userId, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not schedule meditation push notification: " + err.Error(),
@@ -366,18 +366,55 @@ func (t *Controller) Notify(token expo.ExponentPushToken, message string, title 
 	return nil
 }
 
-func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken, c *fiber.Ctx) error {
+func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken, userId string, c *fiber.Ctx) error {
+
+	interval := ""
+	fmt.Println(req.AmountNotifications)
 
 	if req.PeriodNotifications == "Day" {
-		id, err := t.cron.AddFunc("0 8 * * *", func() { t.Notify(token, "Did you meditate today?", "It is time meditate!") })
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(id)
-		err = t.updatePluginSettings(&MeditationSettings{NotificationId: id}, c)
-		if err != nil {
-			return err
-		}
+		interval = fmt.Sprintf("0 8 */%d * *", req.AmountNotifications)
 	}
+
+	if req.PeriodNotifications == "Week" {
+		interval = fmt.Sprintf("0 8 */%d * *", req.AmountNotifications*7)
+	}
+	if req.PeriodNotifications == "Month" {
+		interval = fmt.Sprintf("0 8 */%d * *", req.AmountNotifications*30)
+	}
+
+	fmt.Println(interval)
+
+	settings, err := t.storage.Get(userId, "meditation", c.Context())
+	if err != nil {
+		return err
+	}
+
+	meditationSettings := settings.Meditation
+
+	currentId := meditationSettings.NotificationId
+
+	fmt.Println(currentId)
+	fmt.Println(t.cron.Entries())
+
+	// remove previous scheduled notification
+	t.cron.Remove(cron.EntryID(currentId))
+
+	fmt.Println(t.cron.Entries())
+
+	id, err := t.cron.AddFunc(interval, func() { t.Notify(token, "Did you meditate today?", "It is time meditate!") })
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(t.cron.Entries())
+
+	meditationSettings.NotificationId = int(id)
+
+	// update current notification id
+	t.storage.UpdatePluginSettings(meditationSettings, userId, c.Context())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
