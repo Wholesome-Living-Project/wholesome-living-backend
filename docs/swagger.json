@@ -1011,6 +1011,9 @@
                 "goal": {
                     "type": "integer"
                 },
+                "notificationId": {
+                    "type": "integer"
+                },
                 "notifications": {
                     "type": "boolean"
                 },
@@ -1029,6 +1032,9 @@
                     "type": "integer"
                 },
                 "investmentTimeGoal": {
+                    "type": "integer"
+                },
+                "notificationId": {
                     "type": "integer"
                 },
                 "notifications": {
@@ -1052,6 +1058,9 @@
                     "type": "integer"
                 },
                 "meditationTimeGoal": {
+                    "type": "integer"
+                },
+                "notificationId": {
                     "type": "integer"
                 },
                 "notifications": {

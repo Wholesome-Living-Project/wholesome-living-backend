@@ -117,6 +117,8 @@ definitions:
         type: integer
       goal:
         type: integer
+      notificationId:
+        type: integer
       notifications:
         type: boolean
       periodNotifications:
@@ -129,6 +131,8 @@ definitions:
       investmentGoal:
         type: integer
       investmentTimeGoal:
+        type: integer
+      notificationId:
         type: integer
       notifications:
         type: boolean
@@ -144,6 +148,8 @@ definitions:
       amountNotifications:
         type: integer
       meditationTimeGoal:
+        type: integer
+      notificationId:
         type: integer
       notifications:
         type: boolean

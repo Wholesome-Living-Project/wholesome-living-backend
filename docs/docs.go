@@ -1018,6 +1018,9 @@ const docTemplate = `{
                 "goal": {
                     "type": "integer"
                 },
+                "notificationId": {
+                    "type": "integer"
+                },
                 "notifications": {
                     "type": "boolean"
                 },
@@ -1036,6 +1039,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "investmentTimeGoal": {
+                    "type": "integer"
+                },
+                "notificationId": {
                     "type": "integer"
                 },
                 "notifications": {
@@ -1059,6 +1065,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "meditationTimeGoal": {
+                    "type": "integer"
+                },
+                "notificationId": {
                     "type": "integer"
                 },
                 "notifications": {
