@@ -3,14 +3,13 @@ package settings
 import (
 	"cmd/http/main.go/internal/user"
 	"fmt"
-	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
-	"github.com/robfig/cron/v3"
 	"reflect"
 
+	"github.com/gofiber/fiber/v2"
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
+	"github.com/robfig/cron/v3"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 type Controller struct {
@@ -56,7 +55,7 @@ type getPluginSettingResponse struct {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body CreateSettingsRequest true "onboarding to create"
 // @Success 200 {object} createOnboardingResponse
 // @Router /settings [post]
@@ -90,7 +89,7 @@ func (t *Controller) createOnboarding(c *fiber.Ctx) error {
 // @Summary Get plugin settings for a user.
 // @Description fetch plugin settings for a user.
 // @Tags settings
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param plugin query string false "Plugin name"
 // @Produce json
 // @Success 200 {object} getPluginSettingResponse
@@ -133,7 +132,7 @@ func (t *Controller) get(c *fiber.Ctx) error {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body FinanceSettings true "onboarding to create"
 // @Success 201
 // @Router /settings/finance [post]
@@ -146,7 +145,7 @@ func (t *Controller) createFinanceSettings(c *fiber.Ctx) error {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body ElevatorSettings true "onboarding to create"
 // @Success 201
 // @Router /settings/elevator [post]
@@ -159,7 +158,7 @@ func (t *Controller) createElevatorSettings(c *fiber.Ctx) error {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body MeditationSettings true "onboarding to create"
 // @Success 201
 // @Router /settings/meditation [post]
@@ -198,7 +197,7 @@ func (t *Controller) createPluginSettings(settingType SingleSetting, c *fiber.Ct
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body FinanceSettings true "onboarding to create"
 // @Success 200
 // @Router /settings/finance [put]
@@ -211,7 +210,7 @@ func (t *Controller) updateFinanceSettings(c *fiber.Ctx) error {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body MeditationSettings true "onboarding to create"
 // @Success 200
 // @Router /settings/meditation [put]
@@ -232,6 +231,7 @@ func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
 		return nil
 	}
 
+	fmt.Println(user.ExpoPushToken)
 	// To check the token is valid
 	pushToken, err := expo.NewExponentPushToken(user.ExpoPushToken)
 	if err != nil {
@@ -260,7 +260,7 @@ func (t *Controller) updateMeditationSettings(c *fiber.Ctx) error {
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param settings body ElevatorSettings true "onboarding to create"
 // @Success 200
 // @Router /settings/elevator [put]
@@ -303,7 +303,7 @@ func (t *Controller) updatePluginSettings(settingType SingleSetting, c *fiber.Ct
 // @Tags settings
 // @Accept */*
 // @Produce json
-// @param userId header string true "User ID"
+// @Param userId header string true "User ID"
 // @Param plugin query string false "Plugin name"
 // @Success 201
 // @Router /settings [delete]

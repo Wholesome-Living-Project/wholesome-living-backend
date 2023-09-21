@@ -2,8 +2,9 @@ package user
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"log"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type PluginName string
@@ -163,32 +164,15 @@ func (t *Controller) update(c *fiber.Ctx) error {
 	}
 
 	// Fetch the existing user from the database
-	user, err := t.storage.Get(userId, c.Context())
+	_, err := t.storage.Get(userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "User Does Not Exist",
 		})
 	}
 
-	// Update the user object with the new values
-	if req.FirstName != "" {
-		user.FirstName = req.FirstName
-	}
-	if req.LastName != "" {
-		user.LastName = req.LastName
-	}
-	if req.DateOfBirth != "" {
-		user.DateOfBirth = req.DateOfBirth
-	}
-	if req.Email != "" {
-		user.Email = req.Email
-	}
-	if req.OnboardingDone != user.OnboardingDone {
-		user.OnboardingDone = req.OnboardingDone
-	}
-
 	// Update the user in the database
-	result, err := t.storage.Update(user, c.Context())
+	result, err := t.storage.Update(req, userId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to update user",

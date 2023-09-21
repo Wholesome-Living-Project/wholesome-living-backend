@@ -91,25 +91,28 @@ func (s *Storage) GetAll(ctx context.Context) ([]UserDB, error) {
 	return users, nil
 }
 
-func (s *Storage) Update(user UserDB, ctx context.Context) (UserDB, error) {
+func (s *Storage) Update(req updateUserRequest, userId string, ctx context.Context) (UserDB, error) {
 	collection := s.db.Collection("users")
-	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": bson.M{"firstName": user.FirstName, "lastName": user.LastName, "dateOfBirth": user.DateOfBirth, "email": user.Email, "onboardingDone": user.OnboardingDone}}, nil)
+	result := collection.FindOneAndUpdate(ctx, bson.M{"_id": userId}, bson.M{
+		"$set": req}, nil)
+
+	userResult := UserDB{}
 
 	if result.Err() != nil {
-		return user, result.Err()
+		return userResult, result.Err()
 	}
 
-	result = collection.FindOne(ctx, bson.M{"_id": user.ID})
+	result = collection.FindOne(ctx, bson.M{"_id": userId})
 
 	if result.Err() != nil {
-		return user, result.Err()
+		return userResult, result.Err()
 	}
 
-	if err := result.Decode(&user); err != nil {
-		return user, err
+	if err := result.Decode(&userResult); err != nil {
+		return userResult, err
 	}
 
-	return user, nil
+	return userResult, nil
 
 }
 
