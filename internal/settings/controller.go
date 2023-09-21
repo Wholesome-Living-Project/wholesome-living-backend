@@ -369,7 +369,11 @@ func (t *Controller) Notify(token expo.ExponentPushToken, message string, title 
 func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, token expo.ExponentPushToken, userId string, c *fiber.Ctx) error {
 
 	interval := ""
-	fmt.Println(req.AmountNotifications)
+	fmt.Println("AmountNotifications:", req.AmountNotifications)
+
+	if req.AmountNotifications == 0 {
+		req.AmountNotifications = 1
+	}
 
 	if req.PeriodNotifications == "Day" {
 		interval = fmt.Sprintf("0 8 */%d * *", req.AmountNotifications)
@@ -382,7 +386,7 @@ func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, t
 		interval = fmt.Sprintf("0 8 */%d * *", req.AmountNotifications*30)
 	}
 
-	fmt.Println(interval)
+	fmt.Println("Interval:", interval)
 
 	settings, err := t.storage.Get(userId, "meditation", c.Context())
 	if err != nil {
@@ -393,20 +397,20 @@ func (t *Controller) AddMeditationNotificationInterval(req MeditationSettings, t
 
 	currentId := meditationSettings.NotificationId
 
-	fmt.Println(currentId)
-	fmt.Println(t.cron.Entries())
+	fmt.Println("CurrentId:", currentId)
+	fmt.Println("Cron Entries (I): ", t.cron.Entries())
 
 	// remove previous scheduled notification
 	t.cron.Remove(cron.EntryID(currentId))
 
-	fmt.Println(t.cron.Entries())
+	fmt.Println("Cron Entries (II): ", t.cron.Entries())
 
 	id, err := t.cron.AddFunc(interval, func() { t.Notify(token, "Did you meditate today?", "It is time meditate!") })
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(t.cron.Entries())
+	fmt.Println("Cron Entries (III): ", t.cron.Entries())
 
 	meditationSettings.NotificationId = int(id)
 

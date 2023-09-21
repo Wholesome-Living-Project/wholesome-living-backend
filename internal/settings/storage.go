@@ -187,7 +187,7 @@ func (s *Storage) Get(userId string, plugin string, ctx context.Context) (Settin
 	// Get certain plugin info
 	cursor := collection.FindOne(ctx, bson.M{"_id": userId, "enabledPlugins": pluginName})
 	if err := cursor.Err(); err != nil {
-		return settingsRecord, err
+		return settingsRecord, errors.New("please check if the plugin is enabled")
 	}
 
 	// Decode the record
